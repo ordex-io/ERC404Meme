@@ -1,5 +1,10 @@
 {
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
   "devDependencies": {
+    "@chainlink/contracts": "^0.8.0",
     "@nomicfoundation/hardhat-toolbox": "=5.0.0",
     "@solidstate/contracts": "=0.0.59",
     "ERC404": "github:Pandora-Labs-Org/erc404#ba960f67a2f3ba1fdd7fdee91e3d7d7c0ffcc0fe",
