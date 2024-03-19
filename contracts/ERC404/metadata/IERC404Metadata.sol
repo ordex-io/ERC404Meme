@@ -25,4 +25,10 @@ interface IERC404Metadata {
      * @dev Return units for ERC-20 representation
      */
     function units() external view returns (uint256);
+
+    /**
+     * @notice get generated URI for given token. tokenURI must be implemented by child contract
+     * @return token URI
+     */
+    function tokenURI(uint256 tokenId) external view returns (string memory);
 }
