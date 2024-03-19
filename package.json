@@ -1,8 +1,8 @@
 {
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@solidstate/contracts": "^0.0.59",
+    "@nomicfoundation/hardhat-toolbox": "=5.0.0",
+    "@solidstate/contracts": "=0.0.59",
     "ERC404": "github:Pandora-Labs-Org/erc404#ba960f67a2f3ba1fdd7fdee91e3d7d7c0ffcc0fe",
-    "hardhat": "^2.22.1"
+    "hardhat": "=2.22.1"
   }
 }
