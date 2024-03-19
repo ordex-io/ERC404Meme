@@ -4,9 +4,9 @@ pragma solidity ^0.8.24;
 import {ERC404BaseStorage} from "./ERC404BaseStorage.sol";
 
 /**
- * @title ERC404Metadata internal functions
+ * @title ERC404Base internal functions
  */
-abstract contract ERC404MetadataInternal {
+abstract contract ERC404BaseInternal {
     function _totalSupply() internal view virtual returns (uint256) {
         return ERC404BaseStorage.layout().totalSupply;
     }
