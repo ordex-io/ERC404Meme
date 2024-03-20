@@ -9,8 +9,6 @@ import {IERC404Base} from "./IERC404Base.sol";
  * @title ERC404Base
  */
 abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
-    constructor(uint256 a, bytes32 b) ERC404BaseInternal(a, b) {}
-
     /**
      * @inheritdoc IERC404Base
      */
