@@ -6,6 +6,7 @@ import {ERC404BaseStorage} from "./ERC404BaseStorage.sol";
 import {IERC404BaseErrors} from "./IERC404BaseErrors.sol";
 import {IERC404} from "../IERC404.sol";
 
+// TODO: Use @solidstate contracts instead of openzeppelin
 import {IERC721Receiver} from "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 import {ERC20Events} from "ERC404/contracts/lib/ERC20Events.sol";
