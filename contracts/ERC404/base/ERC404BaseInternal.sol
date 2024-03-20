@@ -36,6 +36,14 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
     /// @dev Constant for token id encoding
     uint256 public constant ID_ENCODING_PREFIX = 1 << 255;
 
+    // TODO: _INITIAL_CHAIN_ID can be assigned at construction
+    // but _INITIAL_DOMAIN_SEPARATOR should be assigned with an initializator
+    constructor() {
+        // EIP-2612 initialization
+        _INITIAL_CHAIN_ID = block.chainid;
+        _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+    }
+
     function _totalSupply() internal view virtual returns (uint256) {
         return ERC404BaseStorage.layout().totalSupply;
     }
