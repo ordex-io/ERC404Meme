@@ -4,22 +4,11 @@ pragma solidity ^0.8.24;
 
 import {ERC404BaseInternal} from "./ERC404BaseInternal.sol";
 import {IERC404Base} from "./IERC404Base.sol";
-import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
-import {ERC20Events} from "ERC404/contracts/lib/ERC20Events.sol";
 
 /**
  * @title ERC404Base
  */
 abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
-    /// @dev Address bitmask for packed ownership data
-    uint256 private constant _BITMASK_ADDRESS = (1 << 160) - 1;
-
-    /// @dev Owned index bitmask for packed ownership data
-    uint256 private constant _BITMASK_OWNED_INDEX = ((1 << 96) - 1) << 160;
-
-    /// @dev Constant for token id encoding
-    uint256 public constant ID_ENCODING_PREFIX = 1 << 255;
-
     /**
      * @inheritdoc IERC404Base
      */
@@ -30,14 +19,7 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
     /**
      * @inheritdoc IERC404Base
      */
-    function erc20TotalSupply() public view returns (uint256) {
-        return _totalSupply();
-    }
-
-    /**
-     * @inheritdoc IERC404Base
-     */
-    function erc721TotalSupply() public view returns (uint256) {
+    function minted() public view returns (uint256) {
         return _minted();
     }
 
@@ -46,37 +28,6 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
      */
     function balanceOf(address owner_) public view returns (uint256) {
         return _balanceOf(owner_);
-    }
-
-    /**
-     * @inheritdoc IERC404Base
-     */
-    function erc20BalanceOf(address owner_) public view returns (uint256) {
-        return _balanceOf(owner_);
-    }
-
-    /**
-     * @inheritdoc IERC404Base
-     */
-    function erc721BalanceOf(address owner_) public view returns (uint256) {
-        return _owned(owner_).length;
-    }
-
-    /**
-     * @inheritdoc IERC404Base
-     */
-    function erc721TransferExempt(address target_) public view returns (bool) {
-        return target_ == address(0) || _erc721TransferExempt(target_);
-    }
-
-    /**
-     * @inheritdoc IERC404Base
-     */
-    function isApprovedForAll(
-        address owner_,
-        address operator_
-    ) public view returns (bool) {
-        return _isApprovedForAll(owner_, operator_);
     }
 
     /**
@@ -92,6 +43,37 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
     /**
      * @inheritdoc IERC404Base
      */
+    function getApproved(uint256 id_) public view returns (address) {
+        return _getApproved(id_);
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function isApprovedForAll(
+        address owner_,
+        address operator_
+    ) public view returns (bool) {
+        return _isApprovedForAll(owner_, operator_);
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function nonces(address owner_) public view returns (uint256) {
+        return _nonces(owner_);
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function ownerOf(uint256 id_) public view returns (address erc721Owner) {
+        return _ownerOf(id_);
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
     function owned(address owner_) public view returns (uint256[] memory) {
         return _owned(owner_);
     }
@@ -99,17 +81,50 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
     /**
      * @inheritdoc IERC404Base
      */
-    function ownerOf(uint256 id_) public view returns (address erc721Owner) {
-        erc721Owner = _getOwnerOf(id_);
-
-        if (!_isValidTokenId(id_)) {
-            revert InvalidTokenId();
-        }
-
-        if (erc721Owner == address(0)) {
-            revert NotFound();
-        }
+    function erc721BalanceOf(address owner_) public view returns (uint256) {
+        return _erc721BalanceOf(owner_);
     }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function erc20BalanceOf(address owner_) public view returns (uint256) {
+        return _erc20BalanceOf(owner_);
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function erc20TotalSupply() public view returns (uint256) {
+        return _erc20TotalSupply();
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function erc721TotalSupply() public view returns (uint256) {
+        return _erc721TotalSupply();
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function getERC721QueueLength() public view virtual returns (uint256) {
+        return _getERC721QueueLength();
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function getERC721TokensInQueue(
+        uint256 start_,
+        uint256 count_
+    ) public view virtual returns (uint256[] memory) {
+        return _getERC721TokensInQueue(start_, count_);
+    }
+
+    /// @notice tokenURI must be implemented by child contract
+    function tokenURI(uint256 id_) public view virtual returns (string memory);
 
     /**
      * @inheritdoc IERC404Base
@@ -118,32 +133,14 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
         address spender_,
         uint256 valueOrId_
     ) public returns (bool) {
-        if (_isValidTokenId(valueOrId_)) {
-            erc721Approve(spender_, valueOrId_);
-        } else {
-            return erc20Approve(spender_, valueOrId_);
-        }
-
-        return true;
+        return _approve(spender_, valueOrId_);
     }
 
     /**
      * @inheritdoc IERC404Base
      */
     function erc721Approve(address spender_, uint256 id_) public virtual {
-        // Intention is to approve as ERC-721 token (id).
-        address erc721Owner = _getOwnerOf(id_);
-
-        if (
-            msg.sender != erc721Owner &&
-            !_isApprovedForAll(erc721Owner, msg.sender)
-        ) {
-            revert Unauthorized();
-        }
-
-        _setGetApproved(id_, spender_);
-
-        emit ERC721Events.Approval(erc721Owner, spender_, id_);
+        _erc721Approve(spender_, id_);
     }
 
     /**
@@ -153,16 +150,7 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
         address spender_,
         uint256 value_
     ) public virtual returns (bool) {
-        // Prevent granting 0x0 an ERC-20 allowance.
-        if (spender_ == address(0)) {
-            revert InvalidSpender();
-        }
-
-        _setAllowance(msg.sender, spender_, value_);
-
-        emit ERC20Events.Approval(msg.sender, spender_, value_);
-
-        return true;
+        return _erc20Approve(spender_, value_);
     }
 
     /**
@@ -172,28 +160,101 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
         address operator_,
         bool approved_
     ) public virtual {
-        // Prevent approvals to 0x0.
-        if (operator_ == address(0)) {
-            revert InvalidOperator();
-        }
-        _setIsApprovedForAll(msg.sender, operator_, approved_);
-        emit ERC721Events.ApprovalForAll(msg.sender, operator_, approved_);
+        _setApprovalForAll(operator_, approved_);
     }
 
-    /// @notice For a token token id to be considered valid, it just needs
-    ///         to fall within the range of possible token ids, it does not
-    ///         necessarily have to be minted yet.
-    function _isValidTokenId(uint256 id_) internal pure returns (bool) {
-        return id_ > ID_ENCODING_PREFIX && id_ != type(uint256).max;
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function transferFrom(
+        address from_,
+        address to_,
+        uint256 valueOrId_
+    ) public virtual returns (bool) {
+        return _transferFrom(from_, to_, valueOrId_);
     }
 
-    function _getOwnerOf(
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function erc721TransferFrom(
+        address from_,
+        address to_,
         uint256 id_
-    ) internal view virtual returns (address ownerOf_) {
-        uint256 data = _ownedData(id_);
+    ) public virtual {
+        _erc721TransferFrom(from_, to_, id_);
+    }
 
-        assembly {
-            ownerOf_ := and(data, _BITMASK_ADDRESS)
-        }
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function erc20TransferFrom(
+        address from_,
+        address to_,
+        uint256 value_
+    ) public virtual returns (bool) {
+        return _erc20TransferFrom(from_, to_, value_);
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function transfer(address to_, uint256 value_) public returns (bool) {
+        return _transfer(to_, value_);
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function safeTransferFrom(
+        address from_,
+        address to_,
+        uint256 id_
+    ) public virtual {
+        _safeTransferFrom(from_, to_, id_, "");
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function safeTransferFrom(
+        address from_,
+        address to_,
+        uint256 id_,
+        bytes memory data_
+    ) public virtual {
+        _safeTransferFrom(from_, to_, id_, data_);
+    }
+
+    /////////////////
+
+    function permit(
+        address owner_,
+        address spender_,
+        uint256 value_,
+        uint256 deadline_,
+        uint8 v_,
+        bytes32 r_,
+        bytes32 s_
+    ) public virtual;
+
+    function DOMAIN_SEPARATOR() public view virtual returns (bytes32);
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual returns (bool);
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function setSelfERC721TransferExempt(bool state_) public virtual {
+        _setERC721TransferExempt(msg.sender, state_);
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function erc721TransferExempt(address target_) public view returns (bool) {
+        return _erc721TransferExempt(target_);
     }
 }
