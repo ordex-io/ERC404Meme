@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {DoubleEndedQueue} from "ERC404/contracts/lib/DoubleEndedQueue.sol";
+
 library ERC404BaseStorage {
     struct Layout {
         // TODO: Make as Public access
@@ -23,6 +25,8 @@ library ERC404BaseStorage {
         mapping(address => uint256[]) _owned;
         // TODO: Make as Internal access
         mapping(address => bool) _erc721TransferExempt;
+        // Private
+        DoubleEndedQueue.Uint256Deque _storedERC721Ids;
     }
 
     bytes32 internal constant STORAGE_SLOT =
