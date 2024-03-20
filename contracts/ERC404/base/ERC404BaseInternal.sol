@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IERC721Receiver} from "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
+import {ERC404MetadataStorage} from "../metadata/ERC404MetadataStorage.sol";
 import {ERC404BaseStorage} from "./ERC404BaseStorage.sol";
 import {IERC404BaseErrors} from "./IERC404BaseErrors.sol";
-import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
+import {IERC404} from "../IERC404.sol";
+
+import {IERC721Receiver} from "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
+import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 import {ERC20Events} from "ERC404/contracts/lib/ERC20Events.sol";
+import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
 import {DoubleEndedQueue} from "ERC404/contracts/lib/DoubleEndedQueue.sol";
 
 /**
@@ -14,12 +18,13 @@ import {DoubleEndedQueue} from "ERC404/contracts/lib/DoubleEndedQueue.sol";
 abstract contract ERC404BaseInternal is IERC404BaseErrors {
     using DoubleEndedQueue for DoubleEndedQueue.Uint256Deque;
 
-    // TODO: Make the inmutables to their own storages with an initializer (?)
-    /// @dev Decimals for ERC-20 representation
-    uint8 public immutable decimals;
+    // TODO: They are immutable, does not need a slot in memory, but they are
+    // assignable at construction
+    /// @dev Initial chain id for EIP-2612 support
+    uint256 internal immutable _INITIAL_CHAIN_ID;
 
-    /// @dev Units for ERC-20 representation
-    uint256 public immutable units;
+    /// @dev Initial domain separator for EIP-2612 support
+    bytes32 internal immutable _INITIAL_DOMAIN_SEPARATOR;
 
     /// @dev Address bitmask for packed ownership data
     uint256 private constant _BITMASK_ADDRESS = (1 << 160) - 1;
@@ -29,6 +34,12 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
 
     /// @dev Constant for token id encoding
     uint256 public constant ID_ENCODING_PREFIX = 1 << 255;
+
+    // TODO: Remove constructor and use state
+    constructor(uint256 a, bytes32 b) {
+        _INITIAL_CHAIN_ID = a;
+        _INITIAL_DOMAIN_SEPARATOR = b;
+    }
 
     function _totalSupply() internal view virtual returns (uint256) {
         return ERC404BaseStorage.layout().totalSupply;
@@ -244,7 +255,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
 
         // Transfer 1 * units ERC-20 and 1 ERC-721 token.
         // ERC-721 transfer exemptions handled above. Can't make it to this point if either is transfer exempt.
-        _transferERC20(from_, to_, units);
+        _transferERC20(from_, to_, ERC404MetadataStorage.layout().units);
         _transferERC721(from_, to_, id_);
     }
 
@@ -362,8 +373,10 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
             //         to transfer ERC-721s from the sender, but the recipient should receive ERC-721s
             //         from the bank/minted for any whole number increase in their balance.
             // Only cares about whole number increments.
-            uint256 tokensToRetrieveOrMint = (_balanceOf(to_) / units) -
-                (erc20BalanceOfReceiverBefore / units);
+            uint256 tokensToRetrieveOrMint = (_balanceOf(to_) /
+                ERC404MetadataStorage.layout().units) -
+                (erc20BalanceOfReceiverBefore /
+                    ERC404MetadataStorage.layout().units);
             for (uint256 i = 0; i < tokensToRetrieveOrMint; ) {
                 _retrieveOrMintERC721(to_);
                 unchecked {
@@ -376,7 +389,8 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
             //         receive ERC-721s from the bank/minted.
             // Only cares about whole number increments.
             uint256 tokensToWithdrawAndStore = (erc20BalanceOfSenderBefore /
-                units) - (_balanceOf(from_) / units);
+                ERC404MetadataStorage.layout().units) -
+                (_balanceOf(from_) / ERC404MetadataStorage.layout().units);
             for (uint256 i = 0; i < tokensToWithdrawAndStore; ) {
                 _withdrawAndStoreERC721(from_);
                 unchecked {
@@ -395,7 +409,8 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
             // to the recevier.
 
             // Whole tokens worth of ERC-20s get transferred as ERC-721s without any burning/minting.
-            uint256 nftsToTransfer = value_ / units;
+            uint256 nftsToTransfer = value_ /
+                ERC404MetadataStorage.layout().units;
             for (uint256 i = 0; i < nftsToTransfer; ) {
                 // Pop from sender's ERC-721 stack and transfer them (LIFO)
                 uint256 indexOfLastToken = _owned(from_).length - 1;
@@ -420,9 +435,9 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
             // then no ERC-721s will be lost here.
             if (
                 erc20BalanceOfSenderBefore /
-                    units -
+                    ERC404MetadataStorage.layout().units -
                     _erc20BalanceOf(from_) /
-                    units >
+                    ERC404MetadataStorage.layout().units >
                 nftsToTransfer
             ) {
                 _withdrawAndStoreERC721(from_);
@@ -438,9 +453,9 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
             // Again, for self-sends where the before and after balances are equal, no ERC-721s will be gained here.
             if (
                 _erc20BalanceOf(to_) /
-                    units -
+                    ERC404MetadataStorage.layout().units -
                     erc20BalanceOfReceiverBefore /
-                    units >
+                    ERC404MetadataStorage.layout().units >
                 nftsToTransfer
             ) {
                 _retrieveOrMintERC721(to_);
@@ -450,7 +465,80 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
         return true;
     }
 
-    ////////////////
+    function _permit(
+        address owner_,
+        address spender_,
+        uint256 value_,
+        uint256 deadline_,
+        uint8 v_,
+        bytes32 r_,
+        bytes32 s_
+    ) internal virtual {
+        if (deadline_ < block.timestamp) {
+            revert PermitDeadlineExpired();
+        }
+
+        // permit cannot be used for ERC-721 token approvals, so ensure
+        // the value does not fall within the valid range of ERC-721 token ids.
+        if (_isValidTokenId(value_)) {
+            revert InvalidApproval();
+        }
+
+        if (spender_ == address(0)) {
+            revert InvalidSpender();
+        }
+
+        unchecked {
+            address recoveredAddress = ecrecover(
+                keccak256(
+                    abi.encodePacked(
+                        "\x19\x01",
+                        _DOMAIN_SEPARATOR(),
+                        keccak256(
+                            abi.encode(
+                                keccak256(
+                                    "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+                                ),
+                                owner_,
+                                spender_,
+                                value_,
+                                ERC404BaseStorage.layout().nonces[owner_]++,
+                                deadline_
+                            )
+                        )
+                    )
+                ),
+                v_,
+                r_,
+                s_
+            );
+
+            if (recoveredAddress == address(0) || recoveredAddress != owner_) {
+                revert InvalidSigner();
+            }
+
+            ERC404BaseStorage.layout().allowance[recoveredAddress][
+                spender_
+            ] = value_;
+        }
+
+        emit ERC20Events.Approval(owner_, spender_, value_);
+    }
+
+    function _DOMAIN_SEPARATOR() internal view virtual returns (bytes32) {
+        return
+            block.chainid == _INITIAL_CHAIN_ID
+                ? _INITIAL_DOMAIN_SEPARATOR
+                : _computeDomainSeparator();
+    }
+
+    function _supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual returns (bool) {
+        return
+            interfaceId == type(IERC404).interfaceId ||
+            interfaceId == type(IERC165).interfaceId;
+    }
 
     /// @notice For a token token id to be considered valid, it just needs
     ///         to fall within the range of possible token ids, it does not
@@ -536,6 +624,22 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
         }
 
         emit ERC721Events.Transfer(from_, to_, id_);
+    }
+
+    /// @notice Internal function to compute domain separator for EIP-2612 permits
+    function _computeDomainSeparator() internal view virtual returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes(ERC404MetadataStorage.layout().name)),
+                    keccak256("1"),
+                    block.chainid,
+                    address(this)
+                )
+            );
     }
 
     function _retrieveOrMintERC721(address to_) internal virtual {
@@ -653,7 +757,8 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
     }
 
     function _reinstateERC721Balance(address target_) private {
-        uint256 expectedERC721Balance = _erc20BalanceOf(target_) / units;
+        uint256 expectedERC721Balance = _erc20BalanceOf(target_) /
+            ERC404MetadataStorage.layout().units;
         uint256 actualERC721Balance = _erc721BalanceOf(target_);
 
         for (uint256 i = 0; i < expectedERC721Balance - actualERC721Balance; ) {

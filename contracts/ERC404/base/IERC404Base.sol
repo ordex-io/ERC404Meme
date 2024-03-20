@@ -94,9 +94,6 @@ interface IERC404Base {
      */
     function ownerOf(uint256 id_) external view returns (address erc721Owner);
 
-    /// @notice tokenURI must be implemented by child contract
-    function tokenURI(uint256 id_) external view returns (string memory);
-
     /**
      * @notice Function for token approvals
      * @dev This function assumes the operator is attempting to approve
@@ -194,4 +191,25 @@ interface IERC404Base {
         uint256 id_,
         bytes calldata data_
     ) external;
+
+    /**
+     * @notice Function for EIP-2612 permits (ERC-20 only).
+     * @dev Providing type(uint256).max for permit value results in an
+     * unlimited approval that is not deducted from on transfers.
+     */
+    function permit(
+        address owner_,
+        address spender_,
+        uint256 value_,
+        uint256 deadline_,
+        uint8 v_,
+        bytes32 r_,
+        bytes32 s_
+    ) external;
+
+    /**
+     * @notice Returns domain initial domain separator, or recomputes if chain id
+     * is not equal to initial chain id
+     */
+    function DOMAIN_SEPARATOR() external view returns (bytes32);
 }

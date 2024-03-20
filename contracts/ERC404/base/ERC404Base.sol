@@ -9,6 +9,8 @@ import {IERC404Base} from "./IERC404Base.sol";
  * @title ERC404Base
  */
 abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
+    constructor(uint256 a, bytes32 b) ERC404BaseInternal(a, b) {}
+
     /**
      * @inheritdoc IERC404Base
      */
@@ -123,9 +125,6 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
         return _getERC721TokensInQueue(start_, count_);
     }
 
-    /// @notice tokenURI must be implemented by child contract
-    function tokenURI(uint256 id_) public view virtual returns (string memory);
-
     /**
      * @inheritdoc IERC404Base
      */
@@ -226,8 +225,9 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
         _safeTransferFrom(from_, to_, id_, data_);
     }
 
-    /////////////////
-
+    /**
+     * @inheritdoc IERC404Base
+     */
     function permit(
         address owner_,
         address spender_,
@@ -236,13 +236,19 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
         uint8 v_,
         bytes32 r_,
         bytes32 s_
-    ) public virtual;
+    ) public virtual {
+        _permit(owner_, spender_, value_, deadline_, v_, r_, s_);
+    }
 
-    function DOMAIN_SEPARATOR() public view virtual returns (bytes32);
+    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
+        return _DOMAIN_SEPARATOR();
+    }
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual returns (bool);
+    ) public view virtual returns (bool) {
+        return _supportsInterface(interfaceId);
+    }
 
     /**
      * @inheritdoc IERC404Base
