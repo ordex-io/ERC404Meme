@@ -63,6 +63,16 @@ abstract contract ERC404BaseInternal {
         ERC404BaseStorage.layout().allowance[owner_][spender_] = value_;
     }
 
+    function _setIsApprovedForAll(
+        address owner_,
+        address operator_,
+        bool approved_
+    ) internal {
+        ERC404BaseStorage.layout().isApprovedForAll[owner_][
+            operator_
+        ] = approved_;
+    }
+
     function _setGetApproved(uint256 id_, address spender_) internal {
         ERC404BaseStorage.layout().getApproved[id_] = spender_;
     }

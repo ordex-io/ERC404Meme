@@ -165,6 +165,21 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
         return true;
     }
 
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function setApprovalForAll(
+        address operator_,
+        bool approved_
+    ) public virtual {
+        // Prevent approvals to 0x0.
+        if (operator_ == address(0)) {
+            revert InvalidOperator();
+        }
+        _setIsApprovedForAll(msg.sender, operator_, approved_);
+        emit ERC721Events.ApprovalForAll(msg.sender, operator_, approved_);
+    }
+
     /// @notice For a token token id to be considered valid, it just needs
     ///         to fall within the range of possible token ids, it does not
     ///         necessarily have to be minted yet.
