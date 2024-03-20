@@ -5,30 +5,26 @@ pragma solidity ^0.8.24;
  * @dev ERC404 base interface
  */
 interface IERC404Base {
-    error NotFound();
-    error InvalidTokenId();
-    error AlreadyExists();
-    error InvalidRecipient();
-    error InvalidSender();
-    error InvalidSpender();
-    error InvalidOperator();
-    error UnsafeRecipient();
-    error RecipientIsERC721TransferExempt();
-    error Unauthorized();
-    error InsufficientAllowance();
-    error DecimalsTooLow();
-    error PermitDeadlineExpired();
-    error InvalidSigner();
-    error InvalidApproval();
-    error OwnedIndexOverflow();
-    error MintLimitReached();
-    error InvalidExemption();
-    
-
     /**
      * @dev Returns the total supply in ERC-20 representation
      */
     function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Current mint counter which also represents the highest minted id, monotonically
+     * increasing to ensure accurate ownership
+     */
+    function minted() external view returns (uint256);
+
+    /**
+     * @dev Approval in ERC-721 representaion
+     */
+    function getApproved(uint256 id_) external view returns (address);
+
+    /**
+     * @dev EIP-2612 nonces
+     */
+    function nonces(address owner_) external view returns (uint256);
 
     /**
      * @dev Returns the total supply in ERC-20 representation
@@ -58,9 +54,17 @@ interface IERC404Base {
     /**
      * @dev Function to check if address is transfer exempt
      */
-    function erc721TransferExempt(
-        address target_
-    ) external view returns (bool);
+    function erc721TransferExempt(address target_) external view returns (bool);
+
+    /**
+     * @dev Length of the queue of ERC-721 tokens stored in the contract
+     */
+    function getERC721QueueLength() external view returns (uint256);
+
+    function getERC721TokensInQueue(
+        uint256 start_,
+        uint256 count_
+    ) external view returns (uint256[] memory);
 
     /**
      * @dev Approval for all in ERC-721 representation
@@ -89,6 +93,9 @@ interface IERC404Base {
      * @dev Function to find owner of a given ERC-721 token
      */
     function ownerOf(uint256 id_) external view returns (address erc721Owner);
+
+    /// @notice tokenURI must be implemented by child contract
+    function tokenURI(uint256 id_) external view returns (string memory);
 
     /**
      * @notice Function for token approvals
@@ -162,7 +169,7 @@ interface IERC404Base {
      * given this function is only supported on the ERC-20 interface.
      * Treats even large amounts that are valid ERC-721 ids as ERC-20s.
      */
-    function transfer(address to_, uint256 amount_) external returns (bool);
+    function transfer(address to_, uint256 value_) external returns (bool);
 
     /**
      * @notice Function to check if address is transfer exempt
