@@ -59,7 +59,7 @@ interface IERC404Base {
      * @dev Function to check if address is transfer exempt
      */
     function erc721TransferExempt(
-        address account_
+        address target_
     ) external view returns (bool);
 
     /**

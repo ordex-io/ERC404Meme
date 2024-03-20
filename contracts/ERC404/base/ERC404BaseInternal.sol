@@ -54,4 +54,16 @@ abstract contract ERC404BaseInternal {
     ) internal view returns (bool) {
         return ERC404BaseStorage.layout()._erc721TransferExempt[target_];
     }
+
+    function _setAllowance(
+        address owner_,
+        address spender_,
+        uint256 value_
+    ) internal {
+        ERC404BaseStorage.layout().allowance[owner_][spender_] = value_;
+    }
+
+    function _setGetApproved(uint256 id_, address spender_) internal {
+        ERC404BaseStorage.layout().getApproved[id_] = spender_;
+    }
 }
