@@ -386,6 +386,8 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
         } else {
             _reinstateERC721Balance(target_);
         }
+
+        ERC404BaseStorage.layout()._erc721TransferExempt[target_] = state_;
     }
 
     function _transferERC20WithERC721(
