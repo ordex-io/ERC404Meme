@@ -6,6 +6,32 @@ pragma solidity ^0.8.24;
  */
 interface IERC404Base {
     /**
+     * @dev Returns the name of the token.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the symbol of the token.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the decimals places of the token.
+     */
+    function decimals() external view returns (uint8);
+
+    /**
+     * @dev Return units for ERC-20 representation
+     */
+    function units() external view returns (uint256);
+
+    /**
+     * @notice get generated URI for given token. tokenURI must be implemented by child contract
+     * @return token URI
+     */
+    function tokenURI(uint256 tokenId) external view returns (string memory);
+
+    /**
      * @dev Returns the total supply in ERC-20 representation
      */
     function totalSupply() external view returns (uint256);

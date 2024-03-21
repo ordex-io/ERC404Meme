@@ -12,6 +12,34 @@ abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
     /**
      * @inheritdoc IERC404Base
      */
+    function name() external view returns (string memory) {
+        return _name();
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function symbol() external view returns (string memory) {
+        return _symbol();
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function decimals() external view returns (uint8) {
+        return _decimals();
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
+    function units() external view returns (uint256) {
+        return _units();
+    }
+
+    /**
+     * @inheritdoc IERC404Base
+     */
     function totalSupply() public view returns (uint256) {
         return _totalSupply();
     }

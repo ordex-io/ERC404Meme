@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {ERC404MetadataStorage} from "../metadata/ERC404MetadataStorage.sol";
+import {ERC404MetadataStorage} from "./ERC404MetadataStorage.sol";
 import {ERC404BaseStorage} from "./ERC404BaseStorage.sol";
 import {IERC404BaseErrors} from "./IERC404BaseErrors.sol";
 import {IERC404} from "../IERC404.sol";
@@ -42,6 +42,38 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
         // EIP-2612 initialization
         _INITIAL_CHAIN_ID = block.chainid;
         _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+    }
+
+    /**
+     * @notice return token name
+     * @return token name
+     */
+    function _name() internal view virtual returns (string memory) {
+        return ERC404MetadataStorage.layout().name;
+    }
+
+    /**
+     * @notice return token symbol
+     * @return token symbol
+     */
+    function _symbol() internal view virtual returns (string memory) {
+        return ERC404MetadataStorage.layout().symbol;
+    }
+
+    /**
+     * @notice return token decimals, generally used only for display purposes
+     * @return token decimals
+     */
+    function _decimals() internal view virtual returns (uint8) {
+        return ERC404MetadataStorage.layout().decimals;
+    }
+
+    /**
+     * @notice return units for ERC-20 representation
+     * @return units for ERC-20 representation
+     */
+    function _units() internal view virtual returns (uint256) {
+        return ERC404MetadataStorage.layout().units;
     }
 
     function _totalSupply() internal view virtual returns (uint256) {
