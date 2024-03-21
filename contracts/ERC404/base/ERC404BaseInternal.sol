@@ -5,7 +5,7 @@ import {ERC404MetadataStorage} from "./ERC404MetadataStorage.sol";
 import {ERC404BaseStorage} from "./ERC404BaseStorage.sol";
 import {IERC404BaseErrors} from "./IERC404BaseErrors.sol";
 import {IERC404} from "../IERC404.sol";
-import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC721Receiver} from "@solidstate/contracts/interfaces/IERC721Receiver.sol";
 import {IERC165} from "@solidstate/contracts/interfaces/IERC165.sol";
 import {ERC20Events} from "ERC404/contracts/lib/ERC20Events.sol";
@@ -27,11 +27,11 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
     /// @dev Constant for token id encoding
     uint256 public constant ID_ENCODING_PREFIX = 1 << 255;
 
-    function _initialize(
+    function __ERC404Base_init(
         string memory name_,
         string memory symbol_,
         uint8 decimals_
-    ) internal initializer {
+    ) internal onlyInitializing {
         ERC404MetadataStorage.layout().name = name_;
         ERC404MetadataStorage.layout().symbol = symbol_;
 
