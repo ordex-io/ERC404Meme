@@ -5,6 +5,7 @@ import {ERC404MetadataStorage} from "./ERC404MetadataStorage.sol";
 import {ERC404BaseStorage} from "./ERC404BaseStorage.sol";
 import {IERC404BaseErrors} from "./IERC404BaseErrors.sol";
 import {IERC404} from "../IERC404.sol";
+import "@solidstate/contracts/security/initializable/Initializable.sol";
 
 // TODO: Use @solidstate contracts instead of openzeppelin
 import {IERC721Receiver} from "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
@@ -16,16 +17,8 @@ import {DoubleEndedQueue} from "ERC404/contracts/lib/DoubleEndedQueue.sol";
 /**
  * @title ERC404Base internal functions
  */
-abstract contract ERC404BaseInternal is IERC404BaseErrors {
+abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
     using DoubleEndedQueue for DoubleEndedQueue.Uint256Deque;
-
-    // TODO: They are immutable, does not need a slot in memory, but they are
-    // assignable at construction
-    /// @dev Initial chain id for EIP-2612 support
-    uint256 internal immutable _INITIAL_CHAIN_ID;
-
-    /// @dev Initial domain separator for EIP-2612 support
-    bytes32 internal immutable _INITIAL_DOMAIN_SEPARATOR;
 
     /// @dev Address bitmask for packed ownership data
     uint256 private constant _BITMASK_ADDRESS = (1 << 160) - 1;
@@ -36,12 +29,26 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
     /// @dev Constant for token id encoding
     uint256 public constant ID_ENCODING_PREFIX = 1 << 255;
 
-    // TODO: _INITIAL_CHAIN_ID can be assigned at construction
-    // but _INITIAL_DOMAIN_SEPARATOR should be assigned with an initializator
-    constructor() {
+    function _initialize(
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_
+    ) internal initializer {
+        ERC404MetadataStorage.layout().name = name_;
+        ERC404MetadataStorage.layout().symbol = symbol_;
+
+        if (decimals_ < 18) {
+            revert DecimalsTooLow();
+        }
+
+        ERC404MetadataStorage.layout().decimals = decimals_;
+        ERC404MetadataStorage.layout().units = 10 ** decimals_;
+
         // EIP-2612 initialization
-        _INITIAL_CHAIN_ID = block.chainid;
-        _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+        ERC404MetadataStorage.layout()._INITIAL_CHAIN_ID = block.chainid;
+        ERC404MetadataStorage
+            .layout()
+            ._INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /**
@@ -562,8 +569,8 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
 
     function _DOMAIN_SEPARATOR() internal view virtual returns (bytes32) {
         return
-            block.chainid == _INITIAL_CHAIN_ID
-                ? _INITIAL_DOMAIN_SEPARATOR
+            block.chainid == ERC404MetadataStorage.layout()._INITIAL_CHAIN_ID
+                ? ERC404MetadataStorage.layout()._INITIAL_DOMAIN_SEPARATOR
                 : _computeDomainSeparator();
     }
 
@@ -661,6 +668,28 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
         emit ERC721Events.Transfer(from_, to_, id_);
     }
 
+    /**
+     * @notice Internal function for ERC20 minting
+     * @dev This function will allow minting of new ERC20s.
+     * If mintCorrespondingERC721s_ is true, and the recipient is not ERC-721 exempt, it will
+     * also mint the corresponding ERC721s.
+     * Handles ERC-721 exemptions.
+     */
+    function _mintERC20(address to_, uint256 value_) internal virtual {
+        /// You cannot mint to the zero address (you can't mint and immediately burn in the same transfer).
+        if (to_ == address(0)) {
+            revert InvalidRecipient();
+        }
+
+        if (
+            ERC404BaseStorage.layout().totalSupply + value_ > ID_ENCODING_PREFIX
+        ) {
+            revert MintLimitReached();
+        }
+
+        _transferERC20WithERC721(address(0), to_, value_);
+    }
+
     /// @notice Internal function to compute domain separator for EIP-2612 permits
     function _computeDomainSeparator() internal view virtual returns (bytes32) {
         return
@@ -713,6 +742,11 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors {
         _transferERC721(erc721Owner, to_, id);
     }
 
+    /**
+     * @notice Internal function for ERC-721 deposits to bank (this contract).
+     * @dev This function will allow depositing of ERC-721s to the bank, which can be retrieved by future minters.
+     * Does not handle ERC-721 exemptions.
+     */
     function _withdrawAndStoreERC721(address from_) internal virtual {
         if (from_ == address(0)) {
             revert InvalidSender();

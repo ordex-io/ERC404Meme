@@ -9,6 +9,10 @@ import {IERC404Base} from "./IERC404Base.sol";
  * @title ERC404Base
  */
 abstract contract ERC404Base is IERC404Base, ERC404BaseInternal {
+    function initialize(string memory name_, string memory symbol_, uint8 decimals_) public initializer {
+        _initialize(name_, symbol_, decimals_);
+    }
+
     /**
      * @inheritdoc IERC404Base
      */
