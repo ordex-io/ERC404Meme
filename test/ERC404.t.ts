@@ -18,16 +18,18 @@ describe("ERC404", function () {
     const idPrefix =
       57896044618658097711785492504343953926634992332820282019728792003956564819968n
 
-    const contract = await factory.deploy(
+    const contract = await factory.deploy();
+
+    await contract.waitForDeployment();
+    const contractAddress = await contract.getAddress();
+    await contract.initialize(
       name,
       symbol,
       decimals,
       maxTotalSupplyERC721,
       initialOwner.address,
-      initialMintRecipient.address,
-    )
-    await contract.waitForDeployment()
-    const contractAddress = await contract.getAddress()
+      initialMintRecipient.address
+    );
 
     // Generate 10 random addresses for experiments.
     const randomAddresses = Array.from(
@@ -144,14 +146,10 @@ describe("ERC404", function () {
     const idPrefix =
       57896044618658097711785492504343953926634992332820282019728792003956564819968n
 
-    const contract = await factory.deploy(
-      name,
-      symbol,
-      decimals,
-      initialOwner.address,
-    )
-    await contract.waitForDeployment()
-    const contractAddress = await contract.getAddress()
+    const contract = await factory.deploy();
+    await contract.waitForDeployment();
+    const contractAddress = await contract.getAddress();
+    await contract.initialize(name, symbol, decimals, initialOwner.address);
 
     // Generate 10 random addresses for experiments.
     const randomAddresses = Array.from(
@@ -554,13 +552,13 @@ describe("ERC404", function () {
         .connect(f.signers[0])
         .mintERC20(f.signers[1].address, value)
 
-      const receipt = await mintTx.wait()
+      const receipt = await mintTx.wait();
 
       // Check for ERC721Transfer mint events (from 0x0 to the recipient)
       for (let i = 1n; i <= nftQty; i++) {
         expect(
           containsERC721TransferEvent(
-            receipt.logs,
+            receipt!.logs,
             ethers.ZeroAddress,
             f.signers[1].address,
             f.deployConfig.idPrefix + i,
@@ -623,7 +621,7 @@ describe("ERC404", function () {
       // Expect token id 10 to be transferred to the contract's address (popping the last NFT from the sender's stack)
       await expect(
         containsERC721TransferEvent(
-          (await fractionalTransferTx.wait()).logs,
+          (await fractionalTransferTx.wait())!.logs,
           f.signers[1].address,
           ethers.ZeroAddress,
           f.deployConfig.idPrefix + 10n,
@@ -949,6 +947,12 @@ describe("ERC404", function () {
       const f = await loadFixture(deployMinimalERC404WithERC20sAndERC721sMinted)
 
       const tokenId = 1n
+
+      // f.contract["safeTransferFrom(address,address,uint256)"](
+      //   f.signers[0].address,
+      //   f.signers[1].address,
+      //   f.deployConfig.idPrefix + tokenId,
+      // )
 
       // Transfer 1 token from the sender to the receiver
       await f.contract
@@ -2160,7 +2164,7 @@ describe("ERC404", function () {
 
         await expect(
           containsERC721ApprovalEvent(
-            (await erc721ApprovalTx.wait()).logs,
+            (await erc721ApprovalTx.wait())!.logs,
             f.signers[0].address,
             f.signers[1].address,
             f.deployConfig.idPrefix + 1n,
