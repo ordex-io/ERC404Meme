@@ -2,6 +2,11 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 
 const config: HardhatUserConfig = {
+  gasReporter: {
+    currency: "USD",
+    gasPrice: 21,
+    enabled: true,
+  },
   solidity: {
     compilers: [
       {
