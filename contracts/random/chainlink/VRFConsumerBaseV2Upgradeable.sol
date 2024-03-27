@@ -134,6 +134,10 @@ abstract contract VRFConsumerBaseV2Upgradeable is Initializable {
         fulfillRandomWords(requestId, randomWords);
     }
 
+    /**
+     * @dev The VRFCoordinatorV2 address stored
+     * @return A VRFCoordinatorV2Interface
+     */
     function _coordinator() internal view returns (VRFCoordinatorV2Interface) {
         return
             VRFCoordinatorV2Interface(
