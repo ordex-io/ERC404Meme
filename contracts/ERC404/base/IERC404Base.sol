@@ -127,6 +127,7 @@ interface IERC404Base {
      * Unlike setApprovalForAll, spender_ must be allowed to be 0x0 so
      * that approval can be revoked.
      */
+    // slither-disable-next-line erc721-interface # This is an ERC404 interface
     function approve(
         address spender_,
         uint256 valueOrId_
@@ -160,6 +161,7 @@ interface IERC404Base {
      * @dev This function assumes the operator is attempting to transfer an ERC-721
      * if valueOrId is a possible valid token id.
      */
+    // slither-disable-next-line erc721-interface # This is an ERC404 interface
     function transferFrom(
         address from_,
         address to_,
