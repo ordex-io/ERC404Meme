@@ -43,9 +43,9 @@ abstract contract RandomBaseInternal is VRFConsumerBaseV2Upgradeable {
     }
 
     function _getResponsesById(
-        uint256 _requestId
+        uint256 requestId_
     ) internal view returns (uint256[] memory) {
-        return RandomBaseStorage.layout().responsesById[_requestId];
+        return RandomBaseStorage.layout().responsesById[requestId_];
     }
 
     /**
