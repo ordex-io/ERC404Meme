@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {VRFConsumerBaseV2Upgradeable} from "../chainlink/VRFConsumerBaseV2Upgradeable.sol";
+import {VRFConsumerBaseV2Upgradeable, VRFCoordinatorV2Interface} from "../chainlink/VRFConsumerBaseV2Upgradeable.sol";
 import {RandomBaseStorage} from "./RandomBaseStorage.sol";
 
 abstract contract RandomBaseInternal is VRFConsumerBaseV2Upgradeable {
@@ -42,7 +42,13 @@ abstract contract RandomBaseInternal is VRFConsumerBaseV2Upgradeable {
         return RandomBaseStorage.layout().numWords;
     }
 
-
+    function _getCoordinator()
+        internal
+        view
+        returns (VRFCoordinatorV2Interface)
+    {
+        return _coordinator();
+    }
 
     /**
      * The ihnerit contract should store and handle the request ID

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {RandomBaseInternal} from "./RandomBaseInternal.sol";
+import {RandomBaseInternal, VRFCoordinatorV2Interface} from "./RandomBaseInternal.sol";
 
 abstract contract RandomBase is RandomBaseInternal {
     function getKeyHash() public view returns (bytes32) {
@@ -22,5 +22,13 @@ abstract contract RandomBase is RandomBaseInternal {
 
     function getNumWords() public view returns (uint32) {
         return _getNumWords();
+    }
+
+    function getVRFCoordinator()
+        public
+        view
+        returns (VRFCoordinatorV2Interface)
+    {
+        return _coordinator();
     }
 }
