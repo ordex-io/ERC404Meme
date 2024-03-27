@@ -42,11 +42,7 @@ abstract contract RandomBaseInternal is VRFConsumerBaseV2Upgradeable {
         return RandomBaseStorage.layout().numWords;
     }
 
-    function _getResponsesById(
-        uint256 requestId_
-    ) internal view returns (uint256[] memory) {
-        return RandomBaseStorage.layout().responsesById[requestId_];
-    }
+
 
     /**
      * The ihnerit contract should store and handle the request ID

@@ -8,7 +8,6 @@ library RandomBaseStorage {
         uint16 requestConfirmations;
         uint32 callbackGasLimit;
         uint32 numWords;
-        mapping(uint256 => uint256[]) responsesById;
     }
 
     bytes32 internal constant STORAGE_SLOT =

@@ -23,10 +23,4 @@ abstract contract RandomBase is RandomBaseInternal {
     function getNumWords() public view returns (uint32) {
         return _getNumWords();
     }
-
-    function getResponsesById(
-        uint256 _requestId_
-    ) public view returns (uint256[] memory) {
-        return _getResponsesById(_requestId_);
-    }
 }
