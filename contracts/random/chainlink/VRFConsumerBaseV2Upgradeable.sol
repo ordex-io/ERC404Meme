@@ -2,6 +2,8 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {VRFConsumerBaseV2Storage} from "./VRFConsumerBaseV2Storage.sol";
+import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 /** ****************************************************************************
  * @notice Interface for contracts using VRF randomness
@@ -29,15 +31,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * @dev USAGE
  *
  * @dev Calling contracts must inherit from VRFConsumerBase, and can
- * @dev initialize VRFConsumerBase's attributes in their constructor as
- * @dev shown:
- *
- * @dev   contract VRFConsumer {
- * @dev     constructor(<other arguments>, address _vrfCoordinator, address _link)
- * @dev       VRFConsumerBase(_vrfCoordinator) public {
- * @dev         <initialization with other arguments goes here>
- * @dev       }
- * @dev   }
+ * @dev initialize VRFConsumerBase's attributes in their initializer
  *
  * @dev The oracle will have given you an ID for the VRF keypair they have
  * @dev committed to (let's call it keyHash). Create subscription, fund it
@@ -98,12 +92,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  */
 abstract contract VRFConsumerBaseV2Upgradeable is Initializable {
     error OnlyCoordinatorCanFulfill(address have, address want);
-    address private vrfCoordinator;
 
     function __VRFConsumerBaseV2Upgradeable_init(
         address _vrfCoordinator
     ) internal onlyInitializing {
-        vrfCoordinator = _vrfCoordinator;
+        VRFConsumerBaseV2Storage.layout().vrfCoordinator = _vrfCoordinator;
     }
 
     /**
@@ -132,9 +125,19 @@ abstract contract VRFConsumerBaseV2Upgradeable is Initializable {
         uint256 requestId,
         uint256[] memory randomWords
     ) external {
-        if (msg.sender != vrfCoordinator) {
-            revert OnlyCoordinatorCanFulfill(msg.sender, vrfCoordinator);
+        if (msg.sender != VRFConsumerBaseV2Storage.layout().vrfCoordinator) {
+            revert OnlyCoordinatorCanFulfill(
+                msg.sender,
+                VRFConsumerBaseV2Storage.layout().vrfCoordinator
+            );
         }
         fulfillRandomWords(requestId, randomWords);
+    }
+
+    function _coordinator() internal view returns (VRFCoordinatorV2Interface) {
+        return
+            VRFCoordinatorV2Interface(
+                VRFConsumerBaseV2Storage.layout().vrfCoordinator
+            );
     }
 }
