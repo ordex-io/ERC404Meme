@@ -1,7 +1,13 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import "@openzeppelin/hardhat-upgrades";
 
 const config: HardhatUserConfig = {
+  gasReporter: {
+    currency: "USD",
+    gasPrice: 21,
+    enabled: false,
+  },
   solidity: {
     compilers: [
       {
