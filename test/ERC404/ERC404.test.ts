@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, network } from "hardhat";
 
-xdescribe("ERC404", function () {
+describe("ERC404", function () {
   async function deployERC404Example() {
     const signers = await ethers.getSigners();
     const factory = await ethers.getContractFactory("ERC404Example");
