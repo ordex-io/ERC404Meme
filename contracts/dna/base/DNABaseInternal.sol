@@ -24,4 +24,16 @@ abstract contract DNABaseInternal {
 
         DNABaseStorage.layout().dnaByIds[id_] = dna_;
     }
+
+    /**
+     * Calculate the DNA from the given values
+     */
+    function _toDNA(
+        uint256 id_,
+        uint256[] memory words_,
+        uint256 seed_
+    ) internal view virtual returns (bytes32) {
+        // TODO: Ask about what values will receive and how will be encoded
+        return keccak256(abi.encode(id_, words_, seed_));
+    }
 }
