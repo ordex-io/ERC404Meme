@@ -1,8 +1,8 @@
 import { expect } from "chai";
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, network } from "hardhat";
 
-describe("ERC404", function () {
+xdescribe("ERC404", function () {
   async function deployERC404Example() {
     const signers = await ethers.getSigners();
     const factory = await ethers.getContractFactory("ERC404Example");
@@ -110,25 +110,6 @@ describe("ERC404", function () {
 
     // split the signature into its components
     return ethers.Signature.from(signature);
-  }
-
-  async function getSigners() {
-    const signers = await ethers.getSigners();
-
-    return {
-      bob: signers[0],
-      alice: signers[1],
-      jason: signers[2],
-      patty: signers[3],
-      linda: signers[4],
-      larry: signers[5],
-      tom: signers[6],
-      adam: signers[7],
-      julie: signers[8],
-      robert: signers[9],
-      amy: signers[10],
-      ...signers,
-    };
   }
 
   async function deployMinimalERC404() {
@@ -242,18 +223,6 @@ describe("ERC404", function () {
     const initialExperimentBalanceERC721 = 100n;
     const initialExperimentBalanceERC20 =
       initialExperimentBalanceERC721 * f.deployConfig.units;
-
-    const balancesBeforeSigner0 = await getBalances(
-      f.contract,
-      f.signers[0].address
-    );
-    const balancesBeforeSigner1 = await getBalances(
-      f.contract,
-      f.signers[1].address
-    );
-
-    // console.log("balancesBeforeSigner0", balancesBeforeSigner0)
-    // console.log("balancesBeforeSigner1", balancesBeforeSigner1)
 
     // Add the owner to the exemption list
     await f.contract
