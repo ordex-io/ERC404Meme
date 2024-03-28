@@ -932,16 +932,10 @@ xdescribe("ERC404", function () {
 
       const tokenId = 1n;
 
-      // f.contract["safeTransferFrom(address,address,uint256)"](
-      //   f.signers[0].address,
-      //   f.signers[1].address,
-      //   f.deployConfig.idPrefix + tokenId,
-      // )
-
       // Transfer 1 token from the sender to the receiver
       await f.contract
         .connect(f.signers[0])
-        .safeTransferFrom(
+        ["safeTransferFrom(address,address,uint256)"](
           f.signers[0].address,
           f.signers[1].address,
           f.deployConfig.idPrefix + tokenId
@@ -961,7 +955,7 @@ xdescribe("ERC404", function () {
       await expect(
         f.contract
           .connect(f.signers[0])
-          .safeTransferFrom(
+          ["safeTransferFrom(address,address,uint256)"](
             f.signers[0].address,
             f.signers[1].address,
             f.deployConfig.idPrefix + 0n
@@ -979,7 +973,11 @@ xdescribe("ERC404", function () {
       await expect(
         f.contract
           .connect(f.signers[0])
-          .safeTransferFrom(f.signers[0].address, f.signers[1].address, tokenId)
+          ["safeTransferFrom(address,address,uint256)"](
+            f.signers[0].address,
+            f.signers[1].address,
+            tokenId
+          )
       ).to.be.revertedWithCustomError(f.contract, "InvalidTokenId");
     });
 
@@ -997,7 +995,7 @@ xdescribe("ERC404", function () {
           await expect(
             f.contract
               .connect(f.signers[0])
-              .safeTransferFrom(
+              ["safeTransferFrom(address,address,uint256)"](
                 f.signers[0].address,
                 await f2.mockValidERC721Receiver.getAddress(),
                 tokenId
@@ -1019,7 +1017,7 @@ xdescribe("ERC404", function () {
           await expect(
             f.contract
               .connect(f.signers[0])
-              .safeTransferFrom(
+              ["safeTransferFrom(address,address,uint256)"](
                 f.signers[0].address,
                 await f2.mockInvalidERC721Receiver.getAddress(),
                 tokenId
