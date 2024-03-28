@@ -5,6 +5,7 @@ import {VRFConsumerBaseV2Upgradeable, VRFCoordinatorV2Interface} from "../chainl
 import {RandomBaseStorage} from "./RandomBaseStorage.sol";
 
 abstract contract RandomBaseInternal is VRFConsumerBaseV2Upgradeable {
+    // TODO: Maybe some variables should be dynamic, depending on network
     function __RandomBase_init(
         address _vrfCoordinator,
         bytes32 _keyHash,
