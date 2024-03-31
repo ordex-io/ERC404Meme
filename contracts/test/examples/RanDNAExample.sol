@@ -5,7 +5,12 @@ import {DNA} from "../../dna/DNA.sol";
 import {Random} from "../../random/Random.sol";
 
 contract RanDNAExample is Random, DNA {
-    event TokenMint(uint256 id, uint256 currentRandomId, address owner);
+    event TokenMint(
+        uint256 id,
+        uint256 currentRandomId,
+        address owner,
+        uint256 mintTime
+    );
     event RandomRequested(uint256 requestId, uint256 randomId);
     event RandomFulfilled(uint256 requestId, uint256[] randomWords);
 
@@ -18,12 +23,12 @@ contract RanDNAExample is Random, DNA {
         uint256 printTime;
     }
 
-    mapping(uint256 => NFTDataStored) nftsData;
-    mapping(address => uint256) balances;
-    uint256 nftCounderId;
+    mapping(uint256 => NFTDataStored) public nftsData;
+    mapping(address => uint256) public balanceOf;
+    uint256 public nftCounderId;
 
-    mapping(uint256 => uint256[]) randomStored;
-    mapping(uint256 => uint256) randomPerRequest;
+    mapping(uint256 => uint256[]) public randomStored;
+    mapping(uint256 => uint256) public randomPerRequest;
     uint256 randomCounterId;
 
     function initialize(
@@ -45,14 +50,19 @@ contract RanDNAExample is Random, DNA {
     }
 
     function mint() public {
-        balances[msg.sender] += 1;
+        balanceOf[msg.sender] += 1;
         nftsData[nftCounderId] = NFTDataStored(
             nftCounderId,
             randomCounterId,
             msg.sender,
             block.timestamp
         );
-        emit TokenMint(nftCounderId, randomCounterId, msg.sender);
+        emit TokenMint(
+            nftCounderId,
+            randomCounterId,
+            msg.sender,
+            block.timestamp
+        );
 
         nftCounderId += 1;
     }

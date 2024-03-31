@@ -3,7 +3,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 import { calculateDNA } from "../utils";
 
-describe.only("DNA Facet", () => {
+describe("DNA Facet", () => {
   /**
    * Deploy a DNAExample contract
    */
