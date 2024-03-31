@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 library DNABaseStorage {
     struct Layout {
-        mapping(uint256 => bytes32) dnaByIds;
+        mapping(uint256 => uint256[]) wordsByCounter;
     }
 
     bytes32 internal constant STORAGE_SLOT =
