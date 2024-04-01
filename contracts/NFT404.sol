@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
 import {ERC404, ERC404BaseStorage} from "./ERC404/ERC404.sol";
 import {DNA, DNAInitParams, DNABaseStorage} from "./dna/DNA.sol";
@@ -46,23 +45,18 @@ contract NFT404 is ERC404, Random, DNA {
     }
 
     function getDnaOf(uint256 id_) public view override returns (bytes32) {
-        uint256 counter = NFT404Storage.layout().countersById[id_];
-        return _getDnaOf(id_, counter);
-    }
-
-    // TODO: Improve this
-    function decodeADN(
-        uint256 id_
-    ) public view override returns (string memory) {
-        return string(abi.encode(id_, DNABaseStorage.layout().schemaHash));
+        return _getDnaOf(id_, NFT404Storage.layout().countersById[id_]);
     }
 
     function tokenURI(
         uint256 id_
-    ) public pure override returns (string memory) {
+    ) public view override returns (string memory) {
         // TODO: Work on the IPFS upload/generation
         return
-            string.concat("https://example.com/token/", Strings.toString(id_));
+            string.concat(
+                "https://example.com/token/",
+                string(abi.encodePacked(getDnaOf(id_)))
+            );
     }
 
     function fulfillRandomWords(
