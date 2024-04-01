@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Random} from "../../random/Random.sol";
+import {Random, RandomInitParams} from "../../random/Random.sol";
 
 // Implementer test of the Random facet
 contract RandomExample is Random {
@@ -17,12 +17,14 @@ contract RandomExample is Random {
         uint32 numWords_
     ) public initializer {
         __RandomBase_init(
-            vrfCoordinator_,
-            keyHash_,
-            subscriptionId_,
-            requestConfirmations_,
-            callbackGasLimit_,
-            numWords_
+            RandomInitParams(
+                vrfCoordinator_,
+                keyHash_,
+                subscriptionId_,
+                requestConfirmations_,
+                callbackGasLimit_,
+                numWords_
+            )
         );
     }
 

@@ -2,14 +2,11 @@
 pragma solidity ^0.8.24;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {ERC404} from "./ERC404/ERC404.sol";
-import {Random} from "./random/Random.sol";
-import {DNA} from "./dna/DNA.sol";
-import {NFT404Storage} from "./NFT404Storage.sol";
-import {ERC404BaseStorage} from "./ERC404/base/ERC404BaseStorage.sol";
-import {DNABaseStorage} from "./dna/base/DNABaseStorage.sol";
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
-import "hardhat/console.sol";
+import {ERC404, ERC404BaseStorage} from "./ERC404/ERC404.sol";
+import {DNA, DNAInitParams, DNABaseStorage} from "./dna/DNA.sol";
+import {Random, RandomInitParams} from "./random/Random.sol";
+import {NFT404Storage} from "./NFT404Storage.sol";
 
 struct ERC404InitParams {
     string name;
@@ -18,27 +15,14 @@ struct ERC404InitParams {
     uint256 maxTotalSupplyERC721;
     address initialMintRecipient;
 }
-struct RandomInitParams {
-    address vrfCoordinator;
-    bytes32 keyHash;
-    uint64 subscriptionId;
-    uint16 requestConfirmations;
-    uint32 callbackGasLimit;
-    uint32 numWords;
-}
-struct DNAInitParams {
-    bytes32 schemaHash;
-    string[] variant_name;
-    uint256[] variant_count;
-}
 
 contract NFT404 is ERC404, Random, DNA {
     event NftsRevealed(uint256 reqId, uint256 nftRevealCounter, uint256 time);
 
     function initialize(
         ERC404InitParams memory erc404Params_,
-        RandomInitParams memory randomParams_,
-        DNAInitParams memory dnaInitParams_
+        DNAInitParams memory dnaInitParams_,
+        RandomInitParams memory randomParams_
     ) public initializer {
         // Init the ERC404
         __ERC404Base_init(
@@ -55,21 +39,10 @@ contract NFT404 is ERC404, Random, DNA {
         );
 
         // Init DNA base
-        __DNABase_init(
-            dnaInitParams_.schemaHash,
-            dnaInitParams_.variant_name,
-            dnaInitParams_.variant_count
-        );
+        __DNABase_init(dnaInitParams_);
 
         // Init the randomness
-        __RandomBase_init(
-            randomParams_.vrfCoordinator,
-            randomParams_.keyHash,
-            randomParams_.subscriptionId,
-            randomParams_.requestConfirmations,
-            randomParams_.callbackGasLimit,
-            randomParams_.numWords
-        );
+        __RandomBase_init(randomParams_);
     }
 
     function getDnaOf(uint256 id_) public view override returns (bytes32) {
@@ -77,10 +50,11 @@ contract NFT404 is ERC404, Random, DNA {
         return _getDnaOf(id_, counter);
     }
 
+    // TODO: Improve this
     function decodeADN(
         uint256 id_
     ) public view override returns (string memory) {
-        return _decodeADN(getDnaOf(id_));
+        return string(abi.encode(id_, DNABaseStorage.layout().schemaHash));
     }
 
     function tokenURI(
