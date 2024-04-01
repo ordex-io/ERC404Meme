@@ -87,7 +87,7 @@ describe("Random Facet", () => {
         params.callbackGasLimit
       );
       expect(await contract.getNumWords()).to.be.equals(params.numWords);
-      expect(await contract.getVRFCoordinator()).to.be.equals(
+      expect(await contract.getCoordinator()).to.be.equals(
         params.vrfMockAddress
       );
     });

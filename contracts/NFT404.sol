@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
-import {ERC404, ERC404BaseStorage} from "./ERC404/ERC404.sol";
+import {ERC404, ERC404Storage} from "./ERC404/ERC404.sol";
 import {DNA, DNAInitParams, DNABaseStorage} from "./dna/DNA.sol";
 import {Random, RandomInitParams} from "./random/Random.sol";
 import {NFT404Storage} from "./NFT404Storage.sol";
@@ -24,7 +24,7 @@ contract NFT404 is ERC404, Random, DNA {
         RandomInitParams memory randomParams_
     ) public initializer {
         // Init the ERC404
-        __ERC404Base_init(
+        __ERC404_init(
             erc404Params_.name,
             erc404Params_.symbol,
             erc404Params_.decimals
@@ -34,7 +34,7 @@ contract NFT404 is ERC404, Random, DNA {
         _setERC721TransferExempt(erc404Params_.initialMintRecipient, true);
         _mintERC20(
             erc404Params_.initialMintRecipient,
-            erc404Params_.maxTotalSupplyERC721 * _units()
+            erc404Params_.maxTotalSupplyERC721 * units()
         );
 
         // Init DNA base
@@ -48,10 +48,10 @@ contract NFT404 is ERC404, Random, DNA {
         return _getDnaOf(id_, NFT404Storage.layout().countersById[id_]);
     }
 
+    // TODO: Work on the IPFS upload/generation
     function tokenURI(
         uint256 id_
     ) public view override returns (string memory) {
-        // TODO: Work on the IPFS upload/generation
         return
             string.concat(
                 "https://example.com/token/",

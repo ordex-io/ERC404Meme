@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 /**
  * @dev ERC404 base interface
  */
-interface IERC404BaseErrors {
+interface IERC404Errors {
     error NotFound();
     error InvalidTokenId();
     error AlreadyExists();

@@ -15,13 +15,13 @@ contract ERC404Example is OwnableUpgradeable, ERC404 {
         address initialMintRecipient_
     ) public initializer {
         // Init the ERC404
-        __ERC404Base_init(name_, symbol_, decimals_);
+        __ERC404_init(name_, symbol_, decimals_);
 
         __Ownable_init(initialOwner_);
 
         // Do not mint the ERC721s to the initial owner, as it's a waste of gas.
         _setERC721TransferExempt(initialMintRecipient_, true);
-        _mintERC20(initialMintRecipient_, maxTotalSupplyERC721_ * _units());
+        _mintERC20(initialMintRecipient_, maxTotalSupplyERC721_ * units());
     }
 
     function tokenURI(

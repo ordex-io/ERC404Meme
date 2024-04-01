@@ -34,11 +34,7 @@ abstract contract Random is VRFConsumerBaseV2Upgradeable {
         return RandomBaseStorage.layout().numWords;
     }
 
-    function getCoordinator()
-        internal
-        view
-        returns (VRFCoordinatorV2Interface)
-    {
+    function getCoordinator() public view returns (VRFCoordinatorV2Interface) {
         return _coordinator();
     }
 
