@@ -26,13 +26,19 @@ struct RandomInitParams {
     uint32 callbackGasLimit;
     uint32 numWords;
 }
+struct DNAInitParams {
+    bytes32 schemaHash;
+    string[] variant_name;
+    uint256[] variant_count;
+}
 
 contract NFT404 is ERC404, Random, DNA {
     event NftsRevealed(uint256 reqId, uint256 nftRevealCounter, uint256 time);
 
     function initialize(
         ERC404InitParams memory erc404Params_,
-        RandomInitParams memory randomParams_
+        RandomInitParams memory randomParams_,
+        DNAInitParams memory dnaInitParams_
     ) public initializer {
         // Init the ERC404
         __ERC404Base_init(
@@ -46,6 +52,13 @@ contract NFT404 is ERC404, Random, DNA {
         _mintERC20(
             erc404Params_.initialMintRecipient,
             erc404Params_.maxTotalSupplyERC721 * _units()
+        );
+
+        // Init DNA base
+        __DNABase_init(
+            dnaInitParams_.schemaHash,
+            dnaInitParams_.variant_name,
+            dnaInitParams_.variant_count
         );
 
         // Init the randomness
@@ -94,55 +107,14 @@ contract NFT404 is ERC404, Random, DNA {
         address to_,
         uint256 id_
     ) internal override {
-        // If this is not a mint, handle record keeping for transfer from previous owner.
-        if (from_ != address(0)) {
-            // On transfer of an NFT, any previous approval is reset.
-            delete ERC404BaseStorage.layout().getApproved[id_];
+        super._transferERC721(from_, to_, id_);
 
-            uint256 updatedId = ERC404BaseStorage.layout()._owned[from_][
-                ERC404BaseStorage.layout()._owned[from_].length - 1
-            ];
-            if (updatedId != id_) {
-                uint256 updatedIndex = _getOwnedIndex(id_);
-                // update _owned for sender
-                ERC404BaseStorage.layout()._owned[from_][
-                    updatedIndex
-                ] = updatedId;
-                // update index for the moved id
-                _setOwnedIndex(updatedId, updatedIndex);
-            }
-
-            // pop
-            ERC404BaseStorage.layout()._owned[from_].pop();
+        // If "from" is an address zero, it means a mint
+        // This happens after whole transfer, so it would guarantee sucess this part
+        if (from_ == address(0)) {
+            NFT404Storage.layout().countersById[id_] = NFT404Storage
+                .layout()
+                .nftRevealCounter;
         }
-
-        // Check if this is a burn.
-        if (to_ != address(0)) {
-            // If not a burn, update the owner of the token to the new owner.
-            // Update owner of the token to the new owner.
-            _setOwnerOf(id_, to_);
-            // Push token onto the new owner's stack.
-
-            ERC404BaseStorage.layout()._owned[to_].push(id_);
-            // Update index for new owner's stack.
-            _setOwnedIndex(
-                id_,
-                ERC404BaseStorage.layout()._owned[to_].length - 1
-            );
-
-            //
-            if (from_ == address(0)) {
-                NFT404Storage.layout().countersById[id_] = NFT404Storage
-                    .layout()
-                    .nftRevealCounter;
-
-                console.log("print LOL");
-            }
-        } else {
-            // If this is a burn, reset the owner of the token to 0x0 by deleting the token from _ownedData.
-            delete ERC404BaseStorage.layout()._ownedData[id_];
-        }
-
-        emit ERC721Events.Transfer(from_, to_, id_);
     }
 }
