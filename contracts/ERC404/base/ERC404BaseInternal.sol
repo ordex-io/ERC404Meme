@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {ERC404MetadataStorage} from "./ERC404MetadataStorage.sol";
-import {ERC404BaseStorage} from "./ERC404BaseStorage.sol";
+import {ERC404Storage} from "./ERC404Storage.sol";
 import {IERC404BaseErrors} from "./IERC404BaseErrors.sol";
 import {IERC404} from "../IERC404.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -32,19 +31,19 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
         string memory symbol_,
         uint8 decimals_
     ) internal onlyInitializing {
-        ERC404MetadataStorage.layout().name = name_;
-        ERC404MetadataStorage.layout().symbol = symbol_;
+        ERC404Storage.layout().name = name_;
+        ERC404Storage.layout().symbol = symbol_;
 
         if (decimals_ < 18) {
             revert DecimalsTooLow();
         }
 
-        ERC404MetadataStorage.layout().decimals = decimals_;
-        ERC404MetadataStorage.layout().units = 10 ** decimals_;
+        ERC404Storage.layout().decimals = decimals_;
+        ERC404Storage.layout().units = 10 ** decimals_;
 
         // EIP-2612 initialization
-        ERC404MetadataStorage.layout()._INITIAL_CHAIN_ID = block.chainid;
-        ERC404MetadataStorage
+        ERC404Storage.layout()._INITIAL_CHAIN_ID = block.chainid;
+        ERC404Storage
             .layout()
             ._INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
@@ -54,7 +53,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
      * @return token name
      */
     function _name() internal view virtual returns (string memory) {
-        return ERC404MetadataStorage.layout().name;
+        return ERC404Storage.layout().name;
     }
 
     /**
@@ -62,7 +61,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
      * @return token symbol
      */
     function _symbol() internal view virtual returns (string memory) {
-        return ERC404MetadataStorage.layout().symbol;
+        return ERC404Storage.layout().symbol;
     }
 
     /**
@@ -70,7 +69,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
      * @return token decimals
      */
     function _decimals() internal view virtual returns (uint8) {
-        return ERC404MetadataStorage.layout().decimals;
+        return ERC404Storage.layout().decimals;
     }
 
     /**
@@ -78,23 +77,23 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
      * @return units for ERC-20 representation
      */
     function _units() internal view virtual returns (uint256) {
-        return ERC404MetadataStorage.layout().units;
+        return ERC404Storage.layout().units;
     }
 
     function _totalSupply() internal view virtual returns (uint256) {
-        return ERC404BaseStorage.layout().totalSupply;
+        return ERC404Storage.layout().totalSupply;
     }
 
     function _minted() internal view returns (uint256) {
-        return ERC404BaseStorage.layout().minted;
+        return ERC404Storage.layout().minted;
     }
 
     function _erc20TotalSupply() internal view returns (uint256) {
-        return ERC404BaseStorage.layout().totalSupply;
+        return ERC404Storage.layout().totalSupply;
     }
 
     function _erc721TotalSupply() internal view returns (uint256) {
-        return ERC404BaseStorage.layout().minted;
+        return ERC404Storage.layout().minted;
     }
 
     function _erc20BalanceOf(address owner_) internal view returns (uint256) {
@@ -110,11 +109,11 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
     ) internal view returns (bool) {
         return
             target_ == address(0) ||
-            ERC404BaseStorage.layout()._erc721TransferExempt[target_];
+            ERC404Storage.layout()._erc721TransferExempt[target_];
     }
 
     function _getERC721QueueLength() internal view virtual returns (uint256) {
-        return ERC404BaseStorage.layout()._storedERC721Ids.length();
+        return ERC404Storage.layout()._storedERC721Ids.length();
     }
 
     function _getERC721TokensInQueue(
@@ -124,7 +123,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
         uint256[] memory tokensInQueue = new uint256[](count_);
 
         for (uint256 i = start_; i < start_ + count_; ) {
-            tokensInQueue[i - start_] = ERC404BaseStorage
+            tokensInQueue[i - start_] = ERC404Storage
                 .layout()
                 ._storedERC721Ids
                 .at(i);
@@ -138,37 +137,37 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
     }
 
     function _balanceOf(address owner_) internal view returns (uint256) {
-        return ERC404BaseStorage.layout().balanceOf[owner_];
+        return ERC404Storage.layout().balanceOf[owner_];
     }
 
     function _allowance(
         address owner_,
         address spender_
     ) internal view returns (uint256) {
-        return ERC404BaseStorage.layout().allowance[owner_][spender_];
+        return ERC404Storage.layout().allowance[owner_][spender_];
     }
 
     function _getApproved(uint256 id_) internal view returns (address) {
-        return ERC404BaseStorage.layout().getApproved[id_];
+        return ERC404Storage.layout().getApproved[id_];
     }
 
     function _isApprovedForAll(
         address owner_,
         address operator_
     ) internal view returns (bool) {
-        return ERC404BaseStorage.layout().isApprovedForAll[owner_][operator_];
+        return ERC404Storage.layout().isApprovedForAll[owner_][operator_];
     }
 
     function _nonces(address owner_) internal view returns (uint256) {
-        return ERC404BaseStorage.layout().nonces[owner_];
+        return ERC404Storage.layout().nonces[owner_];
     }
 
     function _ownedData(uint256 id_) internal view returns (uint256) {
-        return ERC404BaseStorage.layout()._ownedData[id_];
+        return ERC404Storage.layout()._ownedData[id_];
     }
 
     function _owned(address owner_) internal view returns (uint256[] memory) {
-        return ERC404BaseStorage.layout()._owned[owner_];
+        return ERC404Storage.layout()._owned[owner_];
     }
 
     function _ownerOf(uint256 id_) internal view returns (address erc721Owner) {
@@ -207,7 +206,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             revert Unauthorized();
         }
 
-        ERC404BaseStorage.layout().getApproved[id_] = spender_;
+        ERC404Storage.layout().getApproved[id_] = spender_;
 
         emit ERC721Events.Approval(erc721Owner, spender_, id_);
     }
@@ -221,7 +220,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             revert InvalidSpender();
         }
 
-        ERC404BaseStorage.layout().allowance[msg.sender][spender_] = value_;
+        ERC404Storage.layout().allowance[msg.sender][spender_] = value_;
 
         emit ERC20Events.Approval(msg.sender, spender_, value_);
 
@@ -236,7 +235,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
         if (operator_ == address(0)) {
             revert InvalidOperator();
         }
-        ERC404BaseStorage.layout().isApprovedForAll[msg.sender][
+        ERC404Storage.layout().isApprovedForAll[msg.sender][
             operator_
         ] = approved_;
 
@@ -295,7 +294,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
 
         // Transfer 1 * units ERC-20 and 1 ERC-721 token.
         // ERC-721 transfer exemptions handled above. Can't make it to this point if either is transfer exempt.
-        _transferERC20(from_, to_, ERC404MetadataStorage.layout().units);
+        _transferERC20(from_, to_, ERC404Storage.layout().units);
         _transferERC721(from_, to_, id_);
     }
 
@@ -314,13 +313,11 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             revert InvalidRecipient();
         }
 
-        uint256 allowed = ERC404BaseStorage.layout().allowance[from_][
-            msg.sender
-        ];
+        uint256 allowed = ERC404Storage.layout().allowance[from_][msg.sender];
 
         // Check that the operator has sufficient allowance.
         if (allowed != type(uint256).max) {
-            ERC404BaseStorage.layout().allowance[from_][msg.sender] =
+            ERC404Storage.layout().allowance[from_][msg.sender] =
                 allowed -
                 value_;
         }
@@ -387,7 +384,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             _reinstateERC721Balance(target_);
         }
 
-        ERC404BaseStorage.layout()._erc721TransferExempt[target_] = state_;
+        ERC404Storage.layout()._erc721TransferExempt[target_] = state_;
     }
 
     function _transferERC20WithERC721(
@@ -416,9 +413,8 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             //         from the bank/minted for any whole number increase in their balance.
             // Only cares about whole number increments.
             uint256 tokensToRetrieveOrMint = (_balanceOf(to_) /
-                ERC404MetadataStorage.layout().units) -
-                (erc20BalanceOfReceiverBefore /
-                    ERC404MetadataStorage.layout().units);
+                ERC404Storage.layout().units) -
+                (erc20BalanceOfReceiverBefore / ERC404Storage.layout().units);
             for (uint256 i = 0; i < tokensToRetrieveOrMint; ) {
                 _retrieveOrMintERC721(to_);
                 unchecked {
@@ -431,8 +427,8 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             //         receive ERC-721s from the bank/minted.
             // Only cares about whole number increments.
             uint256 tokensToWithdrawAndStore = (erc20BalanceOfSenderBefore /
-                ERC404MetadataStorage.layout().units) -
-                (_balanceOf(from_) / ERC404MetadataStorage.layout().units);
+                ERC404Storage.layout().units) -
+                (_balanceOf(from_) / ERC404Storage.layout().units);
             for (uint256 i = 0; i < tokensToWithdrawAndStore; ) {
                 _withdrawAndStoreERC721(from_);
                 unchecked {
@@ -451,8 +447,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             // to the recevier.
 
             // Whole tokens worth of ERC-20s get transferred as ERC-721s without any burning/minting.
-            uint256 nftsToTransfer = value_ /
-                ERC404MetadataStorage.layout().units;
+            uint256 nftsToTransfer = value_ / ERC404Storage.layout().units;
             for (uint256 i = 0; i < nftsToTransfer; ) {
                 // Pop from sender's ERC-721 stack and transfer them (LIFO)
                 uint256 indexOfLastToken = _owned(from_).length - 1;
@@ -477,9 +472,9 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             // then no ERC-721s will be lost here.
             if (
                 erc20BalanceOfSenderBefore /
-                    ERC404MetadataStorage.layout().units -
+                    ERC404Storage.layout().units -
                     _erc20BalanceOf(from_) /
-                    ERC404MetadataStorage.layout().units >
+                    ERC404Storage.layout().units >
                 nftsToTransfer
             ) {
                 _withdrawAndStoreERC721(from_);
@@ -495,9 +490,9 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             // Again, for self-sends where the before and after balances are equal, no ERC-721s will be gained here.
             if (
                 _erc20BalanceOf(to_) /
-                    ERC404MetadataStorage.layout().units -
+                    ERC404Storage.layout().units -
                     erc20BalanceOfReceiverBefore /
-                    ERC404MetadataStorage.layout().units >
+                    ERC404Storage.layout().units >
                 nftsToTransfer
             ) {
                 _retrieveOrMintERC721(to_);
@@ -544,7 +539,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
                                 owner_,
                                 spender_,
                                 value_,
-                                ERC404BaseStorage.layout().nonces[owner_]++,
+                                ERC404Storage.layout().nonces[owner_]++,
                                 deadline_
                             )
                         )
@@ -559,7 +554,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
                 revert InvalidSigner();
             }
 
-            ERC404BaseStorage.layout().allowance[recoveredAddress][
+            ERC404Storage.layout().allowance[recoveredAddress][
                 spender_
             ] = value_;
         }
@@ -569,8 +564,8 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
 
     function _DOMAIN_SEPARATOR() internal view virtual returns (bytes32) {
         return
-            block.chainid == ERC404MetadataStorage.layout()._INITIAL_CHAIN_ID
-                ? ERC404MetadataStorage.layout()._INITIAL_DOMAIN_SEPARATOR
+            block.chainid == ERC404Storage.layout()._INITIAL_CHAIN_ID
+                ? ERC404Storage.layout()._INITIAL_DOMAIN_SEPARATOR
                 : _computeDomainSeparator();
     }
 
@@ -600,17 +595,17 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
         // Minting is a special case for which we should not check the balance of
         // the sender, and we should increase the total supply.
         if (from_ == address(0)) {
-            ERC404BaseStorage.layout().totalSupply += value_;
+            ERC404Storage.layout().totalSupply += value_;
         } else {
             // Deduct value from sender's balance.
-            ERC404BaseStorage.layout().balanceOf[from_] -= value_;
+            ERC404Storage.layout().balanceOf[from_] -= value_;
         }
 
         // Update the recipient's balance.
         // Can be unchecked because on mint, adding to totalSupply is checked,
         // and on transfer balance deduction is checked.
         unchecked {
-            ERC404BaseStorage.layout().balanceOf[to_] += value_;
+            ERC404Storage.layout().balanceOf[to_] += value_;
         }
 
         emit ERC20Events.Transfer(from_, to_, value_);
@@ -628,23 +623,21 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
         // If this is not a mint, handle record keeping for transfer from previous owner.
         if (from_ != address(0)) {
             // On transfer of an NFT, any previous approval is reset.
-            delete ERC404BaseStorage.layout().getApproved[id_];
+            delete ERC404Storage.layout().getApproved[id_];
 
-            uint256 updatedId = ERC404BaseStorage.layout()._owned[from_][
-                ERC404BaseStorage.layout()._owned[from_].length - 1
+            uint256 updatedId = ERC404Storage.layout()._owned[from_][
+                ERC404Storage.layout()._owned[from_].length - 1
             ];
             if (updatedId != id_) {
                 uint256 updatedIndex = _getOwnedIndex(id_);
                 // update _owned for sender
-                ERC404BaseStorage.layout()._owned[from_][
-                    updatedIndex
-                ] = updatedId;
+                ERC404Storage.layout()._owned[from_][updatedIndex] = updatedId;
                 // update index for the moved id
                 _setOwnedIndex(updatedId, updatedIndex);
             }
 
             // pop
-            ERC404BaseStorage.layout()._owned[from_].pop();
+            ERC404Storage.layout()._owned[from_].pop();
         }
 
         // Check if this is a burn.
@@ -654,15 +647,12 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             _setOwnerOf(id_, to_);
             // Push token onto the new owner's stack.
 
-            ERC404BaseStorage.layout()._owned[to_].push(id_);
+            ERC404Storage.layout()._owned[to_].push(id_);
             // Update index for new owner's stack.
-            _setOwnedIndex(
-                id_,
-                ERC404BaseStorage.layout()._owned[to_].length - 1
-            );
+            _setOwnedIndex(id_, ERC404Storage.layout()._owned[to_].length - 1);
         } else {
             // If this is a burn, reset the owner of the token to 0x0 by deleting the token from _ownedData.
-            delete ERC404BaseStorage.layout()._ownedData[id_];
+            delete ERC404Storage.layout()._ownedData[id_];
         }
 
         emit ERC721Events.Transfer(from_, to_, id_);
@@ -681,9 +671,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             revert InvalidRecipient();
         }
 
-        if (
-            ERC404BaseStorage.layout().totalSupply + value_ > ID_ENCODING_PREFIX
-        ) {
+        if (ERC404Storage.layout().totalSupply + value_ > ID_ENCODING_PREFIX) {
             revert MintLimitReached();
         }
 
@@ -698,7 +686,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
                     keccak256(
                         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
                     ),
-                    keccak256(bytes(ERC404MetadataStorage.layout().name)),
+                    keccak256(bytes(ERC404Storage.layout().name)),
                     keccak256("1"),
                     block.chainid,
                     address(this)
@@ -713,20 +701,20 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
 
         uint256 id;
 
-        if (!ERC404BaseStorage.layout()._storedERC721Ids.empty()) {
+        if (!ERC404Storage.layout()._storedERC721Ids.empty()) {
             // If there are any tokens in the bank, use those first.
             // Pop off the end of the queue (FIFO).
-            id = ERC404BaseStorage.layout()._storedERC721Ids.popBack();
+            id = ERC404Storage.layout()._storedERC721Ids.popBack();
         } else {
             // Otherwise, mint a new token, should not be able to go over the total fractional supply.
-            ++ERC404BaseStorage.layout().minted;
+            ++ERC404Storage.layout().minted;
 
             // Reserve max uint256 for approvals
-            if (ERC404BaseStorage.layout().minted == type(uint256).max) {
+            if (ERC404Storage.layout().minted == type(uint256).max) {
                 revert MintLimitReached();
             }
 
-            id = ID_ENCODING_PREFIX + ERC404BaseStorage.layout().minted;
+            id = ID_ENCODING_PREFIX + ERC404Storage.layout().minted;
         }
 
         address erc721Owner = _getOwnerOf(id);
@@ -760,7 +748,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
         _transferERC721(from_, address(0), id);
 
         // Record the token in the contract's bank queue.
-        ERC404BaseStorage.layout()._storedERC721Ids.pushFront(id);
+        ERC404Storage.layout()._storedERC721Ids.pushFront(id);
     }
 
     function _getOwnerOf(
@@ -793,7 +781,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             )
         }
 
-        ERC404BaseStorage.layout()._ownedData[id_] = data;
+        ERC404Storage.layout()._ownedData[id_] = data;
     }
 
     function _setOwnedIndex(uint256 id_, uint256 index_) internal virtual {
@@ -810,7 +798,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
             )
         }
 
-        ERC404BaseStorage.layout()._ownedData[id_] = data;
+        ERC404Storage.layout()._ownedData[id_] = data;
     }
 
     function _clearERC721Balance(address target_) private {
@@ -827,7 +815,7 @@ abstract contract ERC404BaseInternal is IERC404BaseErrors, Initializable {
 
     function _reinstateERC721Balance(address target_) private {
         uint256 expectedERC721Balance = _erc20BalanceOf(target_) /
-            ERC404MetadataStorage.layout().units;
+            ERC404Storage.layout().units;
         uint256 actualERC721Balance = _erc721BalanceOf(target_);
 
         for (uint256 i = 0; i < expectedERC721Balance - actualERC721Balance; ) {

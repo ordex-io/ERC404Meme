@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {ERC404BaseInternal, ERC404BaseStorage} from "./ERC404BaseInternal.sol";
+import {ERC404BaseInternal, ERC404Storage} from "./ERC404BaseInternal.sol";
 import {IERC404Base} from "./IERC404Base.sol";
 
 /**
