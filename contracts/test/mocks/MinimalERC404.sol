@@ -14,7 +14,7 @@ contract MinimalERC404 is OwnableUpgradeable, ERC404 {
         address initialOwner_
     ) public initializer {
         // Init the ERC404
-        __ERC404Base_init(name_, symbol_, decimals_);
+        __ERC404_init(name_, symbol_, decimals_);
         __Ownable_init(initialOwner_);
     }
 
