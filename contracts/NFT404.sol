@@ -10,7 +10,8 @@ struct ERC404InitParams {
     string name;
     string symbol;
     uint8 decimals;
-    uint256 maxTotalSupplyERC721;
+    uint256 units;
+    uint256 maxTotalSupplyERC20;
     address initialMintRecipient;
 }
 
@@ -29,14 +30,15 @@ contract NFT404 is ERC404, DNA {
         __ERC404_init(
             erc404Params_.name,
             erc404Params_.symbol,
-            erc404Params_.decimals
+            erc404Params_.decimals,
+            erc404Params_.units
         );
 
         // Do not mint the ERC721s to the initial owner, as it's a waste of gas.
         _setERC721TransferExempt(erc404Params_.initialMintRecipient, true);
         _mintERC20(
             erc404Params_.initialMintRecipient,
-            erc404Params_.maxTotalSupplyERC721 * units()
+            erc404Params_.maxTotalSupplyERC20
         );
 
         // Init DNA base
