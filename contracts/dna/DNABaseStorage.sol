@@ -5,9 +5,7 @@ library DNABaseStorage {
     struct Layout {
         mapping(uint256 => uint256[]) wordsByCounter;
         bytes32 schema_hash;
-        // Variants counts for each part (0 = background, 1 = head, etc)
-        string[] variant_name;
-        uint256[] variant_count;
+        string[] variants_name;
     }
 
     bytes32 internal constant STORAGE_SLOT =

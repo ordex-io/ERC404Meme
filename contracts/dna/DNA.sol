@@ -6,8 +6,7 @@ import {DNABaseStorage} from "./DNABaseStorage.sol";
 
 struct DNAInitParams {
     bytes32 schema_hash;
-    string[] variant_name;
-    uint256[] variant_count;
+    string[] variants_name;
 }
 
 abstract contract DNA is Initializable {
@@ -15,27 +14,24 @@ abstract contract DNA is Initializable {
 
     function getDnaOf(uint256 id_) public view virtual returns (bytes32);
 
-    function dnaOfToJson(uint256 id_) public view returns (string memory) {
+    function dnaOfToJson(
+        uint256 id_,
+        uint256[] memory variants_count_
+    ) public view returns (string memory) {
         return
             _decodeDna(
                 getDnaOf(id_),
-                DNABaseStorage.layout().variant_name,
-                DNABaseStorage.layout().variant_count,
-                DNABaseStorage.layout().schema_hash
+                DNABaseStorage.layout().schema_hash,
+                DNABaseStorage.layout().variants_name,
+                variants_count_
             );
     }
 
     function __DNABase_init(
         DNAInitParams memory initParams_
     ) internal onlyInitializing {
-        require(
-            initParams_.variant_name.length == initParams_.variant_count.length,
-            "MISMATCH_VARIANT"
-        );
-
         DNABaseStorage.layout().schema_hash = initParams_.schema_hash;
-        DNABaseStorage.layout().variant_name = initParams_.variant_name;
-        DNABaseStorage.layout().variant_count = initParams_.variant_count;
+        DNABaseStorage.layout().variants_name = initParams_.variants_name;
     }
 
     function _getDnaOf(
@@ -54,20 +50,31 @@ abstract contract DNA is Initializable {
 
     function _decodeDna(
         bytes32 dna_,
+        bytes32 schema_hash_,
         string[] memory variant_name_,
-        uint256[] memory variant_count_,
-        bytes32 schema_hash_
+        uint256[] memory param_variants_count_
     ) private pure returns (string memory) {
+        require(
+            variant_name_.length == param_variants_count_.length,
+            "MISMATCH_VARIANTS"
+        );
         // Start building the JSON string
         string memory jsonString = "{";
 
         // Iterate over the keys and values arrays
         for (uint256 i = 0; i < variant_name_.length; i++) {
+            // dna_param_value = uint256(keccack256(schema_hash + dna + keccack256(param_name)) ٪ param_variants_count
             uint256 dnaParamValue = uint256(
                 keccak256(
-                    (abi.encodePacked(schema_hash_, dna_, variant_name_[i]))
+                    (
+                        abi.encodePacked(
+                            schema_hash_,
+                            dna_,
+                            keccak256(abi.encodePacked(variant_name_[i]))
+                        )
+                    )
                 )
-            ) % variant_count_[i];
+            ) % param_variants_count_[i];
 
             // Append key-value pair to the JSON string
             jsonString = string(
