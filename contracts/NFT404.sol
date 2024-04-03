@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
 import {ERC404, ERC404Storage} from "./ERC404/ERC404.sol";
 import {DNA, DNAInitParams, DNABaseStorage} from "./dna/DNA.sol";
-import {Random, RandomInitParams} from "./random/Random.sol";
 import {NFT404Storage} from "./NFT404Storage.sol";
 
 struct ERC404InitParams {
@@ -15,14 +14,17 @@ struct ERC404InitParams {
     address initialMintRecipient;
 }
 
-contract NFT404 is ERC404, Random, DNA {
-    event NftsRevealed(uint256 reqId, uint256 nftRevealCounter, uint256 time);
+contract NFT404 is ERC404, DNA {
+    error NoAutomationRegister();
+    event NftsRevealed(uint256 nftRevealCounter, uint256 time);
 
     function initialize(
         ERC404InitParams memory erc404Params_,
         DNAInitParams memory dnaInitParams_,
-        RandomInitParams memory randomParams_
+        address automationRegistry_
     ) public initializer {
+        NFT404Storage.layout().autoRegistry = automationRegistry_;
+
         // Init the ERC404
         __ERC404_init(
             erc404Params_.name,
@@ -39,9 +41,26 @@ contract NFT404 is ERC404, Random, DNA {
 
         // Init DNA base
         __DNABase_init(dnaInitParams_);
+    }
 
-        // Init the randomness
-        __RandomBase_init(randomParams_);
+    function reveal() external {
+        // This prevent calls for others than the registry
+        if (msg.sender != NFT404Storage.layout().autoRegistry) {
+            revert NoAutomationRegister();
+        }
+
+        // Get the current counter
+        uint256 _nftRevealCounter = NFT404Storage.layout().nftRevealCounter;
+
+        // Save the words
+        DNABaseStorage.layout().wordsByCounter[_nftRevealCounter] = [
+            uint256(blockhash(block.number - 1))
+        ];
+
+        emit NftsRevealed(_nftRevealCounter, block.timestamp);
+
+        // Increase the counter for next mints
+        NFT404Storage.layout().nftRevealCounter += 1;
     }
 
     function getDnaOf(uint256 id_) public view override returns (bytes32) {
@@ -57,17 +76,6 @@ contract NFT404 is ERC404, Random, DNA {
                 "https://example.com/token/",
                 string(abi.encodePacked(getDnaOf(id_)))
             );
-    }
-
-    function fulfillRandomWords(
-        uint256 requestId,
-        uint256[] memory randomWords
-    ) internal override {
-        uint256 _nftRevealCounter = NFT404Storage.layout().nftRevealCounter;
-        // Save the words
-        DNABaseStorage.layout().wordsByCounter[_nftRevealCounter] = randomWords;
-
-        emit NftsRevealed(requestId, _nftRevealCounter, block.timestamp);
     }
 
     function _transferERC721(

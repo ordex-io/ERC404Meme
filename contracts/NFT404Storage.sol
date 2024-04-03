@@ -5,6 +5,7 @@ library NFT404Storage {
     struct Layout {
         mapping(uint256 => uint256) countersById;
         uint256 nftRevealCounter;
+        address autoRegistry;
     }
 
     bytes32 internal constant STORAGE_SLOT =
