@@ -30,7 +30,8 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
     function __ERC404_init(
         string memory name_,
         string memory symbol_,
-        uint8 decimals_
+        uint8 decimals_,
+        uint256 units_
     ) internal onlyInitializing {
         ERC404Storage.layout().name = name_;
         ERC404Storage.layout().symbol = symbol_;
@@ -40,7 +41,11 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         }
 
         ERC404Storage.layout().decimals = decimals_;
-        ERC404Storage.layout().units = 10 ** decimals_;
+        if (units_ == 0) {
+            ERC404Storage.layout().units = 10 ** decimals_;
+        } else {
+            ERC404Storage.layout().units = units_;
+        }
 
         // EIP-2612 initialization
         ERC404Storage.layout()._INITIAL_CHAIN_ID = block.chainid;
