@@ -15,11 +15,16 @@ export async function deployNFT404() {
   const factory = await ethers.getContractFactory("NFT404");
   const signers = await ethers.getSigners();
 
+  const decimals = 18n;
+  const units = 404000n * 10n ** decimals;
+  const maxTotalSupplyERC20 = 10000n * units;
+
   const erc404Params: ERC404InitParamsStruct = {
     name: "CAT NFT 404",
     symbol: "CN404",
-    decimals: 18n,
-    maxTotalSupplyERC721: 100n,
+    decimals,
+    units,
+    maxTotalSupplyERC20,
     initialMintRecipient: signers[0].address,
   };
 
