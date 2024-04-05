@@ -3,7 +3,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { deployNFT404 } from "../utils";
 import { ethers } from "hardhat";
 
-describe.only("NFT404", () => {
+describe("NFT404", () => {
   describe("Initialization", () => {
     it("should initialize the contract correctly", async () => {
       const { nft404, erc404Params } = await loadFixture(deployNFT404);
