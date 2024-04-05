@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {DNABaseStorage} from "./DNABaseStorage.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 struct DNAInitParams {
     bytes32 schema_hash;
@@ -107,7 +108,7 @@ abstract contract DNA is Initializable {
                     '"',
                     variant_name_[i],
                     '":"',
-                    dnaParamValue,
+                    Strings.toString(dnaParamValue),
                     '"'
                 )
             );
