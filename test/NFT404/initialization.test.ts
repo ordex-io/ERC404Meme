@@ -6,7 +6,9 @@ import { ethers } from "hardhat";
 describe("NFT404", () => {
   describe("Initialization", () => {
     it("should initialize the contract correctly", async () => {
-      const { nft404, erc404Params } = await loadFixture(deployNFT404);
+      const { nft404, erc404Params, nft404Params } = await loadFixture(
+        deployNFT404
+      );
 
       expect(await nft404.units()).to.be.equals(
         erc404Params.units,
@@ -14,14 +16,14 @@ describe("NFT404", () => {
       );
 
       expect(await nft404.totalSupply()).to.be.equals(
-        erc404Params.maxTotalSupplyERC20,
+        nft404Params.maxTotalSupplyERC20,
         "wrong erc20 total supply"
       );
 
       expect(
-        await nft404.balanceOf(erc404Params.initialMintRecipient)
+        await nft404.balanceOf(nft404Params.initialMintRecipient)
       ).to.be.equals(
-        erc404Params.maxTotalSupplyERC20,
+        nft404Params.maxTotalSupplyERC20,
         "wrong balance assigned to initial minter"
       );
 
@@ -32,13 +34,15 @@ describe("NFT404", () => {
     });
 
     it("should mint a NFT after an ERC20 transfer", async () => {
-      const { nft404, erc404Params } = await loadFixture(deployNFT404);
+      const { nft404, erc404Params, nft404Params } = await loadFixture(
+        deployNFT404
+      );
       const signers = await ethers.getSigners();
 
       const signer_0 = signers[0];
       const signer_1 = signers[1];
 
-      expect(signer_0.address).to.be.equals(erc404Params.initialMintRecipient);
+      expect(signer_0.address).to.be.equals(nft404Params.initialMintRecipient);
 
       const amountToTransfer = erc404Params.units; // 404K = 1 NFT
 
@@ -57,14 +61,16 @@ describe("NFT404", () => {
     });
 
     it("should remove NFT after losing ERC20 tokens", async () => {
-      const { nft404, erc404Params } = await loadFixture(deployNFT404);
+      const { nft404, erc404Params, nft404Params } = await loadFixture(
+        deployNFT404
+      );
       const signers = await ethers.getSigners();
 
       const signer_0 = signers[0];
       const signer_1 = signers[1];
       const signer_2 = signers[2];
 
-      expect(signer_0.address).to.be.equals(erc404Params.initialMintRecipient);
+      expect(signer_0.address).to.be.equals(nft404Params.initialMintRecipient);
 
       const nftsToTransfer_0 = 10n; // 10 nft
       const amountToTransfer_0 = BigInt(erc404Params.units) * nftsToTransfer_0; // 404.000 * 10 = 4.040.000 -> 4.04M
