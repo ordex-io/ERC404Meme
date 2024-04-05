@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
 import {ERC404, ERC404Storage} from "./ERC404/ERC404.sol";
 import {DNA, DNAInitParams, DNABaseStorage} from "./dna/DNA.sol";
@@ -11,20 +12,28 @@ struct ERC404InitParams {
     string symbol;
     uint8 decimals;
     uint256 units;
+}
+
+struct ERC404ConfigInitParams {
+    address automationRegistry;
+    address initialOwner;
     uint256 maxTotalSupplyERC20;
     address initialMintRecipient;
 }
 
-contract NFT404 is ERC404, DNA {
+contract NFT404 is ERC404, DNA, OwnableUpgradeable {
     error NoAutomationRegister();
     event NftsRevealed(uint256 nftRevealCounter, uint256 time);
 
     function initialize(
         ERC404InitParams memory erc404Params_,
         DNAInitParams memory dnaInitParams_,
-        address automationRegistry_
+        ERC404ConfigInitParams memory nft404Params_
     ) public initializer {
-        NFT404Storage.layout().autoRegistry = automationRegistry_;
+        NFT404Storage.layout().autoRegistry = nft404Params_.automationRegistry;
+
+        // Ownable initialization
+        __Ownable_init(nft404Params_.initialOwner);
 
         // Init the ERC404
         __ERC404_init(
@@ -35,14 +44,21 @@ contract NFT404 is ERC404, DNA {
         );
 
         // Do not mint the ERC721s to the initial owner, as it's a waste of gas.
-        _setERC721TransferExempt(erc404Params_.initialMintRecipient, true);
+        _setERC721TransferExempt(nft404Params_.initialMintRecipient, true);
         _mintERC20(
-            erc404Params_.initialMintRecipient,
-            erc404Params_.maxTotalSupplyERC20
+            nft404Params_.initialMintRecipient,
+            nft404Params_.maxTotalSupplyERC20
         );
 
         // Init DNA base
         __DNABase_init(dnaInitParams_);
+    }
+
+    function setERC721TransferExempt(
+        address target_,
+        bool state_
+    ) external onlyOwner {
+        _setERC721TransferExempt(target_, state_);
     }
 
     function reveal() external {
