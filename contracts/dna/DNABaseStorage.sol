@@ -3,6 +3,8 @@ pragma solidity ^0.8.24;
 
 library DNABaseStorage {
     struct Layout {
+        uint256 currentCounter;
+        mapping(uint256 => uint256) countersById;
         mapping(uint256 => uint256[]) wordsByCounter;
         bytes32 schema_hash;
         string[] variants_name;

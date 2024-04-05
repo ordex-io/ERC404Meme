@@ -12,7 +12,9 @@ struct DNAInitParams {
 abstract contract DNA is Initializable {
     error NotRevealed(uint256 id, uint256 block_number);
 
-    function getDnaOf(uint256 id_) public view virtual returns (bytes32);
+    function getDnaOf(uint256 id_) public view returns (bytes32) {
+        return _getDnaOf(id_, DNABaseStorage.layout().countersById[id_]);
+    }
 
     function dnaOfToJson(
         uint256 id_,
@@ -32,6 +34,28 @@ abstract contract DNA is Initializable {
     ) internal onlyInitializing {
         DNABaseStorage.layout().schema_hash = initParams_.schema_hash;
         DNABaseStorage.layout().variants_name = initParams_.variants_name;
+    }
+
+    function _currentCounter() internal view returns (uint256) {
+        return DNABaseStorage.layout().currentCounter;
+    }
+
+    function _increaseCounter() internal {
+        DNABaseStorage.layout().currentCounter += 1;
+    }
+
+    function _saveWords(uint256[] memory words_) internal returns (uint256) {
+        uint256 counterId = _currentCounter();
+        DNABaseStorage.layout().wordsByCounter[counterId] = words_;
+
+        // New counter ID for new words and mint
+        _increaseCounter();
+
+        return counterId;
+    }
+
+    function _saveCounterForId(uint256 id_) internal {
+        DNABaseStorage.layout().countersById[id_] = _currentCounter();
     }
 
     function _getDnaOf(
