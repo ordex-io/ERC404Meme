@@ -15,7 +15,7 @@ contract ERC404Example is OwnableUpgradeable, ERC404 {
         address initialMintRecipient_
     ) public initializer {
         // Init the ERC404
-        __ERC404_init(name_, symbol_, decimals_);
+        __ERC404_init(name_, symbol_, decimals_, 0);
 
         __Ownable_init(initialOwner_);
 
