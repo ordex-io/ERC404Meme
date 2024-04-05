@@ -2,12 +2,12 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
 import { deployVRFCoordinartorV2Mock, getEventArgs } from "../utils";
-import { SubscriptionCreatedEvent } from "../../typechain-types/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
+import { SubscriptionCreatedEvent } from "../../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
 import { RandomExample } from "../../typechain-types";
 import {
   RandomFulfilledEvent,
   RandomRequestedEvent,
-} from "../../typechain-types/contracts/test/examples/RandomExample";
+} from "../../typechain-types/artifacts/contracts/test/examples/RandomExample";
 
 describe("Random Facet", () => {
   /**
