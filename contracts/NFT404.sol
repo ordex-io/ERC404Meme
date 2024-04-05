@@ -67,22 +67,14 @@ contract NFT404 is ERC404, DNA, OwnableUpgradeable {
             revert NoAutomationRegister();
         }
 
-        // Get the current counter
-        uint256 _nftRevealCounter = NFT404Storage.layout().nftRevealCounter;
+        uint256[] memory words = new uint256[](1);
+        words[0] = uint256(blockhash(block.number - 1));
 
-        // Save the words
-        DNABaseStorage.layout().wordsByCounter[_nftRevealCounter] = [
-            uint256(blockhash(block.number - 1))
-        ];
+        // Save the words and get a countID about where are stored on the mapping
+        // Also increase the counter for next mints/reveals
+        uint256 counterID = _saveWords(words);
 
-        emit NftsRevealed(_nftRevealCounter, block.timestamp);
-
-        // Increase the counter for next mints
-        NFT404Storage.layout().nftRevealCounter += 1;
-    }
-
-    function getDnaOf(uint256 id_) public view override returns (bytes32) {
-        return _getDnaOf(id_, NFT404Storage.layout().countersById[id_]);
+        emit NftsRevealed(counterID, block.timestamp);
     }
 
     // TODO: Work on the IPFS upload/generation
@@ -106,9 +98,7 @@ contract NFT404 is ERC404, DNA, OwnableUpgradeable {
         // If "from" is an address zero, it means a mint
         // This happens after whole transfer, so it would guarantee sucess this part
         if (from_ == address(0)) {
-            NFT404Storage.layout().countersById[id_] = NFT404Storage
-                .layout()
-                .nftRevealCounter;
+            _saveCounterForId(id_);
         }
     }
 }
