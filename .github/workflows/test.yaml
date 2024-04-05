@@ -4,17 +4,17 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
-        steps:
-          - name: Checkout repository
-            uses: actions/checkout@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-          - name: Install NodeJS
-            uses: actions/setup-node@v4
-            with:
-              cache: 'npm'
+      - name: Install NodeJS
+        uses: actions/setup-node@v4
+        with:
+          cache: "npm"
 
-          - name: install npm dependencies
-            run: npm install
+      - name: install npm dependencies
+        run: npm install
 
-          - name: Run Subgraph tests
-            run: npm test
+      - name: Run tests
+        run: npm test
