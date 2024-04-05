@@ -3,6 +3,7 @@ import { NFT404 } from "../../typechain-types";
 import {
   ERC404InitParamsStruct,
   DNAInitParamsStruct,
+  ERC404ConfigInitParamsStruct,
 } from "../../typechain-types/artifacts/contracts/NFT404";
 import { UniswapV3Factory } from "../../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
 import {
@@ -24,14 +25,23 @@ export async function deployNFT404() {
   const decimals = 18n;
   const units = 404000n * 10n ** decimals;
   const maxTotalSupplyERC20 = 10000n * units;
+  const owner = signers[0];
+  const initialMintRecipient = signers[0].address;
+  const automationRegistry = signers[9];
+  const automationRegistryAddress = signers[9].address;
 
   const erc404Params: ERC404InitParamsStruct = {
     name: "CAT NFT 404",
     symbol: "CN404",
     decimals,
     units,
-    maxTotalSupplyERC20,
-    initialMintRecipient: signers[0].address,
+  };
+
+  const nft404Params: ERC404ConfigInitParamsStruct = {
+    automationRegistry: automationRegistryAddress,
+    initialOwner: owner.address,
+    maxTotalSupplyERC20: maxTotalSupplyERC20,
+    initialMintRecipient,
   };
 
   const dnaParams: DNAInitParamsStruct = {
@@ -39,13 +49,10 @@ export async function deployNFT404() {
     variants_name: ["head", "hat", "background", "eyes"],
   };
 
-  const automationRegistry = signers[9];
-  const automationRegistryAddress = signers[9].address;
-
   const nft404 = (await upgrades.deployProxy(factory, [
     erc404Params,
     dnaParams,
-    automationRegistryAddress,
+    nft404Params,
   ])) as unknown as NFT404;
 
   await nft404.waitForDeployment();
@@ -53,10 +60,11 @@ export async function deployNFT404() {
   return {
     nft404,
     nft404Address: await nft404.getAddress(),
+    owner,
     automationRegistry,
-    automationRegistryAddress,
     erc404Params,
     dnaParams,
+    nft404Params,
   };
 }
 
