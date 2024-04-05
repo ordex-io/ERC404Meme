@@ -16,6 +16,11 @@ const config: HardhatUserConfig = {
       { version: "0.4.18" },
     ],
   },
+  typechain: {
+    externalArtifacts: [
+      "./node_modules/@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json ",
+    ],
+  },
 };
 
 export default config;
