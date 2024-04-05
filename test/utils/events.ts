@@ -1,5 +1,32 @@
-import { ContractTransactionResponse, BaseContract } from "ethers";
+import {
+  ContractTransactionResponse,
+  BaseContract,
+  EventLog,
+  Log,
+} from "ethers";
 import { bytesToAddress } from "./manipulation";
+
+type ERC20TransferEvent = {
+  index: number;
+  from: string;
+  to: string;
+  amount: bigint;
+};
+
+type ERC721TransferEvent = {
+  index: number;
+  from: string;
+  to: string;
+  id: bigint;
+};
+
+type TransferEvent = {
+  index: number;
+  from: string;
+  to: string;
+  amount?: bigint;
+  id?: bigint;
+};
 
 /**
  * Obtain the first event that match the given event name
@@ -40,6 +67,41 @@ export const getEventArgs = async (
 };
 
 /**
+ * Get the ERC20 Transfer events values from a transaction.
+ *
+ * Since the ERC404 contract hold ERC20 and ERC721, and their topics are the same,
+ * the parse always try to decode as ERC20. This function only take the ERC0 transfers
+ * @param tx -  Transaction that contain the ERC0 transfers
+ * @param contract - The contract to loop the address and that have the interface to decode ERC20 transfers
+ * @param contractAddressOverride - Optional address that possible emitted the contract
+ * @returns
+ */
+export async function getERC20TransfersEventsArgs(
+  tx: ContractTransactionResponse,
+  contract: BaseContract,
+  contractAddressOverride: string | null = null
+): Promise<ERC20TransferEvent[]> {
+  const txReceipt = await tx.wait();
+  if (!txReceipt) {
+    throw new Error("Could not get the tx receipt");
+  }
+
+  return _getCorrectTransferEvents(
+    txReceipt.logs,
+    "ERC20",
+    contract,
+    contractAddressOverride
+  ).map((event_) => {
+    return {
+      index: event_.index,
+      from: event_.from,
+      to: event_.to,
+      amount: event_.amount!,
+    };
+  });
+}
+
+/**
  * Get the ERC721 Transfer events values from a transaction.
  *
  * Since the ERC404 contract hold ERC20 and ERC721, and their topics are the same,
@@ -53,27 +115,66 @@ export async function getERC721TransfersEventsArgs(
   tx: ContractTransactionResponse,
   contract: BaseContract,
   contractAddressOverride: string | null = null
-) {
+): Promise<ERC721TransferEvent[]> {
   const txReceipt = await tx.wait();
   if (!txReceipt) {
     throw new Error("Could not get the tx receipt");
   }
 
-  const eventLogs = txReceipt.logs.filter((log_) => {
+  return _getCorrectTransferEvents(
+    txReceipt.logs,
+    "ERC721",
+    contract,
+    contractAddressOverride
+  ).map((event_) => {
+    return {
+      index: event_.index,
+      from: event_.from,
+      to: event_.to,
+      id: event_.id!,
+    };
+  });
+}
+
+/**
+ * Internal function to filter based on ERC20 or ERC721 and obtain the correct logs
+ */
+function _getCorrectTransferEvents(
+  logs_: (EventLog | Log)[],
+  type_: "ERC20" | "ERC721",
+  contract: BaseContract,
+  contractAddressOverride: string | null = null
+): TransferEvent[] {
+  const eventLogs = logs_.filter((log_) => {
     return (
       log_.topics[0] === contract.filters["Transfer"]().fragment.topicHash &&
-      log_.data.length <= 2 && // This because ERC721 transfer does index every data on the event. So, data is 0x
+      ((type_ == "ERC20" && log_.data.length > 2) ||
+        (type_ == "ERC721" && log_.data.length <= 2)) &&
       (contractAddressOverride === null ||
         log_.address === contractAddressOverride)
     );
   });
 
-  return eventLogs.map((log_) => {
-    return {
-      index: log_.index,
-      from: bytesToAddress(log_.topics[1]),
-      to: bytesToAddress(log_.topics[2]),
-      id: BigInt(log_.topics[3]),
-    };
-  });
+  if (type_ == "ERC20") {
+    return eventLogs.map((log_) => {
+      return {
+        index: log_.index,
+        from: bytesToAddress(log_.topics[1]),
+        to: bytesToAddress(log_.topics[2]),
+        amount: BigInt(log_.data),
+      };
+    });
+  } else if (type_ == "ERC721") {
+    return eventLogs.map((log_) => {
+      return {
+        index: log_.index,
+        from: bytesToAddress(log_.topics[1]),
+        to: bytesToAddress(log_.topics[2]),
+        id: BigInt(log_.topics[3]),
+      };
+    });
+  }
+
+  // This should never be reached
+  throw new Error("Invalid type");
 }
