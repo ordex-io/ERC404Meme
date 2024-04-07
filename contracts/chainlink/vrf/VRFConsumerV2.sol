@@ -90,7 +90,7 @@ import {IVRFConsumerV2} from "./IVRFConsumerV2.sol";
  * @dev responding to the request (however this is not enforced in the contract
  * @dev and so remains effective only in the case of unmodified oracle software).
  */
-abstract contract VRFConsumerBaseV2 is IVRFConsumerV2 {
+abstract contract VRFConsumerV2 is IVRFConsumerV2 {
     error OnlyCoordinatorCanFulfill(address have, address want);
 
     constructor(address vrfCoordinator_) {
