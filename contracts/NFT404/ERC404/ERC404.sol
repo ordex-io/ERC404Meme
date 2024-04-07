@@ -1,22 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IERC404Errors} from "./IERC404Errors.sol";
-import {IERC404} from "./IERC404.sol";
 import {IERC721Receiver} from "@solidstate/contracts/interfaces/IERC721Receiver.sol";
 import {IERC165} from "@solidstate/contracts/interfaces/IERC165.sol";
 import {ERC20Events} from "ERC404/contracts/lib/ERC20Events.sol";
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
-
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {DoubleEndedQueue} from "ERC404/contracts/lib/DoubleEndedQueue.sol";
+import {IERC404} from "./IERC404.sol";
 import {ERC404Storage} from "./ERC404Storage.sol";
+import {IERC404Errors} from "./IERC404Errors.sol";
 
 /**
  * @title ERC404 Upgradeable
  */
-abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
+abstract contract ERC404 is IERC404, IERC404Errors {
     using DoubleEndedQueue for DoubleEndedQueue.Uint256Deque;
+
+    /// @dev Initial chain id for EIP-2612 support
+    uint256 internal immutable _INITIAL_CHAIN_ID;
+
+    /// @dev Initial domain separator for EIP-2612 support
+    bytes32 internal immutable _INITIAL_DOMAIN_SEPARATOR;
 
     /// @dev Address bitmask for packed ownership data
     uint256 private constant _BITMASK_ADDRESS = (1 << 160) - 1;
@@ -27,12 +31,12 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
     /// @dev Constant for token id encoding
     uint256 public constant ID_ENCODING_PREFIX = 1 << 255;
 
-    function __ERC404_init(
+    constructor(
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
         uint256 units_
-    ) internal onlyInitializing {
+    ) {
         ERC404Storage.layout().name = name_;
         ERC404Storage.layout().symbol = symbol_;
 
@@ -41,6 +45,9 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         }
 
         ERC404Storage.layout().decimals = decimals_;
+
+        // If units are 0, then default behaviour are set
+        // Otherwise, will use the units provided
         if (units_ == 0) {
             ERC404Storage.layout().units = 10 ** decimals_;
         } else {
@@ -48,10 +55,8 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         }
 
         // EIP-2612 initialization
-        ERC404Storage.layout()._INITIAL_CHAIN_ID = block.chainid;
-        ERC404Storage
-            .layout()
-            ._INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+        _INITIAL_CHAIN_ID = block.chainid;
+        _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /**
@@ -574,10 +579,11 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         emit ERC20Events.Approval(owner_, spender_, value_);
     }
 
+    /// @inheritdoc IERC404
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
         return
-            block.chainid == ERC404Storage.layout()._INITIAL_CHAIN_ID
-                ? ERC404Storage.layout()._INITIAL_DOMAIN_SEPARATOR
+            block.chainid == _INITIAL_CHAIN_ID
+                ? _INITIAL_DOMAIN_SEPARATOR
                 : _computeDomainSeparator();
     }
 
