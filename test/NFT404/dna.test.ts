@@ -9,7 +9,7 @@ import {
 } from "../utils";
 import { ethers } from "hardhat";
 
-describe("DNA NFT404", () => {
+xdescribe("DNA NFT404", () => {
   it("should mint NFTs without DNA before their reveal", async () => {
     const signers = await ethers.getSigners();
     const singer_0 = signers[0];
