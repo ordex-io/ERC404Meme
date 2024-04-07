@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {DNA_WIP, DNABaseStorage} from "../../dna/DNA_WIP.sol";
+import {DNA, DNABaseStorage} from "../../dna/DNA.sol";
 
-contract DNAMock is DNA_WIP {
+contract DNAMock is DNA {
     event WordsSaved(uint256 counterId, uint256[] words);
 
     constructor(
         bytes32 schemaHash,
         string[] memory variantsName
-    ) DNA_WIP(schemaHash, variantsName) {}
+    ) DNA(schemaHash, variantsName) {}
 
     /*
      * Fill all the IDs provided to use the given words.
