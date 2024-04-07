@@ -19,7 +19,13 @@ struct VRFParams {
 
 contract AutomationVRF is IAutomationBase, VRFConsumerV2, Ownable {
     error NoAutomationRegister();
-    event NftsRevealed(uint256 nftRevealCounter, uint256 time);
+
+    event RevealCalled(uint256 requestId, uint256 timeOfCall);
+    event NftsRevealed(
+        uint256 requestId,
+        uint256 nftRevealCounter,
+        uint256 time
+    );
 
     constructor(
         address automationRegistry_,
@@ -51,29 +57,24 @@ contract AutomationVRF is IAutomationBase, VRFConsumerV2, Ownable {
 
         AutomationVRFStorage.Layout memory l = AutomationVRFStorage.layout();
 
-        // uint256 requestId = _vrfCoordinator().requestRandomWords(
-        _vrfCoordinator().requestRandomWords(
+        uint256 requestId = _vrfCoordinator().requestRandomWords(
             l.keyHash,
             l.subscriptionId,
             l.requestConfirmations,
             l.callbackGasLimit,
             l.numWords
         );
+
+        emit RevealCalled(requestId, block.timestamp);
     }
 
     function fulfillRandomWords(
         uint256 requestId,
         uint256[] memory randomWords
     ) internal override {
-        // // This prevent calls for others than the registry
-        // if (msg.sender != AutomationStorage.layout().automationRegistry) {
-        //     revert NoAutomationRegister();
-        // }
-        // uint256[] memory words = new uint256[](1);
-        // words[0] = uint256(blockhash(block.number - 1));
-        // // Save the words on DNA storage AND get the counter ID about where are
-        // // stored on the DNA mapping
-        // uint256 counterID = DNABaseStorage.saveWords(words);
-        // emit NftsRevealed(counterID, block.timestamp);
+        // Save the words on DNA storage AND get the counter ID about where are
+        // stored on the DNA mapping
+        uint256 counterId = DNABaseStorage.saveWords(randomWords);
+        emit NftsRevealed(requestId, counterId, block.timestamp);
     }
 }
