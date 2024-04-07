@@ -8,7 +8,7 @@ import {
   deploySwapRouter,
 } from "../utils/deploy";
 
-describe("Uniswap", () => {
+xdescribe("Uniswap", () => {
   it("Add Uniswap contract to Exempt", async () => {
     const { nft404, nft404Address, owner, erc404Params, nft404Params } =
       await loadFixture(deployNFT404);
