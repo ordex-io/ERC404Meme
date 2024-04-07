@@ -6,18 +6,12 @@ import {IAutomationBase} from "../IAutomationBase.sol";
 import {DNABaseStorage} from "../../../dna/DNABaseStorage.sol";
 
 contract AutomationNonVRF is IAutomationBase {
-    error NoAutomationRegister();
-    event NftsRevealed(uint256 nftRevealCounter, uint256 time);
-
     constructor(address automationRegistry_) {
         AutomationBaseStorage.layout().automationRegistry = automationRegistry_;
     }
 
     function reveal() external {
-        // This prevent calls for others than the registry
-        if (msg.sender != AutomationBaseStorage.layout().automationRegistry) {
-            revert NoAutomationRegister();
-        }
+        AutomationBaseStorage.onlyAutoRegistry();
 
         uint256[] memory words = new uint256[](1);
         words[0] = uint256(blockhash(block.number - 1));
@@ -26,6 +20,8 @@ contract AutomationNonVRF is IAutomationBase {
         // stored on the DNA mapping
         uint256 counterID = DNABaseStorage.saveWords(words);
 
-        emit NftsRevealed(counterID, block.timestamp);
+        // Using 0 as request Id since it's a NON VRF call.
+        emit RevealCalled(0, block.number);
+        emit NftsRevealed(0, counterID, block.number);
     }
 }
