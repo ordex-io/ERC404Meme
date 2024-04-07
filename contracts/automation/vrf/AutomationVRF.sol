@@ -5,7 +5,7 @@ import {Ownable} from "@solidstate/contracts/access/ownable/Ownable.sol";
 import {AutomationBaseStorage} from "../AutomationBaseStorage.sol";
 import {IAutomationBase} from "../IAutomationBase.sol";
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
-import {VRFConsumerV2} from "./VRFConsumerV2.sol";
+import {VRFConsumerV2} from "./chainlink/VRFConsumerV2.sol";
 import {AutomationVRFStorage} from "./AutomationVRFStorage.sol";
 
 struct VRFParams {
