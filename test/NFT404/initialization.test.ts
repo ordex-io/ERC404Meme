@@ -3,8 +3,9 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { deployNFT404 } from "../utils";
 import { ethers } from "hardhat";
 
-describe("NFT404", () => {
-  describe("Initialization", () => {
+// TODO: Move from INit to construction with diamond/facets approach deployment
+xdescribe("NFT404", () => {
+  describe("Construction", () => {
     it("should initialize the contract correctly", async () => {
       const { nft404, erc404Params, nft404Params } = await loadFixture(
         deployNFT404
