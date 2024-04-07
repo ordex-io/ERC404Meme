@@ -9,9 +9,9 @@ contract MinimalERC404 is Ownable, ERC404 {
     constructor(
         string memory name_,
         string memory symbol_,
-        string memory baseUri_,
         uint8 decimals_,
         uint256 units_,
+        string memory baseUri_,
         address initialOwner_
     ) ERC404(name_, symbol_, decimals_, units_) {
         // Save the base URI

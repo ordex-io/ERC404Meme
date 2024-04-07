@@ -9,9 +9,9 @@ contract ERC404Example is Ownable, ERC404 {
     constructor(
         string memory name_,
         string memory symbol_,
-        string memory baseUri_,
         uint8 decimals_,
         uint256 units_,
+        string memory baseUri_,
         address initialOwner_,
         uint256 maxTotalSupplyERC721_,
         address initialMintRecipient_
