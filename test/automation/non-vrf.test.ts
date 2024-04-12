@@ -12,7 +12,7 @@ import {
   NftsRevealedEvent,
 } from "../../typechain-types/artifacts/contracts/automation/IAutomationBase";
 
-describe.only("Automation - Non VRF", () => {
+describe("Automation - Non VRF", () => {
   async function deployAutoNonVRFMock() {
     let automationRegistry = await loadFixture(deployAutomationRegistryMock);
 
