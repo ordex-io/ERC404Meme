@@ -18,6 +18,13 @@ export async function deployVRFCoordinartorV2Mock() {
   return contract;
 }
 
+export async function deployAutomationRegistryMock() {
+  const factory = await ethers.getContractFactory("AutomationRegistryMock");
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+  return contract;
+}
+
 export async function deployNFT404() {
   const factory = await ethers.getContractFactory("NFT404");
   const signers = await ethers.getSigners();
