@@ -25,7 +25,7 @@ export async function deployAutomationRegistryMock() {
 
 export async function deployNFT404Facet() {
   const signers = await ethers.getSigners();
-  const ownerSigner = signers[2];
+  const ownerSigner = signers[9];
   const ownerAddress = await ownerSigner.getAddress();
 
   const decimals = 18n;
@@ -98,6 +98,7 @@ export async function deployAutomationNonVrfFacet() {
   return {
     automationNonVrf,
     automationNonVrfAddress: await automationNonVrf.getAddress(),
+    automationRegistry,
     deployArgs,
   };
 }
@@ -140,16 +141,16 @@ export async function deployAutomationVrfFacet() {
   };
 
   const factory = await ethers.getContractFactory("AutomationVRF");
-  const automationNonVrf = await factory.deploy(
+  const automationVrf = await factory.deploy(
     deployArgs.automationRegistryAddress,
     deployArgs.randomParams
   );
 
-  await automationNonVrf.waitForDeployment();
+  await automationVrf.waitForDeployment();
 
   return {
-    automationNonVrf,
-    automationNonVrfAddress: await automationNonVrf.getAddress(),
+    automationVrf,
+    automationVrfAddress: await automationVrf.getAddress(),
     automationRegistry,
     automationRegistryAddress,
     coordinatorv2,
