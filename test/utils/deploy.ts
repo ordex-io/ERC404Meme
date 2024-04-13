@@ -73,7 +73,7 @@ export async function deployAutomationNonVrfFacet() {
   };
 
   const factory = await ethers.getContractFactory("AutomationNonVRF");
-  const automationNonVrf = await factory.deploy(automationRegistryAddress);
+  const automationNonVrf = await factory.deploy();
 
   await automationNonVrf.waitForDeployment();
 
@@ -123,10 +123,7 @@ export async function deployAutomationVrfFacet() {
   };
 
   const factory = await ethers.getContractFactory("AutomationVRF");
-  const automationVrf = await factory.deploy(
-    deployArgs.automationRegistryAddress,
-    deployArgs.randomParams
-  );
+  const automationVrf = await factory.deploy();
 
   await automationVrf.waitForDeployment();
 
