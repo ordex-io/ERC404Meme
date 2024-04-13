@@ -14,7 +14,7 @@ describe("NFT404", () => {
   describe("Construction", () => {
     it("check", async () => {
       const factory = await ethers.getContractFactory("Diamond");
-      const contract = await factory.deploy();
+      const contract = await factory.deploy(ethers.ZeroAddress);
       await contract.waitForDeployment();
 
       const { nft404Contract } = await loadFixture(deployNFT404Facet);
