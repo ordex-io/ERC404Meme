@@ -9,11 +9,12 @@ import {DoubleEndedQueue} from "ERC404/contracts/lib/DoubleEndedQueue.sol";
 import {IERC404} from "./IERC404.sol";
 import {ERC404Storage} from "./ERC404Storage.sol";
 import {IERC404Errors} from "./IERC404Errors.sol";
+import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
 
 /**
  * @title ERC404 Upgradeable
  */
-abstract contract ERC404 is IERC404, IERC404Errors {
+abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
     using DoubleEndedQueue for DoubleEndedQueue.Uint256Deque;
 
     /// @dev Address bitmask for packed ownership data
@@ -30,7 +31,7 @@ abstract contract ERC404 is IERC404, IERC404Errors {
         string memory symbol_,
         uint8 decimals_,
         uint256 units_
-    ) public {
+    ) public initializer {
         ERC404Storage.layout().name = name_;
         ERC404Storage.layout().symbol = symbol_;
 
