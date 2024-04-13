@@ -6,4 +6,6 @@ import {ISafeOwnable} from "@solidstate/contracts/access/ownable/ISafeOwnable.so
 
 interface INFT404 is IERC404, ISafeOwnable {
     function setERC721TransferExempt(address target_, bool state_) external;
+
+    function setBaseUri(string memory newBaseUri_) external;
 }
