@@ -3,17 +3,20 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   deployAutomationNonVrfFacet,
   deployDNAFacet,
+  deployNFT404ExposerFacet,
   deployNFT404Facet,
   fulfillFacetCut,
   getInitData,
 } from "../utils";
 import { ethers } from "hardhat";
 
-import { IDiamondNFT404__factory } from "../../typechain-types/factories/artifacts/contracts/diamond/IDiamondNFT404__factory";
-
 async function deployFullNFT404DiamondNonVrf() {
   // Factory Diamond
   const zeroDiamond = await ethers.getContractAt("Diamond", ethers.ZeroAddress);
+  const zeroIDiamont404 = await ethers.getContractAt(
+    "IDiamondNFT404",
+    ethers.ZeroAddress
+  );
 
   // Deploy Automation Non VRF Facet
   const {
@@ -30,12 +33,15 @@ async function deployFullNFT404DiamondNonVrf() {
     deployArgs: dnaArgs,
   } = await deployDNAFacet();
 
-  // Deply NFT404 Facet
+  // Deploy NFT404 Facet
   const {
     nft404Contract,
     nft404ContractAddress,
     deployArgs: nft404Args,
   } = await deployNFT404Facet();
+
+  // Deploy NFT404 Facet (NOTE: only tests)
+  const { nft404ExposerContract } = await deployNFT404ExposerFacet();
 
   // FULFILL THE FACET CUTS
   // NOTE: This order is really important when initializing (NFT404, DNA, Automation)
@@ -50,6 +56,11 @@ async function deployFullNFT404DiamondNonVrf() {
   const automationFacetCuts = await fulfillFacetCut(
     automationNonVrf,
     zeroDiamond
+  );
+
+  const exposer404FacetCuts = await fulfillFacetCut(
+    nft404ExposerContract,
+    zeroIDiamont404
   );
 
   // Initializations calldata
@@ -90,16 +101,20 @@ async function deployFullNFT404DiamondNonVrf() {
   const factoryDiamond = await ethers.getContractFactory("Diamond");
   const diamondContract = await factoryDiamond.deploy(
     ownerSigner.address, // owner
-    [nft404FacetCuts, dnaFacetCuts, automationFacetCuts], //  Faucets
+    [nft404FacetCuts, dnaFacetCuts, automationFacetCuts, exposer404FacetCuts], //  Faucets
     await diamondMultiInit.getAddress(), // Target address for initialization
     calldataMultiInit // Calldata that will be used for initialization
   );
   await diamondContract.waitForDeployment();
 
   const diamondAddress = await diamondContract.getAddress();
-  const iDiamond = IDiamondNFT404__factory.connect(
+
+  const iDiamond = await ethers.getContractAt(
+    "INFT404Exposer",
     diamondAddress,
-    (await ethers.getSigners())[0]
+    (
+      await ethers.getSigners()
+    )[0]
   );
 
   return {
@@ -123,44 +138,94 @@ async function deployFullNFT404DiamondNonVrf() {
   };
 }
 
-describe.only("Diamond", () => {
+describe("Diamond - NFT - CAT404", () => {
   describe("Facets with Auto Non VRF", () => {
-    xit("should add the correct selectors for each facet", async () => {
-      const {
-        diamondContract,
-        dnaContractAddress,
-        automationAddress,
-        nft404Address,
-        facetsCuts,
-      } = await loadFixture(deployFullNFT404DiamondNonVrf);
-
-      const dnaSelectors = await diamondContract.facetFunctionSelectors(
-        dnaContractAddress
-      );
-      const automationSelectors = await diamondContract.facetFunctionSelectors(
-        automationAddress
-      );
-      const nft404Selectors = await diamondContract.facetFunctionSelectors(
-        nft404Address
-      );
-
-      expect(facetsCuts.dna.selectors).to.be.deep.equals(dnaSelectors);
-      expect(facetsCuts.automation.selectors).to.be.deep.equals(
-        automationSelectors
-      );
-      expect(facetsCuts.nft404.selectors).to.be.deep.equals(nft404Selectors);
-    });
-
-    it("should use the correct owner address for all facets", async () => {
-      const { diamondContract } = await loadFixture(
+    it("should use the correct owner address for different facets", async () => {
+      const [signer0, signer1] = await ethers.getSigners();
+      const { diamondContract, ownerSigner, facetsArgs } = await loadFixture(
         deployFullNFT404DiamondNonVrf
       );
 
-      const a = await diamondContract.tokenURI(0);
-      const b = await diamondContract.tokenURI(2);
+      const transferExemptAddress = signer1.address;
+      const newUri = "www.random-uri.com";
+      const amountToMint = 50n * facetsArgs.nft404.units; // 50 * 404k
 
-      console.log(a);
-      console.log(b);
+      // Initials states
+      expect(await diamondContract.erc721TransferExempt(transferExemptAddress))
+        .to.be.false;
+      expect(await diamondContract.tokenURI(0)).to.not.contain(newUri);
+      expect(
+        await diamondContract.balanceOf(transferExemptAddress)
+      ).to.be.equals(0n);
+
+      // Should revert from NFT404 Facet with NON-owner
+      expect(
+        diamondContract
+          .connect(signer0)
+          .setERC721TransferExempt(transferExemptAddress, true)
+      ).to.be.revertedWithCustomError(diamondContract, "Ownable__NotOwner");
+
+      expect(
+        diamondContract.connect(signer1).setBaseUri(newUri)
+      ).to.be.revertedWithCustomError(diamondContract, "Ownable__NotOwner");
+
+      expect(
+        diamondContract
+          .connect(signer0)
+          .mintERC20(transferExemptAddress, amountToMint)
+      ).to.be.revertedWithCustomError(diamondContract, "Ownable__NotOwner");
+
+      // Should pass with owner
+      await diamondContract
+        .connect(ownerSigner)
+        .setERC721TransferExempt(transferExemptAddress, true);
+
+      await diamondContract.connect(ownerSigner).setBaseUri(newUri);
+
+      await diamondContract
+        .connect(ownerSigner)
+        .mintERC20(transferExemptAddress, amountToMint);
+
+      // End states
+      expect(await diamondContract.erc721TransferExempt(transferExemptAddress))
+        .to.be.true;
+      expect(await diamondContract.tokenURI(0)).to.contain(newUri);
+      expect(
+        await diamondContract.balanceOf(transferExemptAddress)
+      ).to.be.equals(amountToMint);
+    });
+
+    it("should mint NFT only if get enough ERC20 tokens", async () => {
+      const [signer0] = await ethers.getSigners();
+      const { diamondContract, ownerSigner, facetsArgs } = await loadFixture(
+        deployFullNFT404DiamondNonVrf
+      );
+
+      expect(await diamondContract.balanceOf(signer0.address)).to.be.equals(0n);
+      expect(
+        await diamondContract.erc20BalanceOf(signer0.address)
+      ).to.be.equals(0n);
+      expect(
+        await diamondContract.erc721BalanceOf(signer0.address)
+      ).to.be.equals(0n);
+
+      const nftQuantityToGet = 5n;
+      const erc20Amount = nftQuantityToGet * facetsArgs.nft404.units;
+
+      // Give some tokens to signer0
+      await diamondContract
+        .connect(ownerSigner)
+        .mintERC20(signer0.address, erc20Amount);
+
+      expect(await diamondContract.balanceOf(signer0.address)).to.be.equals(
+        erc20Amount
+      );
+      expect(
+        await diamondContract.erc20BalanceOf(signer0.address)
+      ).to.be.equals(erc20Amount);
+      expect(
+        await diamondContract.erc721BalanceOf(signer0.address)
+      ).to.be.equals(nftQuantityToGet);
     });
   });
 });
