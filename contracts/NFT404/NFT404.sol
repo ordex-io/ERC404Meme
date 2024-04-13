@@ -17,11 +17,9 @@ contract NFT404 is INFT404, ERC404, SafeOwnable {
         string memory symbol_,
         uint8 decimals_,
         uint256 units_,
-        string memory baseUri_,
-        address owner_
+        string memory baseUri_
     ) ERC404(name_, symbol_, decimals_, units_) {
         ERC404Storage.setBaseUri(baseUri_);
-        _setOwner(owner_);
     }
 
     /**
