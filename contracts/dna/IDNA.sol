@@ -2,6 +2,11 @@
 pragma solidity ^0.8.24;
 
 interface IDNA {
+    function __DNA_init(
+        bytes32 schemaHash,
+        string[] memory variantsName
+    ) external;
+
     function dnaOf(uint256 id_) external view returns (bytes32);
 
     function dnaOfToJson(
