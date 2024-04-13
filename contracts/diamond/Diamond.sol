@@ -8,7 +8,14 @@ import {IDNA} from "../dna/IDNA.sol";
 import {INFT404, IERC404} from "../NFT404/INFT404.sol";
 
 contract Diamond is SolidStateDiamond {
-    constructor(address owner_) {
+    constructor(
+        address owner_,
+        FacetCut[] memory facetCuts_,
+        address target_,
+        bytes memory calldata_
+    ) {
         _setOwner(owner_);
+
+        _diamondCut(facetCuts_, target_, calldata_);
     }
 }
