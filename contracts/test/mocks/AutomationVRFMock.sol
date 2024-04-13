@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
-import {AutomationVRF, VRFParams, AutomationVRFStorage} from "../../automation/vrf/AutomationVRF.sol";
+import {AutomationVRF, VRFParams, AutomationVRFStorage, AutomationBaseStorage} from "../../automation/vrf/AutomationVRF.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 /**
@@ -27,6 +27,10 @@ contract AutomationVRFMock is AutomationVRF {
         returns (VRFCoordinatorV2Interface)
     {
         return _vrfCoordinator();
+    }
+
+    function getAutomationRegistry() public view returns (address) {
+        return AutomationBaseStorage.layout().automationRegistry;
     }
 
     function getKeyHash() public view returns (bytes32) {
