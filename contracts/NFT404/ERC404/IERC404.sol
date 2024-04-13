@@ -240,4 +240,6 @@ interface IERC404 {
      * is not equal to initial chain id
      */
     function DOMAIN_SEPARATOR() external view returns (bytes32);
+
+    function ownedData(uint256 id_) external view returns (uint256);
 }
