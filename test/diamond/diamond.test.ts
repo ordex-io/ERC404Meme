@@ -93,7 +93,7 @@ async function deployFullNFT404DiamondNonVrf() {
   };
 }
 
-describe.only("Diamond", () => {
+describe("Diamond", () => {
   describe("Facets with Auto Non VRF", () => {
     xit("should add the correct selectors for each facet", async () => {
       const {

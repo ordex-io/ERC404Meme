@@ -2,11 +2,15 @@
 pragma solidity ^0.8.24;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
 import {DNABaseStorage} from "./DNABaseStorage.sol";
 import {IDNA} from "./IDNA.sol";
 
-contract DNA is IDNA {
-    constructor(bytes32 schemaHash, string[] memory variantsName) {
+contract DNA is IDNA, Initializable {
+    function __DNA_init(
+        bytes32 schemaHash,
+        string[] memory variantsName
+    ) public initializer {
         DNABaseStorage.layout().schema_hash = schemaHash;
         DNABaseStorage.layout().variants_name = variantsName;
     }

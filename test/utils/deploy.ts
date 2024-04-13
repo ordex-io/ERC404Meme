@@ -54,11 +54,7 @@ export async function deployDNAFacet() {
 
   const factory = await ethers.getContractFactory("DNA");
 
-  const dnaContract = await factory.deploy(
-    deployArgs.schemaHash,
-    deployArgs.variantsName
-  );
-
+  const dnaContract = await factory.deploy();
   await dnaContract.waitForDeployment();
 
   return {
