@@ -46,6 +46,17 @@ export async function deployNFT404Facet() {
   };
 }
 
+export async function deployNFT404ExposerFacet() {
+  const factory = await ethers.getContractFactory("NFT404Exposer");
+  const nft404ExposerContract = await factory.deploy();
+  await nft404ExposerContract.waitForDeployment();
+
+  return {
+    nft404ExposerContract,
+    nft404ExposerContractAddress: await nft404ExposerContract.getAddress(),
+  };
+}
+
 export async function deployDNAFacet() {
   const deployArgs = {
     schemaHash: ethers.concat([ethers.randomBytes(32)]),
