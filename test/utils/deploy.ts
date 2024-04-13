@@ -36,15 +36,17 @@ export async function deployNFT404Facet() {
 
   const factory = await ethers.getContractFactory("NFT404");
 
-  const nft404Contract = await factory.deploy(
+  const nft404Contract = await factory.deploy();
+  await nft404Contract.waitForDeployment();
+
+  const txInit = await nft404Contract.__NFT404_init(
     deployArgs.name,
     deployArgs.symbol,
     deployArgs.decimals,
     deployArgs.units,
     deployArgs.baseUri
   );
-
-  await nft404Contract.waitForDeployment();
+  await txInit.wait();
 
   return {
     nft404Contract,
