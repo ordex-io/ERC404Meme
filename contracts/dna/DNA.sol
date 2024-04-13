@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {DNABaseStorage} from "./DNABaseStorage.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {DNABaseStorage} from "./DNABaseStorage.sol";
+import {IDNA} from "./IDNA.sol";
 
-contract DNA {
+contract DNA is IDNA {
     constructor(bytes32 schemaHash, string[] memory variantsName) {
         DNABaseStorage.layout().schema_hash = schemaHash;
         DNABaseStorage.layout().variants_name = variantsName;
