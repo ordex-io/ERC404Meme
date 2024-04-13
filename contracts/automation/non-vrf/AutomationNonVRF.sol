@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
 import {AutomationBaseStorage} from "../AutomationBaseStorage.sol";
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
 import {IAutomationNonVRF} from "./IAutomationNonVRF.sol";
 
-contract AutomationNonVRF is IAutomationNonVRF {
-    constructor(address automationRegistry_) {
+contract AutomationNonVRF is IAutomationNonVRF, Initializable {
+    function __AutomationNonVRF_init(
+        address automationRegistry_
+    ) public initializer {
         AutomationBaseStorage.layout().automationRegistry = automationRegistry_;
     }
 
