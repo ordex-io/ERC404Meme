@@ -14,27 +14,27 @@ async function deployFullNFT404DiamondNonVrf() {
   const signers = await ethers.getSigners();
   const ownerSigner = signers[9];
 
-  // Deploy DNA Facet
-  const {
-    dnaContract,
-    dnaContractAddress,
-    deployArgs: dnaArgs,
-  } = await loadFixture(deployDNAFacet);
-
   // Deploy Automation Non VRF Facet
   const {
     automationNonVrf,
     automationRegistry,
     automationNonVrfAddress,
     deployArgs: automationArgs,
-  } = await loadFixture(deployAutomationNonVrfFacet);
+  } = await deployAutomationNonVrfFacet();
+
+  // Deploy DNA Facet
+  const {
+    dnaContract,
+    dnaContractAddress,
+    deployArgs: dnaArgs,
+  } = await deployDNAFacet();
 
   // Deply NFT404 Facet
   const {
     nft404Contract,
     nft404ContractAddress,
     deployArgs: nft404Args,
-  } = await loadFixture(deployNFT404Facet);
+  } = await deployNFT404Facet();
 
   // Deploy Diamond contract
   const factory = await ethers.getContractFactory("Diamond");
@@ -94,7 +94,7 @@ async function deployFullNFT404DiamondNonVrf() {
 }
 
 describe.only("Diamond", () => {
-  describe.only("Facets with Auto Non VRF", () => {
+  describe("Facets with Auto Non VRF", () => {
     xit("should add the correct selectors for each facet", async () => {
       const {
         diamondContract,
