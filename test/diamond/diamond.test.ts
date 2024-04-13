@@ -11,6 +11,9 @@ import { ethers } from "hardhat";
 import { IDiamondNFT404__factory } from "../../typechain-types/factories/artifacts/contracts/diamond/IDiamondNFT404__factory";
 
 async function deployFullNFT404DiamondNonVrf() {
+  const signers = await ethers.getSigners();
+  const ownerSigner = signers[9];
+
   // Deploy DNA Facet
   const {
     dnaContract,
@@ -30,13 +33,12 @@ async function deployFullNFT404DiamondNonVrf() {
   const {
     nft404Contract,
     nft404ContractAddress,
-    ownerSigner,
     deployArgs: nft404Args,
   } = await loadFixture(deployNFT404Facet);
 
   // Deploy Diamond contract
   const factory = await ethers.getContractFactory("Diamond");
-  const diamondContract = await factory.deploy(nft404Args.owner);
+  const diamondContract = await factory.deploy(ownerSigner.address);
   await diamondContract.waitForDeployment();
 
   // Fulfill the DNA Facet Cuts

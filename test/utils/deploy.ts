@@ -24,10 +24,6 @@ export async function deployAutomationRegistryMock() {
 }
 
 export async function deployNFT404Facet() {
-  const signers = await ethers.getSigners();
-  const ownerSigner = signers[9];
-  const ownerAddress = await ownerSigner.getAddress();
-
   const decimals = 18n;
 
   const deployArgs = {
@@ -36,7 +32,6 @@ export async function deployNFT404Facet() {
     decimals: decimals,
     units: 404000n * 10n ** decimals,
     baseUri: "https://www.example.com/token/",
-    owner: ownerAddress,
   };
 
   const factory = await ethers.getContractFactory("NFT404");
@@ -46,8 +41,7 @@ export async function deployNFT404Facet() {
     deployArgs.symbol,
     deployArgs.decimals,
     deployArgs.units,
-    deployArgs.baseUri,
-    deployArgs.owner
+    deployArgs.baseUri
   );
 
   await nft404Contract.waitForDeployment();
@@ -55,7 +49,6 @@ export async function deployNFT404Facet() {
   return {
     nft404Contract,
     nft404ContractAddress: await nft404Contract.getAddress(),
-    ownerSigner,
     deployArgs,
   };
 }
