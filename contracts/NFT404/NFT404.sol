@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Ownable} from "@solidstate/contracts/access/ownable/Ownable.sol";
+import {SafeOwnable} from "@solidstate/contracts/access/ownable/SafeOwnable.sol";
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
 import {ERC404, ERC404Storage} from "./ERC404/ERC404.sol";
 import {DNABaseStorage} from "../dna/DNABaseStorage.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {INFT404} from "./INFT404.sol";
 
-contract NFT404 is INFT404, ERC404, Ownable {
+contract NFT404 is INFT404, ERC404, SafeOwnable {
     error NoAutomationRegister();
     event NftsRevealed(uint256 nftRevealCounter, uint256 time);
 
