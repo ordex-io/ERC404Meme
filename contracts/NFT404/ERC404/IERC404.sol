@@ -242,4 +242,9 @@ interface IERC404 {
     function DOMAIN_SEPARATOR() external view returns (bytes32);
 
     function ownedData(uint256 id_) external view returns (uint256);
+
+    /**
+     * Constant for token id encoding
+     */
+    function ID_ENCODING_PREFIX() external returns (uint256);
 }
