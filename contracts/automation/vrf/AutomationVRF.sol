@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Ownable} from "@solidstate/contracts/access/ownable/Ownable.sol";
 import {AutomationBaseStorage} from "../AutomationBaseStorage.sol";
 import {IAutomationBase} from "../IAutomationBase.sol";
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
@@ -17,7 +16,7 @@ struct VRFParams {
     uint32 numWords;
 }
 
-contract AutomationVRF is IAutomationBase, VRFConsumerV2, Ownable {
+contract AutomationVRF is IAutomationBase, VRFConsumerV2 {
     constructor(
         address automationRegistry_,
         VRFParams memory randomParams_
