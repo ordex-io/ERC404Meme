@@ -23,6 +23,8 @@ library ERC404Storage {
         mapping(address => bool) _erc721TransferExempt;
         // Private
         DoubleEndedQueue.Uint256Deque _storedERC721Ids;
+        uint256 _INITIAL_CHAIN_ID;
+        bytes32 _INITIAL_DOMAIN_SEPARATOR;
     }
 
     bytes32 internal constant STORAGE_SLOT =
@@ -33,6 +35,14 @@ library ERC404Storage {
         assembly {
             l.slot := slot
         }
+    }
+
+    function getInitChainId() internal view returns (uint256) {
+        return layout()._INITIAL_CHAIN_ID;
+    }
+
+    function getInitDomainSeparator() internal view returns (bytes32) {
+        return layout()._INITIAL_DOMAIN_SEPARATOR;
     }
 
     function getBaseUri() internal view returns (string memory) {

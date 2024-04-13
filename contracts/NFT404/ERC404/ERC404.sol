@@ -16,12 +16,6 @@ import {IERC404Errors} from "./IERC404Errors.sol";
 abstract contract ERC404 is IERC404, IERC404Errors {
     using DoubleEndedQueue for DoubleEndedQueue.Uint256Deque;
 
-    /// @dev Initial chain id for EIP-2612 support
-    uint256 internal immutable _INITIAL_CHAIN_ID;
-
-    /// @dev Initial domain separator for EIP-2612 support
-    bytes32 internal immutable _INITIAL_DOMAIN_SEPARATOR;
-
     /// @dev Address bitmask for packed ownership data
     uint256 private constant _BITMASK_ADDRESS = (1 << 160) - 1;
 
@@ -31,12 +25,12 @@ abstract contract ERC404 is IERC404, IERC404Errors {
     /// @dev Constant for token id encoding
     uint256 public constant ID_ENCODING_PREFIX = 1 << 255;
 
-    constructor(
+    function __ERC404_init(
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
         uint256 units_
-    ) {
+    ) public {
         ERC404Storage.layout().name = name_;
         ERC404Storage.layout().symbol = symbol_;
 
@@ -54,9 +48,11 @@ abstract contract ERC404 is IERC404, IERC404Errors {
             ERC404Storage.layout().units = units_;
         }
 
-        // EIP-2612 initialization
-        _INITIAL_CHAIN_ID = block.chainid;
-        _INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
+        // EIP-2612 support - initialization
+        ERC404Storage.layout()._INITIAL_CHAIN_ID = block.chainid;
+        ERC404Storage
+            .layout()
+            ._INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
     /**
@@ -582,8 +578,8 @@ abstract contract ERC404 is IERC404, IERC404Errors {
     /// @inheritdoc IERC404
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
         return
-            block.chainid == _INITIAL_CHAIN_ID
-                ? _INITIAL_DOMAIN_SEPARATOR
+            block.chainid == ERC404Storage.getInitChainId()
+                ? ERC404Storage.getInitDomainSeparator()
                 : _computeDomainSeparator();
     }
 
