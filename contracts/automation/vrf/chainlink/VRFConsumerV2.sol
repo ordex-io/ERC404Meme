@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {VRFConsumerBaseV2Storage} from "./VRFConsumerBaseV2Storage.sol";
+import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import {VRFConsumerV2Storage} from "./VRFConsumerV2Storage.sol";
+import {IVRFConsumerV2} from "./IVRFConsumerV2.sol";
 
 /** ****************************************************************************
- * @notice Interface for contracts using VRF randomness
+ * @notice Interface for contracts using VRF randomness with Diamond/Facet approach
  * *****************************************************************************
  * @dev PURPOSE
  *
@@ -30,8 +31,8 @@ import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interface
  * *****************************************************************************
  * @dev USAGE
  *
- * @dev Calling contracts must inherit from VRFConsumerBase, and can
- * @dev initialize VRFConsumerBase's attributes in their initializer
+ * @dev Calling contracts must inherit from VRFConsumer. This contract will work
+ * @dev perfectly with Diamond/Facet approach
  *
  * @dev The oracle will have given you an ID for the VRF keypair they have
  * @dev committed to (let's call it keyHash). Create subscription, fund it
@@ -90,13 +91,11 @@ import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interface
  * @dev responding to the request (however this is not enforced in the contract
  * @dev and so remains effective only in the case of unmodified oracle software).
  */
-abstract contract VRFConsumerBaseV2Upgradeable is Initializable {
+abstract contract VRFConsumerV2 is IVRFConsumerV2, Initializable {
     error OnlyCoordinatorCanFulfill(address have, address want);
 
-    function __VRFConsumerBaseV2Upgradeable_init(
-        address _vrfCoordinator
-    ) internal onlyInitializing {
-        VRFConsumerBaseV2Storage.layout().vrfCoordinator = _vrfCoordinator;
+    function __VRFConsumerV2_init(address vrfCoordinator_) internal {
+        VRFConsumerV2Storage.layout().vrfCoordinator = vrfCoordinator_;
     }
 
     /**
@@ -125,10 +124,10 @@ abstract contract VRFConsumerBaseV2Upgradeable is Initializable {
         uint256 requestId,
         uint256[] memory randomWords
     ) external {
-        if (msg.sender != VRFConsumerBaseV2Storage.layout().vrfCoordinator) {
+        if (msg.sender != VRFConsumerV2Storage.vrfCoordinator()) {
             revert OnlyCoordinatorCanFulfill(
                 msg.sender,
-                VRFConsumerBaseV2Storage.layout().vrfCoordinator
+                VRFConsumerV2Storage.vrfCoordinator()
             );
         }
         fulfillRandomWords(requestId, randomWords);
@@ -136,12 +135,13 @@ abstract contract VRFConsumerBaseV2Upgradeable is Initializable {
 
     /**
      * @dev The VRFCoordinatorV2 address stored
-     * @return A VRFCoordinatorV2Interface
+     * @return A VRFCoordinatorV2Interface to make calls easier
      */
-    function _coordinator() internal view returns (VRFCoordinatorV2Interface) {
-        return
-            VRFCoordinatorV2Interface(
-                VRFConsumerBaseV2Storage.layout().vrfCoordinator
-            );
+    function _vrfCoordinator()
+        internal
+        view
+        returns (VRFCoordinatorV2Interface)
+    {
+        return VRFCoordinatorV2Interface(VRFConsumerV2Storage.vrfCoordinator());
     }
 }

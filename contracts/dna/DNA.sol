@@ -1,20 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {DNABaseStorage} from "./DNABaseStorage.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
+import {DNABaseStorage} from "./DNABaseStorage.sol";
+import {IDNA} from "./IDNA.sol";
 
-struct DNAInitParams {
-    bytes32 schema_hash;
-    string[] variants_name;
-}
+contract DNA is IDNA, Initializable {
+    function __DNA_init(
+        bytes32 schemaHash,
+        string[] memory variantsName
+    )
+        public
+        reinitializer(2) // reinitializer using 2 (2nd contract calling his init)
+    {
+        DNABaseStorage.layout().schema_hash = schemaHash;
+        DNABaseStorage.layout().variants_name = variantsName;
+    }
 
-abstract contract DNA is Initializable {
-    error NotRevealed(uint256 id, uint256 block_number);
-
-    function getDnaOf(uint256 id_) public view returns (bytes32) {
-        return _getDnaOf(id_, DNABaseStorage.layout().countersById[id_]);
+    function dnaOf(uint256 id_) public view returns (bytes32) {
+        return DNABaseStorage.getDnaById(id_);
     }
 
     function dnaOfToJson(
@@ -23,54 +28,11 @@ abstract contract DNA is Initializable {
     ) public view returns (string memory) {
         return
             _decodeDna(
-                getDnaOf(id_),
-                DNABaseStorage.layout().schema_hash,
-                DNABaseStorage.layout().variants_name,
+                DNABaseStorage.getDnaById(id_),
+                DNABaseStorage.getSchemaHash(),
+                DNABaseStorage.getVariantsName(),
                 variants_count_
             );
-    }
-
-    function __DNABase_init(
-        DNAInitParams memory initParams_
-    ) internal onlyInitializing {
-        DNABaseStorage.layout().schema_hash = initParams_.schema_hash;
-        DNABaseStorage.layout().variants_name = initParams_.variants_name;
-    }
-
-    function _currentCounter() internal view returns (uint256) {
-        return DNABaseStorage.layout().currentCounter;
-    }
-
-    function _increaseCounter() internal {
-        DNABaseStorage.layout().currentCounter += 1;
-    }
-
-    function _saveWords(uint256[] memory words_) internal returns (uint256) {
-        uint256 counterId = _currentCounter();
-        DNABaseStorage.layout().wordsByCounter[counterId] = words_;
-
-        // New counter ID for new words and mint
-        _increaseCounter();
-
-        return counterId;
-    }
-
-    function _saveCounterForId(uint256 id_) internal {
-        DNABaseStorage.layout().countersById[id_] = _currentCounter();
-    }
-
-    function _getDnaOf(
-        uint256 id_,
-        uint256 counterPoint_
-    ) internal view virtual returns (bytes32) {
-        uint256[] memory words = DNABaseStorage.layout().wordsByCounter[
-            counterPoint_
-        ];
-        if (words.length == 0) {
-            revert NotRevealed(id_, block.number);
-        }
-
-        return keccak256(abi.encodePacked(id_, words));
     }
 
     function _decodeDna(

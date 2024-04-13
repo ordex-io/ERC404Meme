@@ -46,3 +46,7 @@ export async function getBlockHash(blockNumber: number | null = null) {
     throw `Not block obtained`;
   }
 }
+
+export function nonDuplicateDNA(dnaArray: string[]): boolean {
+  return new Set(dnaArray).size === dnaArray.length;
+}

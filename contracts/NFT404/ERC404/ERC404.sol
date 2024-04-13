@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IERC404Errors} from "./IERC404Errors.sol";
-import {IERC404} from "./IERC404.sol";
 import {IERC721Receiver} from "@solidstate/contracts/interfaces/IERC721Receiver.sol";
 import {IERC165} from "@solidstate/contracts/interfaces/IERC165.sol";
 import {ERC20Events} from "ERC404/contracts/lib/ERC20Events.sol";
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
-
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {DoubleEndedQueue} from "ERC404/contracts/lib/DoubleEndedQueue.sol";
+import {IERC404} from "./IERC404.sol";
 import {ERC404Storage} from "./ERC404Storage.sol";
+import {IERC404Errors} from "./IERC404Errors.sol";
+import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
 
 /**
  * @title ERC404 Upgradeable
@@ -32,7 +31,7 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         string memory symbol_,
         uint8 decimals_,
         uint256 units_
-    ) internal onlyInitializing {
+    ) internal {
         ERC404Storage.layout().name = name_;
         ERC404Storage.layout().symbol = symbol_;
 
@@ -41,13 +40,16 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         }
 
         ERC404Storage.layout().decimals = decimals_;
+
+        // If units are 0, then default behaviour are set
+        // Otherwise, will use the units provided
         if (units_ == 0) {
             ERC404Storage.layout().units = 10 ** decimals_;
         } else {
             ERC404Storage.layout().units = units_;
         }
 
-        // EIP-2612 initialization
+        // EIP-2612 support - initialization
         ERC404Storage.layout()._INITIAL_CHAIN_ID = block.chainid;
         ERC404Storage
             .layout()
@@ -574,10 +576,11 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         emit ERC20Events.Approval(owner_, spender_, value_);
     }
 
+    /// @inheritdoc IERC404
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
         return
-            block.chainid == ERC404Storage.layout()._INITIAL_CHAIN_ID
-                ? ERC404Storage.layout()._INITIAL_DOMAIN_SEPARATOR
+            block.chainid == ERC404Storage.getInitChainId()
+                ? ERC404Storage.getInitDomainSeparator()
                 : _computeDomainSeparator();
     }
 

@@ -1,16 +1,14 @@
-import { ethers, upgrades } from "hardhat";
-import { NFT404 } from "../../typechain-types";
-import {
-  ERC404InitParamsStruct,
-  DNAInitParamsStruct,
-  ERC404ConfigInitParamsStruct,
-} from "../../typechain-types/artifacts/contracts/NFT404";
+import { ethers } from "hardhat";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { UniswapV3Factory } from "../../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
 import {
   NonfungiblePositionManager,
   SwapRouter,
 } from "../../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts";
 import { BaseContract } from "ethers";
+import { VRFParamsStruct } from "../../typechain-types/artifacts/contracts/automation/vrf/AutomationVRF";
+import { getEventArgs } from "./events";
+import { SubscriptionCreatedEvent } from "../../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
 
 export async function deployVRFCoordinartorV2Mock() {
   const factory = await ethers.getContractFactory("CoordinatorV2Mock");
@@ -18,53 +16,136 @@ export async function deployVRFCoordinartorV2Mock() {
   return contract;
 }
 
-export async function deployNFT404() {
-  const factory = await ethers.getContractFactory("NFT404");
-  const signers = await ethers.getSigners();
+export async function deployAutomationRegistryMock() {
+  const factory = await ethers.getContractFactory("AutomationRegistryMock");
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+  return contract;
+}
 
+export async function deployNFT404Facet() {
   const decimals = 18n;
-  const units = 404000n * 10n ** decimals;
-  const maxTotalSupplyERC20 = 10000n * units;
-  const owner = signers[0];
-  const initialMintRecipient = signers[0].address;
-  const automationRegistry = signers[9];
-  const automationRegistryAddress = signers[9].address;
 
-  const erc404Params: ERC404InitParamsStruct = {
-    name: "CAT NFT 404",
-    symbol: "CN404",
-    decimals,
-    units,
+  const deployArgs = {
+    name: "Cats 404",
+    symbol: "C404",
+    decimals: decimals,
+    units: 404000n * 10n ** decimals,
+    baseUri: "https://www.example.com/token/",
   };
 
-  const nft404Params: ERC404ConfigInitParamsStruct = {
-    automationRegistry: automationRegistryAddress,
-    initialOwner: owner.address,
-    maxTotalSupplyERC20: maxTotalSupplyERC20,
-    initialMintRecipient,
-  };
+  const factory = await ethers.getContractFactory("NFT404");
 
-  const dnaParams: DNAInitParamsStruct = {
-    schema_hash: ethers.randomBytes(32),
-    variants_name: ["head", "hat", "background", "eyes"],
-  };
-
-  const nft404 = (await upgrades.deployProxy(factory, [
-    erc404Params,
-    dnaParams,
-    nft404Params,
-  ])) as unknown as NFT404;
-
-  await nft404.waitForDeployment();
+  const nft404Contract = await factory.deploy();
+  await nft404Contract.waitForDeployment();
 
   return {
-    nft404,
-    nft404Address: await nft404.getAddress(),
-    owner,
+    nft404Contract,
+    nft404ContractAddress: await nft404Contract.getAddress(),
+    deployArgs,
+  };
+}
+
+export async function deployNFT404ExposerFacet() {
+  const factory = await ethers.getContractFactory("NFT404Exposer");
+  const nft404ExposerContract = await factory.deploy();
+  await nft404ExposerContract.waitForDeployment();
+
+  return {
+    nft404ExposerContract,
+    nft404ExposerContractAddress: await nft404ExposerContract.getAddress(),
+  };
+}
+
+export async function deployDNAFacet() {
+  const deployArgs = {
+    schemaHash: ethers.concat([ethers.randomBytes(32)]),
+    variantsName: ["head", "hat", "background", "eyes"],
+  };
+
+  const factory = await ethers.getContractFactory("DNA");
+
+  const dnaContract = await factory.deploy();
+  await dnaContract.waitForDeployment();
+
+  return {
+    dnaContract,
+    dnaContractAddress: await dnaContract.getAddress(),
+    deployArgs,
+  };
+}
+
+export async function deployAutomationNonVrfFacet() {
+  const automationRegistry = await loadFixture(deployAutomationRegistryMock);
+  const automationRegistryAddress = await automationRegistry.getAddress();
+
+  const deployArgs = {
+    automationRegistryAddress,
+  };
+
+  const factory = await ethers.getContractFactory("AutomationNonVRF");
+  const automationNonVrf = await factory.deploy();
+
+  await automationNonVrf.waitForDeployment();
+
+  return {
+    automationNonVrf,
+    automationNonVrfAddress: await automationNonVrf.getAddress(),
     automationRegistry,
-    erc404Params,
-    dnaParams,
-    nft404Params,
+    deployArgs,
+  };
+}
+
+export async function deployAutomationVrfFacet() {
+  const automationRegistry = await loadFixture(deployAutomationRegistryMock);
+  const automationRegistryAddress = await automationRegistry.getAddress();
+
+  const coordinatorv2 = await loadFixture(deployVRFCoordinartorV2Mock);
+  const coordinatorv2Address = await coordinatorv2.getAddress();
+
+  // Create the subscription on the VRF coordinator
+  const txCreateSubs = await coordinatorv2.createSubscription();
+  const subscriptionCreatedEvent = (await getEventArgs(
+    txCreateSubs,
+    "SubscriptionCreated",
+    coordinatorv2
+  )) as SubscriptionCreatedEvent.OutputObject;
+
+  // Params for the VRF Consumer
+  const keyHash =
+    "0xff8dedfbfa60af186cf3c830acbc32c05aae823045ae5ea7da1e45fbfaba4f92"; // Arbitrary Keyhash
+  const subscriptionId = subscriptionCreatedEvent.subId; // SubID created
+  const requestConfirmations = 0n;
+  const callbackGasLimit = 10000000n; // 10M of gas for the limit on call back
+  const numWords = 5n; // 5 random words
+
+  const randomParams: VRFParamsStruct = {
+    vrfCoordinator: coordinatorv2Address,
+    keyHash,
+    subscriptionId,
+    requestConfirmations,
+    callbackGasLimit,
+    numWords,
+  };
+
+  const deployArgs = {
+    automationRegistryAddress,
+    randomParams,
+  };
+
+  const factory = await ethers.getContractFactory("AutomationVRF");
+  const automationVrf = await factory.deploy();
+
+  await automationVrf.waitForDeployment();
+
+  return {
+    automationVrf,
+    automationVrfAddress: await automationVrf.getAddress(),
+    automationRegistry,
+    automationRegistryAddress,
+    coordinatorv2,
+    coordinatorv2Address,
+    deployArgs,
   };
 }
 

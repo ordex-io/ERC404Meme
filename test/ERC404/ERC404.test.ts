@@ -15,21 +15,23 @@ describe("ERC404", function () {
     const maxTotalSupplyERC20 = maxTotalSupplyERC721 * units;
     const initialOwner = signers[0];
     const initialMintRecipient = signers[0];
+    const baseUri = "https://example.com/get/token/";
     const idPrefix =
       57896044618658097711785492504343953926634992332820282019728792003956564819968n;
 
-    const contract = await factory.deploy();
-
-    await contract.waitForDeployment();
-    const contractAddress = await contract.getAddress();
-    await contract.initialize(
+    const contract = await factory.deploy(
       name,
       symbol,
       decimals,
-      maxTotalSupplyERC721,
+      units,
+      baseUri,
       initialOwner.address,
+      maxTotalSupplyERC721,
       initialMintRecipient.address
     );
+
+    await contract.waitForDeployment();
+    const contractAddress = await contract.getAddress();
 
     // Generate 10 random addresses for experiments.
     const randomAddresses = Array.from(
@@ -46,6 +48,7 @@ describe("ERC404", function () {
         symbol,
         decimals,
         units,
+        baseUri,
         maxTotalSupplyERC721,
         maxTotalSupplyERC20,
         initialOwner,
@@ -124,13 +127,20 @@ describe("ERC404", function () {
     const maxTotalSupplyERC20 = maxTotalSupplyERC721 * units;
     const initialOwner = signers[0];
     const initialMintRecipient = signers[0];
+    const baseUri = "https://example.com/get/token/";
     const idPrefix =
       57896044618658097711785492504343953926634992332820282019728792003956564819968n;
 
-    const contract = await factory.deploy();
+    const contract = await factory.deploy(
+      name,
+      symbol,
+      decimals,
+      units,
+      baseUri,
+      initialOwner.address
+    );
     await contract.waitForDeployment();
     const contractAddress = await contract.getAddress();
-    await contract.initialize(name, symbol, decimals, initialOwner.address);
 
     // Generate 10 random addresses for experiments.
     const randomAddresses = Array.from(
@@ -147,6 +157,7 @@ describe("ERC404", function () {
         symbol,
         decimals,
         units,
+        baseUri,
         maxTotalSupplyERC721,
         maxTotalSupplyERC20,
         initialMintRecipient,
