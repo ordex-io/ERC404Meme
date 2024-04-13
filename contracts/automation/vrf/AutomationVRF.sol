@@ -6,6 +6,7 @@ import {IAutomationBase} from "../IAutomationBase.sol";
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
 import {VRFConsumerV2} from "./chainlink/VRFConsumerV2.sol";
 import {AutomationVRFStorage} from "./AutomationVRFStorage.sol";
+import {IAutomationVRF} from "./IAutomationVRF.sol";
 
 struct VRFParams {
     address vrfCoordinator;
@@ -16,7 +17,7 @@ struct VRFParams {
     uint32 numWords;
 }
 
-contract AutomationVRF is IAutomationBase, VRFConsumerV2 {
+contract AutomationVRF is IAutomationVRF, VRFConsumerV2 {
     constructor(
         address automationRegistry_,
         VRFParams memory randomParams_

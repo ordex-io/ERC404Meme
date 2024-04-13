@@ -2,10 +2,10 @@
 pragma solidity ^0.8.24;
 
 import {AutomationBaseStorage} from "../AutomationBaseStorage.sol";
-import {IAutomationBase} from "../IAutomationBase.sol";
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
+import {IAutomationNonVRF} from "./IAutomationNonVRF.sol";
 
-contract AutomationNonVRF is IAutomationBase {
+contract AutomationNonVRF is IAutomationNonVRF {
     constructor(address automationRegistry_) {
         AutomationBaseStorage.layout().automationRegistry = automationRegistry_;
     }
