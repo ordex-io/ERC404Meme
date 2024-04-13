@@ -12,8 +12,8 @@ contract AutomationVRF is IAutomationVRF, VRFConsumerV2 {
     function __AutomationVRF_init(
         address automationRegistry_,
         VRFParams memory randomParams_
-    ) public initializer {
-        // Init the VRF
+    ) public {
+        // Init the VRF (this function already have the initializer, so it would fail the whole tx)
         __VRFConsumerV2_init(randomParams_.vrfCoordinator);
 
         // Automation Registry for calls
