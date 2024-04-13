@@ -94,7 +94,7 @@ import {IVRFConsumerV2} from "./IVRFConsumerV2.sol";
 abstract contract VRFConsumerV2 is IVRFConsumerV2, Initializable {
     error OnlyCoordinatorCanFulfill(address have, address want);
 
-    function __VRFConsumerV2_init(address vrfCoordinator_) public initializer {
+    function __VRFConsumerV2_init(address vrfCoordinator_) internal {
         VRFConsumerV2Storage.layout().vrfCoordinator = vrfCoordinator_;
     }
 

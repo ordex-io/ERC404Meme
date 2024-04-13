@@ -31,7 +31,7 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         string memory symbol_,
         uint8 decimals_,
         uint256 units_
-    ) public initializer {
+    ) internal {
         ERC404Storage.layout().name = name_;
         ERC404Storage.layout().symbol = symbol_;
 

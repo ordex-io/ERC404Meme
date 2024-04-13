@@ -10,7 +10,10 @@ contract DNA is IDNA, Initializable {
     function __DNA_init(
         bytes32 schemaHash,
         string[] memory variantsName
-    ) public initializer {
+    )
+        public
+        reinitializer(2) // reinitializer using 2 (2nd contract calling his init)
+    {
         DNABaseStorage.layout().schema_hash = schemaHash;
         DNABaseStorage.layout().variants_name = variantsName;
     }

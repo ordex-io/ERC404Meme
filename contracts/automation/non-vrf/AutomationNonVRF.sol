@@ -9,7 +9,10 @@ import {IAutomationNonVRF} from "./IAutomationNonVRF.sol";
 contract AutomationNonVRF is IAutomationNonVRF, Initializable {
     function __AutomationNonVRF_init(
         address automationRegistry_
-    ) public initializer {
+    )
+        public
+        reinitializer(3) // reinitializer using 3 (3rd contract calling his init)
+    {
         AutomationBaseStorage.layout().automationRegistry = automationRegistry_;
     }
 

@@ -12,7 +12,10 @@ contract AutomationVRF is IAutomationVRF, VRFConsumerV2 {
     function __AutomationVRF_init(
         address automationRegistry_,
         VRFParams memory randomParams_
-    ) public {
+    )
+        public
+        reinitializer(4) // reinitializer using 4 (4th contract calling his init)
+    {
         // Init the VRF (this function already have the initializer, so it would fail the whole tx)
         __VRFConsumerV2_init(randomParams_.vrfCoordinator);
 

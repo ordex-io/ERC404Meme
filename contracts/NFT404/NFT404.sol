@@ -18,7 +18,9 @@ contract NFT404 is INFT404, ERC404, SafeOwnable {
         uint8 decimals_,
         uint256 units_,
         string memory baseUri_
-    ) public {
+    ) public 
+    reinitializer(1) // reinitializer using 1 (1st contract calling his init)
+    {
         // The `__ERC404_init` function already have the initializer modifier,
         // so, if the contract is already initialized, then this function will fail.
         __ERC404_init(name_, symbol_, decimals_, units_);
