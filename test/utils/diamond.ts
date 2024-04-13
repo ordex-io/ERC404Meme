@@ -39,3 +39,11 @@ export async function fulfillFacetCut(
 
   return facetCut;
 }
+
+export function getInitData(
+  contract_: BaseContract,
+  name_: string,
+  args_: any[]
+): string {
+  return contract_.interface.encodeFunctionData(name_, args_);
+}
