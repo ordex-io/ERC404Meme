@@ -10,10 +10,9 @@ import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interface
  * @notice Expose the words and request params saved for the Automation VRF.
  */
 contract AutomationVRFMock is AutomationVRF {
-    constructor(
-        address automationRegistry_,
-        VRFParams memory randomParams_
-    ) AutomationVRF(automationRegistry_, randomParams_) {}
+    constructor(address automationRegistry_, VRFParams memory randomParams_) {
+        __AutomationVRF_init(automationRegistry_, randomParams_);
+    }
 
     function getWordsByPointer(
         uint256 pointer_

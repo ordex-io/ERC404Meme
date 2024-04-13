@@ -6,22 +6,16 @@ import {IAutomationBase} from "../IAutomationBase.sol";
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
 import {VRFConsumerV2} from "./chainlink/VRFConsumerV2.sol";
 import {AutomationVRFStorage} from "./AutomationVRFStorage.sol";
-import {IAutomationVRF} from "./IAutomationVRF.sol";
-
-struct VRFParams {
-    address vrfCoordinator;
-    bytes32 keyHash;
-    uint64 subscriptionId;
-    uint16 requestConfirmations;
-    uint32 callbackGasLimit;
-    uint32 numWords;
-}
+import {IAutomationVRF, VRFParams} from "./IAutomationVRF.sol";
 
 contract AutomationVRF is IAutomationVRF, VRFConsumerV2 {
-    constructor(
+    function __AutomationVRF_init(
         address automationRegistry_,
         VRFParams memory randomParams_
-    ) VRFConsumerV2(randomParams_.vrfCoordinator) {
+    ) public initializer {
+        // Init the VRF
+        __VRFConsumerV2_init(randomParams_.vrfCoordinator);
+
         // Automation Registry for calls
         AutomationBaseStorage.layout().automationRegistry = automationRegistry_;
 

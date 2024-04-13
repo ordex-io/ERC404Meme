@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerV2Storage} from "./VRFConsumerV2Storage.sol";
 import {IVRFConsumerV2} from "./IVRFConsumerV2.sol";
@@ -90,10 +91,10 @@ import {IVRFConsumerV2} from "./IVRFConsumerV2.sol";
  * @dev responding to the request (however this is not enforced in the contract
  * @dev and so remains effective only in the case of unmodified oracle software).
  */
-abstract contract VRFConsumerV2 is IVRFConsumerV2 {
+abstract contract VRFConsumerV2 is IVRFConsumerV2, Initializable {
     error OnlyCoordinatorCanFulfill(address have, address want);
 
-    constructor(address vrfCoordinator_) {
+    function __VRFConsumerV2_init(address vrfCoordinator_) public initializer {
         VRFConsumerV2Storage.layout().vrfCoordinator = vrfCoordinator_;
     }
 

@@ -9,9 +9,9 @@ import {AutomationNonVRF} from "../../automation/non-vrf/AutomationNonVRF.sol";
  * @notice Expose the words saved for the Automation Non-VRF
  */
 contract AutomationNonVRFMock is AutomationNonVRF {
-    constructor(
-        address automationRegistry_
-    ) AutomationNonVRF(automationRegistry_) {}
+    constructor(address automationRegistry_) {
+        __AutomationNonVRF_init(automationRegistry_);
+    }
 
     function getWordsByPointer(
         uint256 pointer_
