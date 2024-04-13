@@ -15,7 +15,9 @@ contract ERC404Example is Ownable, ERC404 {
         address initialOwner_,
         uint256 maxTotalSupplyERC721_,
         address initialMintRecipient_
-    ) ERC404(name_, symbol_, decimals_, units_) {
+    ) {
+        __ERC404_init(name_, symbol_, decimals_, units_);
+
         // Save the base URI
         ERC404Storage.setBaseUri(baseUri_);
 
