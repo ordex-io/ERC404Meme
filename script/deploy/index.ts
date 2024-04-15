@@ -4,8 +4,10 @@ import { readConfiguration, saveConfiguration } from "../utils";
 export { getMultiInit } from "./multiInit";
 
 export async function deployNft404() {
+  const [deployer] = await ethers.getSigners();
+
   const factory = await ethers.getContractFactory("NFT404");
-  return await factory.deploy();
+  return await factory.connect(deployer).deploy();
 }
 
 export async function deployAutomationNonVrf() {
@@ -31,16 +33,12 @@ export async function diamondMultInit() {
 
   if (config.DiamondMultiInit[chainId]) {
     const address = config.DiamondMultiInit[chainId];
-    const [acc] = await ethers.getSigners();
-    const code = await acc.provider.getCode(address);
-    if (code !== "0x") {
-      const contract = await ethers.getContractAt("DiamondMultiInit", address);
-      return {
-        multiInit: contract,
-        multiInitAddress: address,
-        chainId,
-      };
-    }
+    const contract = await ethers.getContractAt("DiamondMultiInit", address);
+    return {
+      multiInit: contract,
+      multiInitAddress: address,
+      chainId,
+    };
   }
 
   const factory = await ethers.getContractFactory("DiamondMultiInit");

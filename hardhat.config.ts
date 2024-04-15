@@ -1,8 +1,19 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@openzeppelin/hardhat-upgrades";
+import "dotenv/config";
 
 const config: HardhatUserConfig = {
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_kEY,
+  },
+  networks: {
+    hardhat: {},
+    sepolia: {
+      url: process.env.SEPOLIA_RPC_URL,
+      accounts: [process.env.SEPOLIA_PRIVATE_KEY ?? ""],
+    },
+  },
   gasReporter: {
     currency: "USD",
     gasPrice: 21,
