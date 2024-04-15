@@ -47,20 +47,20 @@ async function deployFullNFT404DiamondNonVrf() {
   // NOTE: This order is really important when initializing (NFT404, DNA, Automation)
 
   // Fulfill the NFT404 Facet Cuts
-  const nft404FacetCuts = await fulfillFacetCut(nft404Contract, zeroDiamond);
+  const nft404FacetCuts = await fulfillFacetCut(nft404Contract, [zeroDiamond]);
 
   // Fulfill the DNA Facet Cuts
-  const dnaFacetCuts = await fulfillFacetCut(dnaContract, zeroDiamond);
+  const dnaFacetCuts = await fulfillFacetCut(dnaContract, [zeroDiamond]);
 
   // Fulfill the Automation Facet Cuts
   const automationFacetCuts = await fulfillFacetCut(
     automationNonVrf,
-    zeroDiamond
+    [zeroDiamond]
   );
 
   const exposer404FacetCuts = await fulfillFacetCut(
     nft404ExposerContract,
-    zeroIDiamont404
+    [zeroIDiamont404]
   );
 
   // Initializations calldata
