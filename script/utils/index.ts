@@ -26,6 +26,7 @@ export type Configuration = {
   };
 
   AutomationNonVRF: {
+    // TODO: Read this by chain id
     args: { automationRegistry_: string };
   };
   DNA: {
