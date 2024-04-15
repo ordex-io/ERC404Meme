@@ -5,7 +5,7 @@ import { DiamondMultiInit } from "../../typechain-types/artifacts/contracts/diam
 import { getInitData, readFile, writeFile } from "../../utils";
 import { BigNumberish, BytesLike } from "ethers";
 import * as path from "path";
-import { network } from "hardhat";
+import { ethers, network } from "hardhat";
 import * as fs from "fs";
 
 const configPath = path.join(__dirname, "../../script/configuration.json");
@@ -20,6 +20,8 @@ export type Configuration = {
       decimals_: BigNumberish;
       units_: BigNumberish;
       baseUri_: string;
+      maxTotalSupplyERC721_: BigNumberish;
+      initialMintRecipient_: string;
     };
   };
 
@@ -52,6 +54,11 @@ export async function getInitializationData(
     config.NFT404.args.decimals_,
     config.NFT404.args.units_,
     config.NFT404.args.baseUri_,
+    config.NFT404.args.maxTotalSupplyERC721_,
+    // Get initial receipient from args config, or use the default deployer address
+    config.NFT404.args.initialMintRecipient_ !== ""
+      ? config.NFT404.args.initialMintRecipient_
+      : (await ethers.getSigners())[0].address,
   ]);
 
   const dnaCalldata = getInitData(dna, "__DNA_init", [

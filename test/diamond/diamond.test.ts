@@ -53,15 +53,13 @@ async function deployFullNFT404DiamondNonVrf() {
   const dnaFacetCuts = await fulfillFacetCut(dnaContract, [zeroDiamond]);
 
   // Fulfill the Automation Facet Cuts
-  const automationFacetCuts = await fulfillFacetCut(
-    automationNonVrf,
-    [zeroDiamond]
-  );
+  const automationFacetCuts = await fulfillFacetCut(automationNonVrf, [
+    zeroDiamond,
+  ]);
 
-  const exposer404FacetCuts = await fulfillFacetCut(
-    nft404ExposerContract,
-    [zeroIDiamont404]
-  );
+  const exposer404FacetCuts = await fulfillFacetCut(nft404ExposerContract, [
+    zeroIDiamont404,
+  ]);
 
   // Initializations calldata
   const nft404Calldata = getInitData(nft404Contract, "__NFT404_init", [
@@ -70,6 +68,8 @@ async function deployFullNFT404DiamondNonVrf() {
     nft404Args.decimals,
     nft404Args.units,
     nft404Args.baseUri,
+    nft404Args.maxTotalSupplyERC721_,
+    nft404Args.initialMintRecipient_,
   ]);
 
   const dnaCalldata = getInitData(dnaContract, "__DNA_init", [

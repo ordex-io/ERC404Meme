@@ -24,6 +24,7 @@ export async function deployAutomationRegistryMock() {
 }
 
 export async function deployNFT404Facet() {
+  const [initialRecipient] = await ethers.getSigners();
   const decimals = 18n;
 
   const deployArgs = {
@@ -32,6 +33,8 @@ export async function deployNFT404Facet() {
     decimals: decimals,
     units: 404000n * 10n ** decimals,
     baseUri: "https://www.example.com/token/",
+    maxTotalSupplyERC721_: 20n, // 20 tokens
+    initialMintRecipient_: await initialRecipient.getAddress(),
   };
 
   const factory = await ethers.getContractFactory("NFT404");
