@@ -6,7 +6,7 @@ import {
   deployAutomationVrfFacet,
   deployDNAFacet,
   deployNFT404Facet,
-} from "../utils";
+} from "../../utils";
 import { ethers } from "hardhat";
 
 // TODO: Move from INit to construction with diamond/facets approach deployment

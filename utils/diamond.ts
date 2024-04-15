@@ -1,4 +1,4 @@
-import { IERC2535DiamondCutInternal } from "../../typechain-types";
+import { IERC2535DiamondCutInternal } from "../typechain-types";
 import { BaseContract } from "ethers";
 
 export enum FacetCutAction {

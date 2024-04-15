@@ -7,7 +7,7 @@ import {
   deployNFT404Facet,
   fulfillFacetCut,
   getInitData,
-} from "../utils";
+} from "../../utils";
 import { ethers } from "hardhat";
 
 async function deployFullNFT404DiamondNonVrf() {

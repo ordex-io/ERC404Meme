@@ -1,14 +1,14 @@
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { UniswapV3Factory } from "../../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
+import { UniswapV3Factory } from "../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
 import {
   NonfungiblePositionManager,
   SwapRouter,
-} from "../../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts";
+} from "../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts";
 import { BaseContract } from "ethers";
-import { VRFParamsStruct } from "../../typechain-types/artifacts/contracts/automation/vrf/AutomationVRF";
+import { VRFParamsStruct } from "../typechain-types/artifacts/contracts/automation/vrf/AutomationVRF";
 import { getEventArgs } from "./events";
-import { SubscriptionCreatedEvent } from "../../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
+import { SubscriptionCreatedEvent } from "../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
 
 export async function deployVRFCoordinartorV2Mock() {
   const factory = await ethers.getContractFactory("CoordinatorV2Mock");
