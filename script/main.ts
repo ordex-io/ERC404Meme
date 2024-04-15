@@ -4,6 +4,7 @@ import {
   deployNft404,
   deployAutomationNonVrf,
   getMultiInit,
+  deployDiamondCat404,
 } from "./deploy";
 import { fulfillFacetCut } from "../utils";
 import { getInitializationData, saveDeployment } from "./utils";
@@ -28,7 +29,6 @@ async function main() {
   const nft404FacetCut = await fulfillFacetCut(nft404Contract, [diamond]);
   const dnaFacetCut = await fulfillFacetCut(dnaContract, [diamond]);
   const autoNonVrfFacetCut = await fulfillFacetCut(automationNonVrf, [diamond]);
-
   const calldataInit = await getInitializationData(
     nft404Contract,
     dnaContract,
@@ -37,16 +37,31 @@ async function main() {
   );
 
   // Deploy the Diamond proxy
-  const factoryDiamond = await ethers.getContractFactory("Diamond");
-  const diamondContract = await factoryDiamond.deploy(
-    owner.address, // owner
-    [nft404FacetCut, dnaFacetCut, autoNonVrfFacetCut], //  Facets
-    await multiInitContract.getAddress(), // Target address for initialization
-    calldataInit // Calldata that will be used for initialization
+  const mainDiamondArgs = {
+    owner: owner.address, // owner
+    facets: [nft404FacetCut, dnaFacetCut, autoNonVrfFacetCut], //  Facets
+    target: await multiInitContract.getAddress(), // Target address for initialization
+    calldata: calldataInit, // Calldata that will be used for initialization
+  };
+
+  const { diamondContract, proxyCat404EncodedArgs } = await deployDiamondCat404(
+    mainDiamondArgs
   );
 
+  const addresses = {
+    nft404Facet: await nft404Contract.getAddress(),
+    dnaFacet: await dnaContract.getAddress(),
+    automationNonVrf: await automationNonVrf.getAddress(),
+    diamondMultiInit: await multiInitContract.getAddress(),
+    diamondProxyCat404: await diamondContract.getAddress(),
+    proxyCat404Args: {
+      encoded: proxyCat404EncodedArgs,
+      decoded: mainDiamondArgs,
+    },
+  };
+
   // Save the deployment
-  await saveDeployment(await diamondContract.getAddress());
+  await saveDeployment(addresses);
 }
 
 main()
