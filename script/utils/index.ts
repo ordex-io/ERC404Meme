@@ -6,6 +6,7 @@ import { getInitData, readFile, writeFile } from "../../utils";
 import { BigNumberish, BytesLike } from "ethers";
 import * as path from "path";
 import { network } from "hardhat";
+import * as fs from "fs";
 
 const configPath = path.join(__dirname, "../../script/configuration.json");
 
@@ -97,7 +98,13 @@ export function readConfiguration(): Configuration {
 }
 
 export async function saveDeployment(deployments: string) {
-  const chainId = await network.provider.send("eth_chainId");
-  const pathDeploy = path.join(deploymentsPath, `${chainId}-${Date.now()}.txt`);
+  const chainId = BigInt(await network.provider.send("eth_chainId")).toString();
+
+  const initPath = path.join(deploymentsPath, chainId);
+
+  if (!fs.existsSync(initPath)) {
+    fs.mkdirSync(initPath, { recursive: true });
+  }
+  const pathDeploy = path.join(initPath, `${Date.now()}.txt`);
   writeFile(pathDeploy, deployments);
 }

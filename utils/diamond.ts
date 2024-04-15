@@ -42,7 +42,6 @@ export async function fulfillFacetCut(
       !diamondSelectors.includes(ff_.selector) &&
       !ff_.name.includes("_init")
     ) {
-      console.log("name: ", ff_.name);
       facetCut.selectors.push(ff_.selector);
     }
   });
