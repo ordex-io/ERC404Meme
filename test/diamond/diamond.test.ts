@@ -196,17 +196,17 @@ describe("Diamond - NFT - CAT404", () => {
     });
 
     it("should mint NFT only if get enough ERC20 tokens", async () => {
-      const [signer0] = await ethers.getSigners();
+      const [, signer1] = await ethers.getSigners();
       const { diamondContract, ownerSigner, facetsArgs } = await loadFixture(
         deployFullNFT404DiamondNonVrf
       );
 
-      expect(await diamondContract.balanceOf(signer0.address)).to.be.equals(0n);
+      expect(await diamondContract.balanceOf(signer1.address)).to.be.equals(0n);
       expect(
-        await diamondContract.erc20BalanceOf(signer0.address)
+        await diamondContract.erc20BalanceOf(signer1.address)
       ).to.be.equals(0n);
       expect(
-        await diamondContract.erc721BalanceOf(signer0.address)
+        await diamondContract.erc721BalanceOf(signer1.address)
       ).to.be.equals(0n);
 
       const nftQuantityToGet = 5n;
@@ -215,16 +215,16 @@ describe("Diamond - NFT - CAT404", () => {
       // Give some tokens to signer0
       await diamondContract
         .connect(ownerSigner)
-        .mintERC20(signer0.address, erc20Amount);
+        .mintERC20(signer1.address, erc20Amount);
 
-      expect(await diamondContract.balanceOf(signer0.address)).to.be.equals(
+      expect(await diamondContract.balanceOf(signer1.address)).to.be.equals(
         erc20Amount
       );
       expect(
-        await diamondContract.erc20BalanceOf(signer0.address)
+        await diamondContract.erc20BalanceOf(signer1.address)
       ).to.be.equals(erc20Amount);
       expect(
-        await diamondContract.erc721BalanceOf(signer0.address)
+        await diamondContract.erc721BalanceOf(signer1.address)
       ).to.be.equals(nftQuantityToGet);
     });
   });
