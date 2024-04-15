@@ -17,14 +17,21 @@ contract NFT404 is INFT404, ERC404, SafeOwnable {
         string memory symbol_,
         uint8 decimals_,
         uint256 units_,
-        string memory baseUri_
-    ) public 
-    reinitializer(1) // reinitializer using 1 (1st contract calling his init)
+        string memory baseUri_,
+        uint256 maxTotalSupplyERC721_,
+        address initialMintRecipient_
+    )
+        public
+        reinitializer(1) // reinitializer using 1 (1st contract calling his init)
     {
         // The `__ERC404_init` function already have the initializer modifier,
         // so, if the contract is already initialized, then this function will fail.
         __ERC404_init(name_, symbol_, decimals_, units_);
         ERC404Storage.setBaseUri(baseUri_);
+
+        // Do not mint the ERC721s to the initial owner, as it's a waste of gas.
+        _setERC721TransferExempt(initialMintRecipient_, true);
+        _mintERC20(initialMintRecipient_, maxTotalSupplyERC721_ * units());
     }
 
     /**
