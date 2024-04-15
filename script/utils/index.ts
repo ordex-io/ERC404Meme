@@ -97,7 +97,7 @@ export function readConfiguration(): Configuration {
   return readFile(configPath);
 }
 
-export async function saveDeployment(deployments: string) {
+export async function saveDeployment(deployments: any) {
   const chainId = BigInt(await network.provider.send("eth_chainId")).toString();
 
   const initPath = path.join(deploymentsPath, chainId);
@@ -105,6 +105,6 @@ export async function saveDeployment(deployments: string) {
   if (!fs.existsSync(initPath)) {
     fs.mkdirSync(initPath, { recursive: true });
   }
-  const pathDeploy = path.join(initPath, `${Date.now()}.txt`);
-  writeFile(pathDeploy, deployments);
+  const pathDeploy = path.join(initPath, `${Date.now()}.json`);
+  writeFile(pathDeploy, JSON.stringify(deployments, null, 2));
 }
