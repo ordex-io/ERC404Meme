@@ -1,4 +1,7 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
+import { readConfiguration, saveConfiguration } from "../utils";
+
+export { getMultiInit } from "./multiInit";
 
 export async function deployNft404() {
   const factory = await ethers.getContractFactory("NFT404");
@@ -13,4 +16,44 @@ export async function deployAutomationNonVrf() {
 export async function deployDna() {
   const factory = await ethers.getContractFactory("DNA");
   return await factory.deploy();
+}
+
+export async function diamondMultInit() {
+  const config = readConfiguration();
+
+  const chainId: string = BigInt(
+    await network.provider.send("eth_chainId")
+  ).toString();
+
+  if (!chainId) {
+    throw new Error("Not chain ID found");
+  }
+
+  if (config.DiamondMultiInit[chainId]) {
+    const address = config.DiamondMultiInit[chainId];
+    const [acc] = await ethers.getSigners();
+    const code = await acc.provider.getCode(address);
+    if (code !== "0x") {
+      const contract = await ethers.getContractAt("DiamondMultiInit", address);
+      return {
+        multiInit: contract,
+        multiInitAddress: address,
+        chainId,
+      };
+    }
+  }
+
+  const factory = await ethers.getContractFactory("DiamondMultiInit");
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+
+  config.DiamondMultiInit[chainId] = await contract.getAddress();
+
+  saveConfiguration(config);
+
+  return {
+    multiInit: contract,
+    multiInitAddress: await contract.getAddress(),
+    chainId,
+  };
 }
