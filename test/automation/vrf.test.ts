@@ -4,7 +4,7 @@ import {
   deployAutomationRegistryMock,
   deployVRFCoordinartorV2Mock,
   getEventArgs,
-} from "../utils";
+} from "../../utils";
 import { ethers } from "hardhat";
 
 import {

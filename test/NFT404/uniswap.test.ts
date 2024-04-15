@@ -1,12 +1,12 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { deployNFT404 } from "../utils";
+import { deployNFT404 } from "../../utils";
 import {
   deployUniswapV3Factory,
   deployWeth,
   deployNonfungiblePositionManager,
   deploySwapRouter,
-} from "../utils/deploy";
+} from "../../utils/deploy";
 
 xdescribe("Uniswap", () => {
   it("Add Uniswap contract to Exempt", async () => {

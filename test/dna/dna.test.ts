@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { calculateDNA, dnaToJsonString, nonDuplicateDNA } from "../utils";
+import { calculateDNA, dnaToJsonString, nonDuplicateDNA } from "../../utils";
 import { ethers } from "hardhat";
 
 describe("DNA Tests", () => {

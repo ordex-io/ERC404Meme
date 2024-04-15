@@ -1,0 +1,27 @@
+{
+  "NFT404": {
+    "args": {
+      "name_": "CAT404",
+      "symbol_": "C404",
+      "decimals_": "18",
+      "units_": "404000000000000000000000",
+      "baseUri_": "wwww.base-example.com/token/",
+      "maxTotalSupplyERC721_": "20",
+      "initialMintRecipient_": ""
+    }
+  },
+  "AutomationNonVRF": {
+    "args": {
+      "automationRegistry_": "0x86EFBD0b6736Bed994962f9797049422A3A8E8Ad"
+    }
+  },
+  "DNA": {
+    "args": {
+      "schemaHash": "0x536368656d65486173684578616d706c654f6e6c79466f725468655465737473",
+      "variantsName": ["head", "hat", "background", "eyes"]
+    }
+  },
+  "DiamondMultiInit": {
+    "11155111": "0xc50aAf61BAE0b5c69DAf59aED1Fe8dC793C44595"
+  }
+}

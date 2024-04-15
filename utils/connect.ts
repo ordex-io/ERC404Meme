@@ -1,6 +1,5 @@
 import { ethers } from "hardhat";
-import { UniswapV3Pool } from "../../typechain-types";
-
+import { UniswapV3Pool } from "../typechain-types";
 
 export async function connectUniswapV3Pool(address_: string) {
   const signers = await ethers.getSigners();

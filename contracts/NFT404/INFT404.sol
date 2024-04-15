@@ -10,7 +10,9 @@ interface INFT404 is IERC404, ISafeOwnable {
         string memory symbol_,
         uint8 decimals_,
         uint256 units_,
-        string memory baseUri_
+        string memory baseUri_,
+        uint256 maxTotalSupplyERC721_,
+        address initialMintRecipient_
     ) external;
 
     function setERC721TransferExempt(address target_, bool state_) external;

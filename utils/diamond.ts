@@ -1,4 +1,4 @@
-import { IERC2535DiamondCutInternal } from "../../typechain-types";
+import { IERC2535DiamondCutInternal } from "../typechain-types";
 import { BaseContract } from "ethers";
 
 export enum FacetCutAction {
@@ -11,6 +11,8 @@ export enum FacetCutAction {
  * Fulfill a FacetCutStruct using the `fromContract_`. Fulfill the struct with
  * the selectors present on `fromContract_` that are not present `skipContract_`.
  *
+ * It will skip all the selectors for function names with `_init`
+ *
  *
  * @param fromContract_
  * @param diamondSelectors_
@@ -18,12 +20,16 @@ export enum FacetCutAction {
  */
 export async function fulfillFacetCut(
   fromContract_: BaseContract,
-  skipContract_: BaseContract
+  skipContracts_: BaseContract[] | null = null
 ) {
   const diamondSelectors: string[] = [];
-  skipContract_.interface.forEachFunction((func_) =>
-    diamondSelectors.push(func_.selector)
-  );
+  if (skipContracts_) {
+    skipContracts_.forEach((skipContract_) => {
+      skipContract_.interface.forEachFunction((func_) =>
+        diamondSelectors.push(func_.selector)
+      );
+    });
+  }
 
   const facetCut: IERC2535DiamondCutInternal.FacetCutStruct = {
     target: await fromContract_.getAddress(),
@@ -32,7 +38,10 @@ export async function fulfillFacetCut(
   };
 
   fromContract_.interface.forEachFunction((ff_) => {
-    if (!diamondSelectors.includes(ff_.selector)) {
+    if (
+      !diamondSelectors.includes(ff_.selector) &&
+      !ff_.name.includes("_init")
+    ) {
       facetCut.selectors.push(ff_.selector);
     }
   });

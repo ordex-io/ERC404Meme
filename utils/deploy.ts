@@ -1,14 +1,14 @@
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { UniswapV3Factory } from "../../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
+import { UniswapV3Factory } from "../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
 import {
   NonfungiblePositionManager,
   SwapRouter,
-} from "../../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts";
+} from "../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts";
 import { BaseContract } from "ethers";
-import { VRFParamsStruct } from "../../typechain-types/artifacts/contracts/automation/vrf/AutomationVRF";
+import { VRFParamsStruct } from "../typechain-types/artifacts/contracts/automation/vrf/AutomationVRF";
 import { getEventArgs } from "./events";
-import { SubscriptionCreatedEvent } from "../../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
+import { SubscriptionCreatedEvent } from "../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
 
 export async function deployVRFCoordinartorV2Mock() {
   const factory = await ethers.getContractFactory("CoordinatorV2Mock");
@@ -24,6 +24,7 @@ export async function deployAutomationRegistryMock() {
 }
 
 export async function deployNFT404Facet() {
+  const [initialRecipient] = await ethers.getSigners();
   const decimals = 18n;
 
   const deployArgs = {
@@ -32,6 +33,8 @@ export async function deployNFT404Facet() {
     decimals: decimals,
     units: 404000n * 10n ** decimals,
     baseUri: "https://www.example.com/token/",
+    maxTotalSupplyERC721_: 20n, // 20 tokens
+    initialMintRecipient_: await initialRecipient.getAddress(),
   };
 
   const factory = await ethers.getContractFactory("NFT404");
