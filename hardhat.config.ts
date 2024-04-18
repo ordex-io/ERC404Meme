@@ -19,12 +19,18 @@ const config: HardhatUserConfig = {
   gasReporter: {
     currency: "USD",
     gasPrice: 21,
-    enabled: false,
+    enabled: true,
   },
   solidity: {
     compilers: [
       {
         version: "0.8.24",
+        settings: {
+          optimizer: {
+            enabled: true,
+          },
+          viaIR: true,
+        },
       },
       { version: "0.4.18" },
     ],
