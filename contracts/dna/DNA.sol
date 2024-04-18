@@ -16,6 +16,9 @@ contract DNA is IDNA, Initializable {
     {
         DNABaseStorage.layout().schema_hash = schemaHash;
         DNABaseStorage.layout().variants_name = variantsName;
+
+        // Start with counter = 1 to avoid pointing to index 0 on `wordsByCounter`
+        DNABaseStorage.increaseCounter();
     }
 
     function getSchemaHash() external view returns (bytes32) {
