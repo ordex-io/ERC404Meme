@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 library DNABaseStorage {
     error NotRevealed(uint256 id, uint256 block_number);
+    error NotWaitingReveal(uint256 block_number);
 
     struct Layout {
         uint256 currentCounter;
@@ -10,6 +11,7 @@ library DNABaseStorage {
         mapping(uint256 => uint256[]) wordsByCounter;
         bytes32 schema_hash;
         string[] variants_name;
+        bool waitingReveal;
     }
 
     bytes32 internal constant STORAGE_SLOT =
@@ -49,9 +51,20 @@ library DNABaseStorage {
     function setCounterForId(uint256 id_) internal {
         DNABaseStorage.layout().countersById[id_] = DNABaseStorage
             .currentCounter();
+
+        // Flag to know internally that is waiting for reveal
+        if (!layout().waitingReveal) {
+            layout().waitingReveal = true;
+        }
     }
 
     function saveWords(uint256[] memory words_) internal returns (uint256) {
+        // Check if waiting
+        if (!layout().waitingReveal) {
+            revert NotWaitingReveal(block.timestamp);
+        }
+
+        layout().waitingReveal = false;
         uint256 counterId = currentCounter();
 
         layout().wordsByCounter[counterId] = words_;
