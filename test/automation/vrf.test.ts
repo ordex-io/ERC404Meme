@@ -138,6 +138,8 @@ describe("Automation - VRF", () => {
       deployAutoVRFMock
     );
 
+    await contract.setIsWaiting(true);
+
     const tx = await automationRegistry.simulateAutoReveal(contractAddress);
 
     const revealCalledEvent = (await getEventArgs(
@@ -153,6 +155,8 @@ describe("Automation - VRF", () => {
   it("should fullfill the random words after reveal is called", async () => {
     const { contract, contractAddress, automationRegistry, coordinatorv2 } =
       await loadFixture(deployAutoVRFMock);
+
+    await contract.setIsWaiting(true);
 
     // Call the reveal using the AutoRegistry
     const txRevealCall = await automationRegistry.simulateAutoReveal(

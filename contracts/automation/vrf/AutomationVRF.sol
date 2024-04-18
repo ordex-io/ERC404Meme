@@ -40,6 +40,9 @@ contract AutomationVRF is IAutomationVRF, VRFConsumerV2 {
     function reveal() external {
         AutomationBaseStorage.onlyAutoRegistry();
 
+        // Check if waiting
+        DNABaseStorage.checkWaiting();
+
         AutomationVRFStorage.Layout memory l = AutomationVRFStorage.layout();
 
         uint256 requestId = _vrfCoordinator().requestRandomWords(

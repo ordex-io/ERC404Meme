@@ -19,6 +19,9 @@ contract AutomationNonVRF is IAutomationNonVRF, Initializable {
     function reveal() external {
         AutomationBaseStorage.onlyAutoRegistry();
 
+        // Check if waiting
+        DNABaseStorage.checkWaiting();
+
         uint256[] memory words = new uint256[](1);
         words[0] = uint256(blockhash(block.number - 1));
 

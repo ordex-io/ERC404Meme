@@ -51,4 +51,8 @@ contract AutomationVRFMock is AutomationVRF {
     function getNumWords() public view returns (uint32) {
         return AutomationVRFStorage.layout().numWords;
     }
+
+    function setIsWaiting(bool flag_) external {
+        DNABaseStorage.layout().waitingReveal = flag_;
+    }
 }

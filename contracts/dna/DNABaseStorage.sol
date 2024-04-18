@@ -59,11 +59,6 @@ library DNABaseStorage {
     }
 
     function saveWords(uint256[] memory words_) internal returns (uint256) {
-        // Check if waiting
-        if (!layout().waitingReveal) {
-            revert NotWaitingReveal(block.timestamp);
-        }
-
         layout().waitingReveal = false;
         uint256 counterId = currentCounter();
 
@@ -81,5 +76,11 @@ library DNABaseStorage {
 
     function increaseCounter() internal {
         layout().currentCounter += 1;
+    }
+
+    function checkWaiting() internal view {
+        if (!layout().waitingReveal) {
+            revert NotWaitingReveal(block.timestamp);
+        }
     }
 }
