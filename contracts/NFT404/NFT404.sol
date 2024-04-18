@@ -56,7 +56,13 @@ contract NFT404 is INFT404, ERC404, SafeOwnable {
     function tokenURI(
         uint256 id_
     ) public view override returns (string memory) {
+        // Check if's a valid and minted id
         _existingId(id_);
+
+        // Check if it's revealed
+        // This will revert if cannot get the DNA (means not revealed)
+        // DNABaseStorage.getDnaById(id_);
+
         return string.concat(ERC404Storage.getBaseUri(), Strings.toString(id_));
     }
 
