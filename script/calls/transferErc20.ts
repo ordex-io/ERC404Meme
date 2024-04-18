@@ -5,7 +5,7 @@ async function main() {
 
   const diamondCat404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
   const zeroIDiamont404 = await ethers.getContractAt(
-    "IDiamondNFT404",
+    "IDiamondPET404",
     diamondCat404Address
   );
 

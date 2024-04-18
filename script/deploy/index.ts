@@ -11,10 +11,10 @@ type Diamond404Args = {
   calldata: string; // Calldata that will be used for initialization
 };
 
-export async function deployNft404() {
+export async function deployPet404() {
   const [deployer] = await ethers.getSigners();
 
-  const factory = await ethers.getContractFactory("NFT404");
+  const factory = await ethers.getContractFactory("PET404");
   return await factory.connect(deployer).deploy();
 }
 

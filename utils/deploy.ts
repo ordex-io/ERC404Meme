@@ -23,13 +23,13 @@ export async function deployAutomationRegistryMock() {
   return contract;
 }
 
-export async function deployNFT404Facet() {
+export async function deployPET404Facet() {
   const [initialRecipient] = await ethers.getSigners();
   const decimals = 18n;
 
   const deployArgs = {
-    name: "Cats 404",
-    symbol: "C404",
+    name: "Pets 404",
+    symbol: "P404",
     decimals: decimals,
     units: 404000n * 10n ** decimals,
     baseUri: "https://www.example.com/token/",
@@ -37,26 +37,26 @@ export async function deployNFT404Facet() {
     initialMintRecipient_: await initialRecipient.getAddress(),
   };
 
-  const factory = await ethers.getContractFactory("NFT404");
+  const factory = await ethers.getContractFactory("PET404");
 
-  const nft404Contract = await factory.deploy();
-  await nft404Contract.waitForDeployment();
+  const pet404Contract = await factory.deploy();
+  await pet404Contract.waitForDeployment();
 
   return {
-    nft404Contract,
-    nft404ContractAddress: await nft404Contract.getAddress(),
+    pet404Contract,
+    pet404ContractAddress: await pet404Contract.getAddress(),
     deployArgs,
   };
 }
 
-export async function deployNFT404ExposerFacet() {
-  const factory = await ethers.getContractFactory("NFT404Exposer");
-  const nft404ExposerContract = await factory.deploy();
-  await nft404ExposerContract.waitForDeployment();
+export async function deployPET404ExposerFacet() {
+  const factory = await ethers.getContractFactory("PET404Exposer");
+  const pet404ExposerContract = await factory.deploy();
+  await pet404ExposerContract.waitForDeployment();
 
   return {
-    nft404ExposerContract,
-    nft404ExposerContractAddress: await nft404ExposerContract.getAddress(),
+    pet404ExposerContract: pet404ExposerContract,
+    pet404ExposerContractAddress: await pet404ExposerContract.getAddress(),
   };
 }
 

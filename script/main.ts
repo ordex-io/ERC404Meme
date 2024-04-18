@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import {
   deployDna,
-  deployNft404,
+  deployPet404,
   deployAutomationNonVrf,
   getMultiInit,
   deployDiamondCat404,
@@ -14,7 +14,7 @@ async function main() {
   const [owner] = await ethers.getSigners();
 
   // Deploy facets
-  const nft404Contract = await deployNft404();
+  const pet404Contract = await deployPet404();
   const dnaContract = await deployDna();
   const automationNonVrf = await deployAutomationNonVrf();
   const multiInitContract = await getMultiInit();
@@ -26,11 +26,11 @@ async function main() {
   const diamond = await ethers.getContractAt("Diamond", ethers.ZeroAddress);
 
   // All the facet cuts for our facets
-  const nft404FacetCut = await fulfillFacetCut(nft404Contract, [diamond]);
+  const pet404FacetCut = await fulfillFacetCut(pet404Contract, [diamond]);
   const dnaFacetCut = await fulfillFacetCut(dnaContract, [diamond]);
   const autoNonVrfFacetCut = await fulfillFacetCut(automationNonVrf, [diamond]);
   const calldataInit = await getInitializationData(
-    nft404Contract,
+    pet404Contract,
     dnaContract,
     automationNonVrf,
     multiInitContract
@@ -39,7 +39,7 @@ async function main() {
   // Deploy the Diamond proxy
   const mainDiamondArgs = {
     owner: owner.address, // owner
-    facets: [nft404FacetCut, dnaFacetCut, autoNonVrfFacetCut], //  Facets
+    facets: [pet404FacetCut, dnaFacetCut, autoNonVrfFacetCut], //  Facets
     target: await multiInitContract.getAddress(), // Target address for initialization
     calldata: calldataInit, // Calldata that will be used for initialization
   };
@@ -49,7 +49,7 @@ async function main() {
   );
 
   const addresses = {
-    nft404Facet: await nft404Contract.getAddress(),
+    pet404Facet: await pet404Contract.getAddress(),
     dnaFacet: await dnaContract.getAddress(),
     automationNonVrf: await automationNonVrf.getAddress(),
     diamondMultiInit: await multiInitContract.getAddress(),

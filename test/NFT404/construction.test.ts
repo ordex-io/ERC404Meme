@@ -5,12 +5,12 @@ import {
   deployAutomationRegistryMock,
   deployAutomationVrfFacet,
   deployDNAFacet,
-  deployNFT404Facet,
+  deployPET404Facet,
 } from "../../utils";
 import { ethers } from "hardhat";
 
 // TODO: Move from INit to construction with diamond/facets approach deployment
-xdescribe("NFT404", () => {
+xdescribe("PET404", () => {
   describe("Construction", () => {
     // it("should initialize the contract correctly", async () => {
     //   const { nft404, erc404Params, nft404Params } = await loadFixture(
