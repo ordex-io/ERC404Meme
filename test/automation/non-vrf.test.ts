@@ -19,8 +19,14 @@ describe("Automation - Non VRF", () => {
     let automationRegistryAddress = await automationRegistry.getAddress();
 
     const factory = await ethers.getContractFactory("AutomationNonVRFMock");
-    const contract = await factory.deploy(automationRegistryAddress);
+    const contract = await factory.deploy();
+
     await contract.waitForDeployment();
+
+    const tx = await contract.__AutomationNonVRF_init(
+      automationRegistryAddress
+    );
+    await tx.wait();
 
     return {
       contract,
