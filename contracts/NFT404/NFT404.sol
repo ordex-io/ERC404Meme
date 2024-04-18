@@ -45,6 +45,10 @@ contract NFT404 is INFT404, ERC404, SafeOwnable {
         _setERC721TransferExempt(target_, state_);
     }
 
+    function getBaseUri() external view returns (string memory) {
+        return ERC404Storage.getBaseUri();
+    }
+
     function setBaseUri(string memory newBaseUri_) external onlyOwner {
         ERC404Storage.setBaseUri(newBaseUri_);
     }

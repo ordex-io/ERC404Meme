@@ -17,5 +17,7 @@ interface INFT404 is IERC404, ISafeOwnable {
 
     function setERC721TransferExempt(address target_, bool state_) external;
 
+    function getBaseUri() external view returns (string memory);
+
     function setBaseUri(string memory newBaseUri_) external;
 }

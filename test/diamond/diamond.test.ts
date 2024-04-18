@@ -153,7 +153,7 @@ describe("Diamond - NFT - CAT404", () => {
       // Initials states
       expect(await diamondContract.erc721TransferExempt(transferExemptAddress))
         .to.be.false;
-      expect(await diamondContract.tokenURI(0)).to.not.contain(newUri);
+      expect(await diamondContract.getBaseUri()).to.not.contain(newUri);
       expect(
         await diamondContract.balanceOf(transferExemptAddress)
       ).to.be.equals(0n);
@@ -189,7 +189,7 @@ describe("Diamond - NFT - CAT404", () => {
       // End states
       expect(await diamondContract.erc721TransferExempt(transferExemptAddress))
         .to.be.true;
-      expect(await diamondContract.tokenURI(0)).to.contain(newUri);
+      expect(await diamondContract.getBaseUri()).to.contain(newUri);
       expect(
         await diamondContract.balanceOf(transferExemptAddress)
       ).to.be.equals(amountToMint);
