@@ -1,4 +1,4 @@
-import { NFT404 } from "../../typechain-types/artifacts/contracts/NFT404/NFT404";
+import { PET404 } from "../../typechain-types/artifacts/contracts/PET404/PET404";
 import { AutomationNonVRF } from "../../typechain-types/artifacts/contracts/automation/non-vrf/AutomationNonVRF";
 import { DNA } from "../../typechain-types/artifacts/contracts/dna/DNA";
 import { DiamondMultiInit } from "../../typechain-types/artifacts/contracts/diamond/initialization/DiamondMultiInit";
@@ -13,7 +13,7 @@ const configPath = path.join(__dirname, "../../script/configuration.json");
 const deploymentsPath = path.join(__dirname, "../../script/deployments");
 
 export type Configuration = {
-  NFT404: {
+  PET404: {
     args: {
       name_: string;
       symbol_: string;
@@ -41,7 +41,7 @@ export type Configuration = {
 };
 
 export async function getInitializationData(
-  nft404: NFT404,
+  pet404: PET404,
   dna: DNA,
   autoNonVrf: AutomationNonVRF,
   multiInit: DiamondMultiInit
@@ -49,16 +49,16 @@ export async function getInitializationData(
   const config = readConfiguration();
 
   // Initializations calldata
-  const nft404Calldata = getInitData(nft404, "__NFT404_init", [
-    config.NFT404.args.name_,
-    config.NFT404.args.symbol_,
-    config.NFT404.args.decimals_,
-    config.NFT404.args.units_,
-    config.NFT404.args.baseUri_,
-    config.NFT404.args.maxTotalSupplyERC721_,
+  const pet404Calldata = getInitData(pet404, "__PET404_init", [
+    config.PET404.args.name_,
+    config.PET404.args.symbol_,
+    config.PET404.args.decimals_,
+    config.PET404.args.units_,
+    config.PET404.args.baseUri_,
+    config.PET404.args.maxTotalSupplyERC721_,
     // Get initial receipient from args config, or use the default deployer address
-    config.NFT404.args.initialMintRecipient_ !== ""
-      ? config.NFT404.args.initialMintRecipient_
+    config.PET404.args.initialMintRecipient_ !== ""
+      ? config.PET404.args.initialMintRecipient_
       : (await ethers.getSigners())[0].address,
   ]);
 
@@ -75,11 +75,11 @@ export async function getInitializationData(
 
   const calldataMultiInit = getInitData(multiInit, "multiInit", [
     [
-      await nft404.getAddress(),
+      await pet404.getAddress(),
       await dna.getAddress(),
       await autoNonVrf.getAddress(),
     ], // Targets
-    [nft404Calldata, dnaCalldata, automationCalldata], // Initialization calldata
+    [pet404Calldata, dnaCalldata, automationCalldata], // Initialization calldata
   ]);
 
   return calldataMultiInit;

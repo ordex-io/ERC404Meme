@@ -6,13 +6,13 @@ import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
 import {ERC404, ERC404Storage} from "./ERC404/ERC404.sol";
 import {DNABaseStorage} from "../dna/DNABaseStorage.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {INFT404} from "./INFT404.sol";
+import {IPET404} from "./IPET404.sol";
 
-contract NFT404 is INFT404, ERC404, SafeOwnable {
+contract PET404 is IPET404, ERC404, SafeOwnable {
     error NoAutomationRegister();
     event NftsRevealed(uint256 nftRevealCounter, uint256 time);
 
-    function __NFT404_init(
+    function __PET404_init(
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
