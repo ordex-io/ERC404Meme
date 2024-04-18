@@ -99,6 +99,28 @@ export async function deployAutomationNonVrfFacet() {
   };
 }
 
+export async function deployAutomationNonVrfFacetMock() {
+  const automationRegistry = await loadFixture(deployAutomationRegistryMock);
+  const automationRegistryAddress = await automationRegistry.getAddress();
+
+  const deployArgs = {
+    automationRegistryAddress,
+  };
+
+  const factory = await ethers.getContractFactory("AutomationNonVRFMock");
+
+  const automationNonVrf = await factory.deploy();
+
+  await automationNonVrf.waitForDeployment();
+
+  return {
+    automationNonVrf,
+    automationNonVrfAddress: await automationNonVrf.getAddress(),
+    automationRegistry,
+    deployArgs,
+  };
+}
+
 export async function deployAutomationVrfFacet() {
   const automationRegistry = await loadFixture(deployAutomationRegistryMock);
   const automationRegistryAddress = await automationRegistry.getAddress();
