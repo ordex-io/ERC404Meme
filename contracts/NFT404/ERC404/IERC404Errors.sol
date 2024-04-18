@@ -7,6 +7,7 @@ pragma solidity ^0.8.24;
 interface IERC404Errors {
     error NotFound();
     error InvalidTokenId();
+    error IdNotMinted();
     error AlreadyExists();
     error InvalidRecipient();
     error InvalidSender();

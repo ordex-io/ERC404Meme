@@ -52,6 +52,7 @@ contract NFT404 is INFT404, ERC404, SafeOwnable {
     function tokenURI(
         uint256 id_
     ) public view override returns (string memory) {
+        _existingId(id_);
         return string.concat(ERC404Storage.getBaseUri(), Strings.toString(id_));
     }
 
@@ -66,6 +67,19 @@ contract NFT404 is INFT404, ERC404, SafeOwnable {
         // This happens after whole transfer, so it would guarantee sucess this part
         if (from_ == address(0)) {
             DNABaseStorage.setCounterForId(id_);
+        }
+    }
+
+    function _existingId(uint256 id_) internal view {
+        // Check if id_ provided is a valid ERC404 id
+        if (!_isValidTokenId(id_)) {
+            revert InvalidTokenId();
+        } else {
+            if (id_ - ID_ENCODING_PREFIX > super.erc721TotalSupply()) {
+                // If the ID result is greater than the current total ERC721 minted
+                // Means that it's not minted yet.
+                revert IdNotMinted();
+            }
         }
     }
 }
