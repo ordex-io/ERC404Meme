@@ -64,6 +64,8 @@ describe("Automation - Non VRF", () => {
       deployAutoNonVRFMock
     );
 
+    await contract.setIsWaiting(true);
+
     let tx = await automationRegistry.simulateAutoReveal(contractAddress);
 
     let revealCalledEvent = (await getEventArgs(
@@ -96,6 +98,8 @@ describe("Automation - Non VRF", () => {
       deployAutoNonVRFMock
     );
 
+    await contract.setIsWaiting(true);
+
     // Calling reveal 1st time
     let tx0 = await automationRegistry.simulateAutoReveal(contractAddress);
 
@@ -111,6 +115,8 @@ describe("Automation - Non VRF", () => {
     let words0 = await contract.getWordsByPointer(nftRevealCounter0);
 
     expect(words0).to.be.deep.equals([BigInt(blockHash0)]);
+
+    await contract.setIsWaiting(true);
 
     // Calling reveal 2nd time
     let tx1 = await automationRegistry.simulateAutoReveal(contractAddress);
