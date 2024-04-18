@@ -20,7 +20,8 @@ export enum FacetCutAction {
  */
 export async function fulfillFacetCut(
   fromContract_: BaseContract,
-  skipContracts_: BaseContract[] | null = null
+  skipContracts_: BaseContract[] | null = null,
+  action_: FacetCutAction | null = null
 ) {
   const diamondSelectors: string[] = [];
   if (skipContracts_) {
@@ -33,7 +34,7 @@ export async function fulfillFacetCut(
 
   const facetCut: IERC2535DiamondCutInternal.FacetCutStruct = {
     target: await fromContract_.getAddress(),
-    action: FacetCutAction.ADD,
+    action: action_ == null ? FacetCutAction.ADD : action_,
     selectors: [],
   };
 
