@@ -18,6 +18,14 @@ contract DNA is IDNA, Initializable {
         DNABaseStorage.layout().variants_name = variantsName;
     }
 
+    function getSchemaHash() external view returns (bytes32) {
+        return DNABaseStorage.getSchemaHash();
+    }
+
+    function getVariantsName() external view returns (string[] memory) {
+        return DNABaseStorage.getVariantsName();
+    }
+
     function dnaOf(uint256 id_) public view returns (bytes32) {
         return DNABaseStorage.getDnaById(id_);
     }

@@ -7,6 +7,10 @@ interface IDNA {
         string[] memory variantsName
     ) external;
 
+    function getSchemaHash() external view returns (bytes32);
+
+    function getVariantsName() external view returns (string[] memory);
+
     function dnaOf(uint256 id_) external view returns (bytes32);
 
     function dnaOfToJson(
