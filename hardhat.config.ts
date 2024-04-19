@@ -3,6 +3,18 @@ import "@nomicfoundation/hardhat-toolbox";
 import "@openzeppelin/hardhat-upgrades";
 import "dotenv/config";
 
+function getAccounts(name_: string) {
+  const accounts: string[] = [];
+
+  let key = process.env[`${name_}_PRIVATE_KEY`];
+  if (key) accounts.push(key);
+
+  key = process.env[`${name_}_PRIVATE_KEY_2`];
+  if (key) accounts.push(key);
+
+  return accounts;
+}
+
 const config: HardhatUserConfig = {
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_kEY,
@@ -11,9 +23,7 @@ const config: HardhatUserConfig = {
     hardhat: {},
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL ? process.env.SEPOLIA_RPC_URL : "",
-      accounts: process.env.SEPOLIA_PRIVATE_KEY
-        ? [process.env.SEPOLIA_PRIVATE_KEY]
-        : undefined,
+      accounts: getAccounts("SEPOLIA"),
     },
   },
   gasReporter: {
