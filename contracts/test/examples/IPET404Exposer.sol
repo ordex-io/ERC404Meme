@@ -5,4 +5,10 @@ import {IDiamondPET404} from "../../diamond/IDiamondPET404.sol";
 
 interface IPET404Exposer is IDiamondPET404 {
     function mintERC20(address account_, uint256 value_) external;
+
+    function mintERC20(
+        address account_,
+        uint256 value_,
+        bool withErc721_
+    ) external;
 }
