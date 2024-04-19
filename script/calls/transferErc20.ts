@@ -1,21 +1,33 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const [signer1] = await ethers.getSigners();
+  const [owner, receiver] = await ethers.getSigners();
 
-  const diamondCat404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
-  const zeroIDiamont404 = await ethers.getContractAt(
-    "IDiamondPET404",
-    diamondCat404Address
+  // Our PET404 contract address with the PET404 interface (plus the exposer for tests)
+  const diamondPet404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
+  const diamondPet404 = await ethers.getContractAt(
+    "IPET404Exposer",
+    diamondPet404Address
   );
 
-  // The minimum to get a NFT
-  const amount = await zeroIDiamont404.units();
-  const toAddress = "0xbF334f8BD1420a1CbFE15407f73919424934B1B3";
+  // The minimum amount required to get a NFT (404k tokens) multiplied per 5
+  const amount = (await diamondPet404.units()) * 5n;
+  const receiverAddress = receiver.address;
 
-  const tx = await zeroIDiamont404.connect(signer1).transfer(toAddress, amount);
+  if ((await diamondPet404.erc20BalanceOf(owner.address)) < amount) {
+    throw Error("Owner does not have enough balance to transfer");
+  }
 
-  console.log("tx hash: ", tx.hash);
+  // Transfer
+  console.log(`Transfering ${amount} ERC20 tokens to "${receiverAddress}"`);
+  const tx = await diamondPet404
+    .connect(owner)
+    .transfer(receiverAddress, amount);
+
+  console.log("Transaction hash: ", tx.hash);
+
+  await tx.wait();
+  console.log("Transaction completed");
 }
 
 main()
