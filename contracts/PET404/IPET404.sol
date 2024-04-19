@@ -20,4 +20,6 @@ interface IPET404 is IERC404, ISafeOwnable {
     function getBaseUri() external view returns (string memory);
 
     function setBaseUri(string memory newBaseUri_) external;
+
+    function getReadableTokenId(uint256 id_) external pure returns (uint256);
 }

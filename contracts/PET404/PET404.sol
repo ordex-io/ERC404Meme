@@ -66,6 +66,13 @@ contract PET404 is IPET404, ERC404, SafeOwnable {
         return string.concat(ERC404Storage.getBaseUri(), Strings.toString(id_));
     }
 
+    function getReadableTokenId(uint256 id_) public pure returns (uint256) {
+        if (_isValidTokenId(id_)) {
+            return id_ - ID_ENCODING_PREFIX;
+        }
+        revert InvalidTokenId();
+    }
+
     function _transferERC721(
         address from_,
         address to_,
