@@ -1,6 +1,9 @@
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { UniswapV3Factory } from "../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
+import {
+  UniswapV3Factory,
+  UniswapV3Pool,
+} from "../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
 import {
   NonfungiblePositionManager,
   SwapRouter,
@@ -182,7 +185,7 @@ export async function deployWeth() {
   return wethContract;
 }
 
-export async function deployUniswapV3Factory() {
+export async function deployUniswapV3Factory(): Promise<UniswapV3Factory> {
   const signers = await ethers.getSigners();
 
   // Deploy Uniswap v3 factory.
@@ -244,4 +247,13 @@ export async function deploySwapRouter(
   await uniswapV3RouterContract.waitForDeployment();
 
   return uniswapV3RouterContract;
+}
+
+export async function deployLinkToken() {
+  const factory = await ethers.getContractFactory("MockLink");
+
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+
+  return contract;
 }
