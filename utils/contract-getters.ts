@@ -1,5 +1,5 @@
 import {
-  ERC20,
+  ERC20Mock,
   IPET404Exposer,
   NonfungiblePositionManager,
   SwapRouter,
@@ -52,8 +52,8 @@ export async function getSwapRouter(
 export async function getERC20(
   address: string,
   signer: Signer
-): Promise<ERC20> {
-  return await ethers.getContractAt("ERC20", address, signer);
+): Promise<ERC20Mock> {
+  return await ethers.getContractAt("ERC20Mock", address, signer);
 }
 
 export async function getDiamondPET404(
