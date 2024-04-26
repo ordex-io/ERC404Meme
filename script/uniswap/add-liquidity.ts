@@ -5,7 +5,6 @@ import {
   checkBalances,
   getDiamondPET404,
   getERC20,
-  getNonfungiblePositionManager,
   setAddressesAsExempt,
 } from "../../utils";
 import { readAddresses } from "./util";
