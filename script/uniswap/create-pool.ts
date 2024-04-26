@@ -16,7 +16,8 @@ async function main() {
 
   // Instance of our tokens
   const PET404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
-  const tokenAddress = "0x696c7C5D1CbADA46c6E587826a3AE75B58D3CA9F";
+  const tokenAddress = "0x16437045d8d169a9819f40cc79e959401B651896";
+
   // // const token = await getERC20(tokenAddress, signer);
   // // const pet404 = await getDiamondPET404(PET404Address, signer);
 
