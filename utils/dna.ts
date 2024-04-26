@@ -47,6 +47,18 @@ export async function getBlockHash(blockNumber: number | null = null) {
   }
 }
 
+export async function getBlockNumber() {
+  return await ethers.provider.getBlockNumber();
+}
+
+export async function getTimeStamp() {
+  const block = await ethers.provider.getBlock(await getBlockNumber());
+
+  if (!block) throw "cannto get current block";
+
+  return block.timestamp;
+}
+
 export function nonDuplicateDNA(dnaArray: string[]): boolean {
   return new Set(dnaArray).size === dnaArray.length;
 }
