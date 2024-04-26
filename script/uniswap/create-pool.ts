@@ -15,10 +15,10 @@ async function main() {
   const chainId = (await signer.provider.getNetwork()).chainId;
 
   // Instance of our tokens
-  const tokenAddress = "0xFF07D6C3f56d0ce87f8Ed17C25747af7aE365308";
   const PET404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
-  // const token = await getERC20(tokenAddress, signer);
-  // const pet404 = await getDiamondPET404(PET404Address, signer);
+  const tokenAddress = "0x696c7C5D1CbADA46c6E587826a3AE75B58D3CA9F";
+  // // const token = await getERC20(tokenAddress, signer);
+  // // const pet404 = await getDiamondPET404(PET404Address, signer);
 
   // (0.05, 0.3, 1, 0.01)
   const fee = FeeAmount.MEDIUM; // (0.3)
@@ -31,13 +31,13 @@ async function main() {
   );
 
   // Initialize with (1:404)
-  const price = encodePriceSqrt(1, 1);
+  const price = encodePriceSqrt(404, 1);
 
   // Create the pool
   const poolAddress = await createPool(
     uniswapFactory,
-    tokenAddress,
     PET404Address,
+    tokenAddress,
     fee
   );
 
