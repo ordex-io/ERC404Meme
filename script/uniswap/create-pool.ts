@@ -16,6 +16,7 @@ async function main() {
 
   // Instance of our tokens
   const PET404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
+  // ERC20 tokens or others ERC404 tokens
   const tokenAddress = "0x16437045d8d169a9819f40cc79e959401B651896";
 
   // (0.05, 0.3, 1, 0.01)
@@ -28,7 +29,7 @@ async function main() {
     signer
   );
 
-  // Initialize with (1:404)
+  // Initialize with (404:1)
   const price = encodePriceSqrt(404, 1);
 
   // Create the pool

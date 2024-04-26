@@ -16,7 +16,6 @@ async function main() {
   const uniswapAddresses = readAddresses(chainId);
 
   // Instances
-
   const tokenAddress = "0x16437045d8d169a9819f40cc79e959401B651896";
   const PET404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
   const token = await getERC20(tokenAddress, signer);
