@@ -45,8 +45,9 @@ async function main() {
   const positMangAddr = await positionManager.getAddress();
   const token1Decimals = await token.decimals();
   const pet404Decimals = await pet404.decimals();
-  const amountPet404 = 100000000n * (await pet404.units());
-  const amountToken = amountPet404 / 404n;
+  // The amounts can be setted manually, this is for simplicity
+  const amountPet404 = await pet404.erc20BalanceOf(signer.address);
+  const amountToken = await token.balanceOf(signer.address);
 
   // Check balances
   await checkBalances(pet404, signer.address, amountPet404);
