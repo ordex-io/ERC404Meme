@@ -17,7 +17,7 @@ async function main() {
   // Instance of our tokens
   const PET404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
   // ERC20 tokens or others ERC404 tokens
-  const tokenAddress = "0x16437045d8d169a9819f40cc79e959401B651896";
+  const tokenAddress = "0xdb33a95b2b43E76b5c00ED71776BB2e0ec7860F3";
 
   // (0.05, 0.3, 1, 0.01)
   const fee = FeeAmount.MEDIUM; // (0.3)
