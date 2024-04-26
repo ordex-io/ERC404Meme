@@ -19,14 +19,11 @@ async function main() {
   const uniswapAddresses = readAddresses(chainId);
 
   // Instanes
-  const poolAddress = "0xfb402ac4215DBcCEc8FC49998B6843CcAFc8Ec8E"; //
-  const tokenAddress = "0x696c7C5D1CbADA46c6E587826a3AE75B58D3CA9F";
+  const poolAddress = "0x5806517Eb02316E30e8ffDB53dbd1d08B9794E2a";
+  const tokenAddress = "0x16437045d8d169a9819f40cc79e959401B651896";
   const PET404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
   const token = await getERC20(tokenAddress, signer);
   const pet404 = await getDiamondPET404(PET404Address, signer);
-
-  const tx = await pet404.setERC721TransferExempt(poolAddress, true);
-  await tx.wait();
 
   // Set addresses as transfer exemptions
   await setAddressesAsExempt(pet404, signer, [
@@ -46,8 +43,8 @@ async function main() {
   const token1Decimals = await token.decimals();
   const pet404Decimals = await pet404.decimals();
   // The amounts can be setted manually, this is for simplicity
-  const amountPet404 = await pet404.erc20BalanceOf(signer.address);
-  const amountToken = await token.balanceOf(signer.address);
+  const amountPet404 = (await pet404.units()) * 10000n; // Amount to get around 10000 NFTs
+  const amountToken = amountPet404 / 404n;
 
   // Check balances
   await checkBalances(pet404, signer.address, amountPet404);
@@ -62,12 +59,12 @@ async function main() {
     poolAddress,
     signer,
     chainId,
-    pet404Decimals,
     token1Decimals,
-    PET404Address,
+    pet404Decimals,
     tokenAddress,
-    amountPet404,
+    PET404Address,
     amountToken,
+    amountPet404,
     fee,
     await positionManager.getAddress()
   );
