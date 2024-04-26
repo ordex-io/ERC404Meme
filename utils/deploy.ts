@@ -1,9 +1,6 @@
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import {
-  UniswapV3Factory,
-  UniswapV3Pool,
-} from "../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
+import { UniswapV3Factory } from "../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
 import {
   NonfungiblePositionManager,
   SwapRouter,
@@ -251,6 +248,15 @@ export async function deploySwapRouter(
 
 export async function deployLinkToken() {
   const factory = await ethers.getContractFactory("MockLink");
+
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+
+  return contract;
+}
+
+export async function deployERC20Token() {
+  const factory = await ethers.getContractFactory("ERC20Mock");
 
   const contract = await factory.deploy();
   await contract.waitForDeployment();

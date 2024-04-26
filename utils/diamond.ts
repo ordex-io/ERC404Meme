@@ -1,5 +1,5 @@
-import { IERC2535DiamondCutInternal } from "../typechain-types";
-import { BaseContract } from "ethers";
+import { IERC2535DiamondCutInternal, IPET404 } from "../typechain-types";
+import { BaseContract, Signer } from "ethers";
 
 export enum FacetCutAction {
   ADD,
@@ -56,4 +56,24 @@ export function getInitData(
   args_: any[]
 ): string {
   return contract_.interface.encodeFunctionData(name_, args_);
+}
+
+export async function setAddressesAsExempt(
+  erc404: IPET404,
+  owner: Signer,
+  addresses: string[]
+) {
+  for (let i = 0; i < addresses.length; i++) {
+    const address_ = addresses[i];
+
+    // Only send meaningful transactions
+    const isTransferExempt = await erc404.erc721TransferExempt(address_);
+
+    if (!isTransferExempt) {
+      const tx = await erc404
+        .connect(owner)
+        .setERC721TransferExempt(address_, true);
+      await tx.wait();
+    }
+  }
 }

@@ -5,3 +5,5 @@ export * from "./connect";
 export * from "./manipulation";
 export * from "./diamond";
 export * from "./file";
+export * from "./uniswap";
+export * from "./contract-getters";
