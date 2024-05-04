@@ -448,7 +448,10 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
             // value_ == amountOut
             // amountOut % units() == 0 --> Global
             // amountOut % units() != 0 --> 1 to personal, then `tokensToWithdrawAndStore - 1` to Global
-            if (value_ % ERC404Storage.layout().units != 0) {
+            if (
+                tokensToWithdrawAndStore > 1 &&
+                value_ % ERC404Storage.layout().units != 0
+            ) {
                 ERC404Storage.layout()._saveInPersonal = true;
             }
 
