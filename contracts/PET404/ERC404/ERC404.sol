@@ -119,7 +119,8 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
     }
 
     function getERC721QueueLength() public view virtual returns (uint256) {
-        return ERC404Storage.layout()._storedERC721Ids.length();
+        ERC404Storage.Layout storage l = ERC404Storage.layout();
+        return l._storedERC721Ids.length() + l._personalVaultCounts;
     }
 
     function getERC721TokensInQueue(
