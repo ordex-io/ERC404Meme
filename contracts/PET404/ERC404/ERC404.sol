@@ -444,8 +444,20 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
             uint256 tokensToWithdrawAndStore = (erc20BalanceOfSenderBefore /
                 ERC404Storage.layout().units) -
                 (balanceOf(from_) / ERC404Storage.layout().units);
+
+            // value_ == amountOut
+            // amountOut % units() == 0 --> Global
+            // amountOut % units() != 0 --> 1 to personal, then `tokensToWithdrawAndStore - 1` to Global
+            if (value_ % ERC404Storage.layout().units != 0) {
+                ERC404Storage.layout()._saveInPersonal = true;
+            }
+
             for (uint256 i = 0; i < tokensToWithdrawAndStore; ) {
                 _withdrawAndStoreERC721(from_);
+
+                // Remove the flag since just one goes to personal if partial part found
+                ERC404Storage.layout()._saveInPersonal = false;
+
                 unchecked {
                     ++i;
                 }
@@ -492,7 +504,9 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
                     ERC404Storage.layout().units >
                 nftsToTransfer
             ) {
+                ERC404Storage.layout()._saveInPersonal = true;
                 _withdrawAndStoreERC721(from_);
+                ERC404Storage.layout()._saveInPersonal = false;
             }
 
             // Then, check if the transfer causes the receiver to gain a whole new token which requires gaining
@@ -721,7 +735,13 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
 
         uint256 id;
 
-        if (!ERC404Storage.layout()._storedERC721Ids.empty()) {
+        if (!ERC404Storage.layout()._personalVault[to_].empty()) {
+            // Priorize  personal vault over the global since all the paths ended here
+            // or does not meet the condition
+            // See: https://github.com/ordex-io/404-contract/tree/main?tab=readme-ov-file#transfers-flowchart-%EF%B8%8F
+            id = ERC404Storage.layout()._personalVault[to_].popBack();
+            ERC404Storage.layout()._personalVaultCounts -= 1;
+        } else if (!ERC404Storage.layout()._storedERC721Ids.empty()) {
             // If there are any tokens in the bank, use those first.
             // Pop off the end of the queue (FIFO).
             id = ERC404Storage.layout()._storedERC721Ids.popBack();
@@ -767,8 +787,14 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         // Does not handle ERC-721 exemptions.
         _transferERC721(from_, address(0), id);
 
-        // Record the token in the contract's bank queue.
-        ERC404Storage.layout()._storedERC721Ids.pushFront(id);
+        if (ERC404Storage.layout()._saveInPersonal) {
+            // Record the token in the user's bank queue.
+            ERC404Storage.layout()._personalVault[from_].pushFront(id);
+            ERC404Storage.layout()._personalVaultCounts += 1;
+        } else {
+            // Record the token in the contract's bank queue.
+            ERC404Storage.layout()._storedERC721Ids.pushFront(id);
+        }
     }
 
     function _getOwnerOf(
@@ -825,6 +851,9 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         uint256 erc721Balance = erc721BalanceOf(target_);
 
         for (uint256 i = 0; i < erc721Balance; ) {
+            // All the NFTs id goes to global this is for safety
+            ERC404Storage.layout()._saveInPersonal = false;
+
             // Transfer out ERC721 balance
             _withdrawAndStoreERC721(target_);
             unchecked {
