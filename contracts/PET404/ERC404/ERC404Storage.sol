@@ -25,6 +25,7 @@ library ERC404Storage {
         DoubleEndedQueue.Uint256Deque _storedERC721Ids;
         mapping(address => DoubleEndedQueue.Uint256Deque) _personalVault;
         uint256 _personalVaultCounts;
+        bool _saveInPersonal;
         uint256 _INITIAL_CHAIN_ID;
         bytes32 _INITIAL_DOMAIN_SEPARATOR;
     }
