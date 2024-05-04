@@ -2459,8 +2459,8 @@ describe("ERC404", function () {
         4n
       );
 
-      // Expect that the sender holds token ids 97-99 (96 popped off)
-      for (let i = 97n; i <= 99n; i++) {
+      // Expect that the sender holds token ids 97-100 (96 popped off)
+      for (let i = 97n; i <= 100n; i++) {
         expect(await f.contract.ownerOf(f.deployConfig.idPrefix + i)).to.equal(
           f.signers[2].address
         );
@@ -2609,8 +2609,13 @@ describe("ERC404", function () {
         1n
       );
 
-      // Expect the recipient to hold token id 96 (96 was added to the queue first, so it should be the first to be removed)
-      expect(await f.contract.ownerOf(f.deployConfig.idPrefix + 96n)).to.equal(
+      // Expect the token id 96 to be of zero address (It was added to the personal vault, so it should not be removed)
+      await expect(
+        f.contract.ownerOf(f.deployConfig.idPrefix + 96n)
+      ).to.be.revertedWithCustomError(f.contract, "NotFound");
+
+      // Expect the recipient to receive a new token since global vault is empty
+      expect(await f.contract.ownerOf(f.deployConfig.idPrefix + 101n)).to.equal(
         f.signers[5].address
       );
 

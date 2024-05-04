@@ -16,7 +16,7 @@ async function main() {
   const uniswapAddresses = readAddresses(chainId);
 
   // Instances
-  const tokenAddress = "0x16437045d8d169a9819f40cc79e959401B651896";
+  const tokenAddress = "0xdb33a95b2b43E76b5c00ED71776BB2e0ec7860F3";
   const PET404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
   const token = await getERC20(tokenAddress, signer);
   const pet404 = await getDiamondPET404(PET404Address, signer);
@@ -29,7 +29,7 @@ async function main() {
   const deadline = (await getTimeStamp()) + 10000; // +10000 to make sure that accept (not for production)
   const receiver = signer2.address;
   const amountOut = await pet404.units();
-  const amountInMaximum = await token.balanceOf(signer.address); // We approve all our tokens (Caution: always check on production)
+  const amountInMaximum = amountOut * 10n;
 
   // Approve the swap router to handle the signer tokens
   const tx = await token

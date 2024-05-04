@@ -5,7 +5,6 @@ import {
   checkBalances,
   getDiamondPET404,
   getERC20,
-  getNonfungiblePositionManager,
   setAddressesAsExempt,
 } from "../../utils";
 import { readAddresses } from "./util";
@@ -19,8 +18,8 @@ async function main() {
   const uniswapAddresses = readAddresses(chainId);
 
   // Instances
-  const poolAddress = "0x5806517Eb02316E30e8ffDB53dbd1d08B9794E2a";
-  const tokenAddress = "0x16437045d8d169a9819f40cc79e959401B651896";
+  const poolAddress = "0xEC335B6B0AbEe990aAc83A6FCD5c2B27968e239F";
+  const tokenAddress = "0xdb33a95b2b43E76b5c00ED71776BB2e0ec7860F3";
   const PET404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
   const token = await getERC20(tokenAddress, signer);
   const pet404 = await getDiamondPET404(PET404Address, signer);
@@ -38,7 +37,7 @@ async function main() {
   const pet404Decimals = await pet404.decimals();
   // The amounts can be setted manually, this is for simplicity
   const amountPet404 = (await pet404.units()) * 10000n; // Amount to get around 10000 NFTs
-  const amountToken = amountPet404 / 404n;
+  const amountToken = amountPet404;
   const positMangAddr = uniswapAddresses.NonfungiblePositionManager;
 
   // Check balances
