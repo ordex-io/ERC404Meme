@@ -22,6 +22,19 @@ ERC404 is an experimental standard that blends the functionalities of ERC-20 and
 3. **Reveal Process**: After minting, PET NFTs remain hidden until the reveal process is initiated. Chainlink's Automation tools manage the secure reveal of PET NFTs, enhancing user engagement.
 4. **Collecting and Trading**: PET NFTs can be collected, traded, and showcased within the PET404 ecosystem, offering a dynamic and interactive experience for collectors.
 
+## PET404 Interactions demostrations
+
+### Videos of interactions, behavior, and functionalities 🎬
+
+These links lead to videos illustrating the functionality of PET404 token transfers and their broader implications. Furthermore, they highlight the seamless compatibility of PET404 tokens with marketplaces like OpenSea, where they operate just like any other NFT collection. Likewise, they demonstrate the tokens' compatibility with token pools such as those found on Uniswap, contributing to market dynamics.
+
+- [Transfers, Reveals and Opensea](https://www.loom.com/share/d4734907d6ef468b87333252ff399935?sid=a10968f9-d5d9-4e2b-b1f5-add9b82b1d2f)
+- [Uniswap support](https://www.loom.com/share/99e7f5ddd70a45f18e8baac79f5e9dbb?sid=92f0834b-842a-4fb6-9155-351d3064625e)
+
+### Transfers flowchart 🖼️
+
+![PET404](https://github.com/ordex-io/404-contract/assets/81595884/134b2084-268e-42f5-822f-8c3dbe829afc)
+
 ## Getting Started
 
 To get started with PET404, follow these steps:
