@@ -1,12 +1,15 @@
-![image_2024-04-26_18-08-09](https://github.com/ordex-io/404-contract/assets/81595884/abf5dc8f-9434-49cf-856a-79d9ff124556)
-
-# PET404: Dynamic NFT Generation with ERC404 Implementation
+# PET404: Dynamic NFT Generation with ERC404Meme Implementation
 
 PET404 is an innovative project that explores the dynamic generation of Non-Fungible Tokens (NFTs) using the ERC404 standard. By leveraging ERC404, PET404 introduces a novel approach to NFT creation, allowing for native liquidity, fractionalization, and traits for each NFT PET.
+
 
 ## Introduction
 
 ERC404 is an experimental standard that blends the functionalities of ERC-20 and ERC-721 standards, aiming to provide a framework for dynamic NFT generation. PET404 extends ERC404 to create a dynamic ecosystem where NFTs are generated based on custom DNA, offering unique traits and characteristics for each PET NFT.
+
+
+![photo_2024-05-09_13-49-30](https://github.com/ordex-io/ERC404MEME/assets/85253037/3fe1a8ed-0663-47ec-b2b4-0cc2e15be137)
+
 
 ## Key Features
 
@@ -39,7 +42,7 @@ These links lead to videos illustrating the functionality of PET404 token transf
 
 To get started with PET404, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/your-username/pet404.git`
+1. Clone the repository
 2. Install dependencies: `npm install`
 3. Rum the tests using `npm test`
 4. Explore the different facets and functionalities within the PET404 ecosystem.
@@ -47,4 +50,4 @@ To get started with PET404, follow these steps:
 
 ## Contributing
 
-Contributions to PET404 are welcome! If you have any ideas, suggestions, or bug fixes, feel free to submit a pull request or open an issue on GitHub.
+Contributions are welcome! If you have any ideas, suggestions, or bug fixes, feel free to submit a pull request or open an issue on GitHub.
