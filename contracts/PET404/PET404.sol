@@ -19,14 +19,15 @@ contract PET404 is IPET404, ERC404, SafeOwnable {
         uint256 units_,
         string memory baseUri_,
         uint256 maxTotalSupplyERC721_,
-        address initialMintRecipient_
+        address initialMintRecipient_,
+        address uniswapFactory_
     )
         public
         reinitializer(1) // reinitializer using 1 (1st contract calling his init)
     {
         // The `__ERC404_init` function already have the initializer modifier,
         // so, if the contract is already initialized, then this function will fail.
-        __ERC404_init(name_, symbol_, decimals_, units_);
+        __ERC404_init(name_, symbol_, decimals_, units_, uniswapFactory_);
         ERC404Storage.setBaseUri(baseUri_);
 
         // Do not mint the ERC721s to the initial owner, as it's a waste of gas.
