@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {IUniswapPoolChecker} from "../../UniswapPoolChecker/IUniswapPoolChecker.sol";
+
 /**
  * @dev ERC404 interface
  */
-interface IERC404 {
+interface IERC404 is IUniswapPoolChecker {
     /**
      * @dev Returns the name of the token.
      */
