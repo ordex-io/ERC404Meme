@@ -4,12 +4,13 @@ pragma solidity ^0.8.24;
 import {UniswapPoolCheckerStorage} from "./UniswapPoolCheckerStorage.sol";
 import {IUniswapV3PoolImmutables as IUniswapV3Pool} from "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol";
 import {IUniswapV3Factory} from "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
+import {IUniswapPoolChecker} from "./IUniswapPoolChecker.sol";
 
 /// @title UniswapPoolChecker
 /// @notice The UniswapPoolChecker facilities and  provide the abilitiy to check if an address is a pool
 /// created for the uniswap factory trusted by the contract
 /// @dev The contract need a Uniswap Factory to trust
-abstract contract UniswapPoolChecker {
+abstract contract UniswapPoolChecker is IUniswapPoolChecker {
     /// @notice Initialize the UniswapPoolChecker contract
     /// @param uniswapFactory_ The Uniswap factory that the contract will trust
     function __UniswapPoolChecker_Init(address uniswapFactory_) internal {
