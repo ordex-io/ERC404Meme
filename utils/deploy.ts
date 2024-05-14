@@ -35,6 +35,7 @@ export async function deployPET404Facet() {
     baseUri: "https://www.example.com/token/",
     maxTotalSupplyERC721_: 20n, // 20 tokens
     initialMintRecipient_: await initialRecipient.getAddress(),
+    uniswapFactory_: ethers.ZeroAddress,
   };
 
   const factory = await ethers.getContractFactory("PET404");
