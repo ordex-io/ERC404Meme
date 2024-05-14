@@ -85,11 +85,14 @@ interface IERC404 {
     /**
      * @dev Length of the queue of ERC-721 tokens stored in the contract
      */
-    function getERC721QueueLength() external view returns (uint256);
+    function getERC721QueueLength(
+        address owner_
+    ) external view returns (uint256);
 
     function getERC721TokensInQueue(
         uint256 start_,
-        uint256 count_
+        uint256 count_,
+        address owner_
     ) external view returns (uint256[] memory);
 
     /**
