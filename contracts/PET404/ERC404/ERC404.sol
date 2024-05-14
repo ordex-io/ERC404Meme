@@ -10,7 +10,6 @@ import {IERC404} from "./IERC404.sol";
 import {ERC404Storage} from "./ERC404Storage.sol";
 import {IERC404Errors} from "./IERC404Errors.sol";
 import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
-import "hardhat/console.sol";
 
 /**
  * @title ERC404 Upgradeable
@@ -398,7 +397,6 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         // Despite this logic, it is still recommended practice to exempt prior to the target
         // having an active balance.
         if (state_) {
-            console.log("_clearERC721Balance call");
             _clearERC721Balance(target_);
         } else {
             _reinstateERC721Balance(target_);
