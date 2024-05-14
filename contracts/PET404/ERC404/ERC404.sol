@@ -457,24 +457,25 @@ abstract contract ERC404 is
                 ERC404Storage.layout().units) -
                 (balanceOf(from_) / ERC404Storage.layout().units);
 
-            // value_ == amountOut
-            // amountOut % units() == 0 --> Global
-            // amountOut % units() != 0 --> 1 to personal, then `tokensToWithdrawAndStore - 1` to Global
-            bool sentToVault = false;
+            bool isFraction;
             if (
-                tokensToWithdrawAndStore >= 2 &&
+                tokensToWithdrawAndStore >= 1 &&
                 // This means that there is a fractional part
                 (value_ / ERC404Storage.layout().units) !=
                 tokensToWithdrawAndStore
             ) {
-                sentToVault = true;
+                isFraction = true;
             }
 
             for (uint256 i = 0; i < tokensToWithdrawAndStore; ) {
-                _withdrawAndStoreERC721(from_, sentToVault);
-
-                // Remove the flag since just one goes to personal if partial part found
-                sentToVault = false;
+                if (isFraction) {
+                    _withdrawAndStoreERC721(from_, isFraction);
+                    // Remove the flag since just one goes to personal if partial part found
+                    isFraction = false;
+                } else if (isUniswapV3Pool(to_)) {
+                    // We know it is an Uniswap pool
+                    _withdrawAndStoreERC721(from_, false);
+                }
 
                 unchecked {
                     ++i;
@@ -726,7 +727,8 @@ abstract contract ERC404 is
             revert MintLimitReached();
         }
 
-        _transferERC20WithERC721(address(0), to_, value_);
+        _transferERC20WithERC721(address(0), to_, value_);            // amountOut % units() == 0 --> Global
+
     }
 
     /// @notice Internal function to compute domain separator for EIP-2612 permits
