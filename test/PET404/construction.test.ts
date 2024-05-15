@@ -1,17 +1,29 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import {
-  deployAutomationNonVrfFacet,
-  deployAutomationRegistryMock,
-  deployAutomationVrfFacet,
-  deployDNAFacet,
-  deployPET404Facet,
-} from "../../utils";
 import { ethers } from "hardhat";
+import { deployFullPET404DiamondNonVrf } from "../utils";
 
 // TODO: Move from INit to construction with diamond/facets approach deployment
-xdescribe("PET404", () => {
-  describe("Construction", () => {
+describe.only("PET404", () => {
+  describe("Initial values", () => {
+    it("should get the initial values correctly", async () => {
+      const {
+        diamondContract: PET404Contract,
+        facetsArgs: { pet404: pet404Args, dna: dnaArgs, automation: autoArgs },
+      } = await loadFixture(deployFullPET404DiamondNonVrf);
+
+      // Just a few to check that we can get values from facets. Each facet has
+      // the tests for this
+      expect(await PET404Contract.decimals()).to.be.equal(pet404Args.decimals);
+      expect(await PET404Contract.getBaseUri()).to.be.equal(pet404Args.baseUri);
+      expect(await PET404Contract.getSchemaHash()).to.be.equal(
+        dnaArgs.schemaHash
+      );
+      expect(await PET404Contract.getCallerAddress()).to.be.equal(
+        autoArgs.automationRegistryAddress
+      );
+    });
+    it("should");
     // it("should initialize the contract correctly", async () => {
     //   const { nft404, erc404Params, nft404Params } = await loadFixture(
     //     deployNFT404
