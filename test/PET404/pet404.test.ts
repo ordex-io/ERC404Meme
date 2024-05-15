@@ -8,7 +8,7 @@ import {
   getERC721TransfersEventsArgs,
 } from "../../utils";
 
-describe.only("PET404 - Non VRF", () => {
+describe("PET404 - Non VRF", () => {
   describe("Initial values", () => {
     it("should get the initial values correctly", async () => {
       const {
@@ -144,7 +144,7 @@ describe.only("PET404 - Non VRF", () => {
     });
   });
 
-  describe.only("Reveal transactions", () => {
+  describe("Reveal transactions", () => {
     it("should reveal NFT after automation call", async () => {
       const {
         diamondContract: PET404Contract,
