@@ -15,4 +15,9 @@ abstract contract AutomationBase is IAutomationBase, SafeOwnable {
     function setCallerAddress(address newCaller_) public onlyOwner {
         AutomationBaseStorage.layout().automationRegistry = newCaller_;
     }
+
+    /// @return The address that can make the automation calls
+    function getCallerAddress() public view returns (address) {
+        return AutomationBaseStorage.layout().automationRegistry;
+    }
 }

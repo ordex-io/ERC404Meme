@@ -11,4 +11,6 @@ interface IAutomationBase {
     );
 
     function reveal() external;
+
+    function getCallerAddress() external view returns (address);
 }
