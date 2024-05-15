@@ -251,5 +251,5 @@ interface IERC404 is IUniswapPoolChecker {
     /**
      * Constant for token id encoding
      */
-    function ID_ENCODING_PREFIX() external returns (uint256);
+    function ID_ENCODING_PREFIX() external view returns (uint256);
 }
