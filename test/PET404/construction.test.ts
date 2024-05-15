@@ -78,5 +78,34 @@ describe.only("PET404", () => {
         false
       );
     });
+
+    it("should revert if non owner account try to execute only owner calls", async () => {
+      const [, signer1] = await ethers.getSigners();
+
+      const { diamondContract: PET404Contract, ownerSigner } =
+        await loadFixture(deployFullPET404DiamondNonVrf);
+
+      expect(ownerSigner.address).to.be.not.equal(signer1.address);
+
+      // Check contract owner
+      expect(await PET404Contract.owner()).to.be.not.equal(signer1.address);
+
+      // Try to change the caller address for automation calls (reveals)
+      expect(PET404Contract.connect(signer1).setCallerAddress(signer1.address))
+        .to.be.reverted;
+
+      // Try to change the baseUri
+      const newBaseUri = "MyNewBaseUriRandom";
+      expect(PET404Contract.connect(signer1).setBaseUri(newBaseUri)).to.be
+        .reverted;
+
+      // Set transfer exemptions to targets
+      const target = signer1.address;
+
+      // Try to set transfer exemption
+      expect(
+        PET404Contract.connect(signer1).setERC721TransferExempt(target, true)
+      ).to.be.reverted;
+    });
   });
 });
