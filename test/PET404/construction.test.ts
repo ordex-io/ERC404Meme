@@ -9,11 +9,13 @@ describe.only("PET404", () => {
     it("should get the initial values correctly", async () => {
       const {
         diamondContract: PET404Contract,
+        ownerSigner,
         facetsArgs: { pet404: pet404Args, dna: dnaArgs, automation: autoArgs },
       } = await loadFixture(deployFullPET404DiamondNonVrf);
 
       // Just a few to check that we can get values from facets. Each facet has
       // the tests for this
+      expect(await PET404Contract.owner()).to.be.equal(ownerSigner.address);
       expect(await PET404Contract.decimals()).to.be.equal(pet404Args.decimals);
       expect(await PET404Contract.getBaseUri()).to.be.equal(pet404Args.baseUri);
       expect(await PET404Contract.getSchemaHash()).to.be.equal(
@@ -23,83 +25,58 @@ describe.only("PET404", () => {
         autoArgs.automationRegistryAddress
       );
     });
-    it("should");
-    // it("should initialize the contract correctly", async () => {
-    //   const { nft404, erc404Params, nft404Params } = await loadFixture(
-    //     deployNFT404
-    //   );
-    //   expect(await nft404.units()).to.be.equals(
-    //     erc404Params.units,
-    //     "wrong units in the contract"
-    //   );
-    //   expect(await nft404.totalSupply()).to.be.equals(
-    //     nft404Params.maxTotalSupplyERC20,
-    //     "wrong erc20 total supply"
-    //   );
-    //   expect(
-    //     await nft404.balanceOf(nft404Params.initialMintRecipient)
-    //   ).to.be.equals(
-    //     nft404Params.maxTotalSupplyERC20,
-    //     "wrong balance assigned to initial minter"
-    //   );
-    //   expect(await nft404.erc721TotalSupply()).to.be.equals(
-    //     0n,
-    //     "Initial NFT minted"
-    //   );
-    // });
-    // it("should mint a NFT after an ERC20 transfer", async () => {
-    //   const { nft404, erc404Params, nft404Params } = await loadFixture(
-    //     deployNFT404
-    //   );
-    //   const signers = await ethers.getSigners();
-    //   const signer_0 = signers[0];
-    //   const signer_1 = signers[1];
-    //   expect(signer_0.address).to.be.equals(nft404Params.initialMintRecipient);
-    //   const amountToTransfer = erc404Params.units; // 404K = 1 NFT
-    //   await nft404.connect(signer_0).transfer(signer_1, amountToTransfer);
-    //   expect(await nft404.balanceOf(signer_1.address)).to.be.equals(
-    //     amountToTransfer
-    //   );
-    //   expect(await nft404.erc721BalanceOf(signer_1.address)).to.be.equals(1n);
-    //   expect(await nft404.erc721TotalSupply()).to.be.equals(
-    //     1n,
-    //     "No nft minted"
-    //   );
-    // });
-    // it("should remove NFT after losing ERC20 tokens", async () => {
-    //   const { nft404, erc404Params, nft404Params } = await loadFixture(
-    //     deployNFT404
-    //   );
-    //   const signers = await ethers.getSigners();
-    //   const signer_0 = signers[0];
-    //   const signer_1 = signers[1];
-    //   const signer_2 = signers[2];
-    //   expect(signer_0.address).to.be.equals(nft404Params.initialMintRecipient);
-    //   const nftsToTransfer_0 = 10n; // 10 nft
-    //   const amountToTransfer_0 = BigInt(erc404Params.units) * nftsToTransfer_0; // 404.000 * 10 = 4.040.000 -> 4.04M
-    //   await nft404.connect(signer_0).transfer(signer_1, amountToTransfer_0);
-    //   expect(await nft404.balanceOf(signer_1.address)).to.be.equals(
-    //     amountToTransfer_0
-    //   );
-    //   expect(await nft404.erc721BalanceOf(signer_1.address)).to.be.equals(
-    //     nftsToTransfer_0
-    //   );
-    //   expect(await nft404.erc721TotalSupply()).to.be.equals(
-    //     nftsToTransfer_0,
-    //     "No nft minted"
-    //   );
-    //   const amountToTransfer_1 = BigInt(erc404Params.units) / 2n;
-    //   await nft404.connect(signer_1).transfer(signer_2, amountToTransfer_1);
-    //   expect(await nft404.balanceOf(signer_2.address)).to.be.equals(
-    //     amountToTransfer_1
-    //   );
-    //   expect(await nft404.balanceOf(signer_1.address)).to.be.equals(
-    //     amountToTransfer_0 - amountToTransfer_1
-    //   );
-    //   expect(await nft404.erc721BalanceOf(signer_1.address)).to.be.equals(
-    //     nftsToTransfer_0 - 1n
-    //   );
-    //   expect(await nft404.erc721BalanceOf(signer_2.address)).to.be.equals(0n);
-    // });
+  });
+
+  describe("Only owner access calls", () => {
+    it("should correctly allow the owner to make only owner calls", async () => {
+      const [, signer1] = await ethers.getSigners();
+
+      const { diamondContract: PET404Contract, ownerSigner } =
+        await loadFixture(deployFullPET404DiamondNonVrf);
+
+      // Check contract owner
+      expect(await PET404Contract.owner()).to.be.equal(ownerSigner.address);
+
+      // Change the caller address for automation calls (reveals)
+      await PET404Contract.connect(ownerSigner).setCallerAddress(
+        signer1.address
+      );
+      expect(await PET404Contract.getCallerAddress()).to.be.equal(
+        signer1.address
+      );
+
+      // Change the baseUri
+      const newBaseUri = "MyNewBaseUriRandom";
+      await PET404Contract.connect(ownerSigner).setBaseUri(newBaseUri);
+      expect(await PET404Contract.getBaseUri()).to.be.equal(newBaseUri);
+
+      // Set transfer exemptions to targets
+      const target = signer1.address;
+
+      // Check current status
+      expect(await PET404Contract.erc721TransferExempt(target)).to.be.equal(
+        false
+      );
+
+      // Make transfer exemption
+      await PET404Contract.connect(ownerSigner).setERC721TransferExempt(
+        target,
+        true
+      );
+
+      expect(await PET404Contract.erc721TransferExempt(target)).to.be.equal(
+        true
+      );
+
+      // Set as NON transfer exemption again
+      await PET404Contract.connect(ownerSigner).setERC721TransferExempt(
+        target,
+        false
+      );
+
+      expect(await PET404Contract.erc721TransferExempt(target)).to.be.equal(
+        false
+      );
+    });
   });
 });
