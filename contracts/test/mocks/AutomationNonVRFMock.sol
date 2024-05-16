@@ -15,8 +15,8 @@ contract AutomationNonVRFMock is AutomationNonVRF {
         return DNABaseStorage.layout().wordsByCounter[pointer_];
     }
 
-    function setIsWaiting(bool flag_) external {
-        DNABaseStorage.layout().waitingReveal = flag_;
+    function increasePendingReveal() external {
+        DNABaseStorage.layout().pendingReveals += 1;
     }
 
     function mock_reveal() external {

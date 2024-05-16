@@ -56,8 +56,7 @@ contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
     function reveal() external override {
         AutomationBaseStorage.onlyAutoRegistry();
 
-        // Check if waiting
-        DNABaseStorage.checkWaiting();
+        // TODO: Check if waiting
 
         AutomationVRFStorage.Layout memory l = AutomationVRFStorage.layout();
 
