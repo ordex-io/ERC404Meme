@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-interface IAutomationBase {
+import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
+
+interface IAutomationBase is AutomationCompatibleInterface {
     event RevealCalled(uint256 requestId, uint256 block);
 
     event NftsRevealed(
@@ -9,8 +11,6 @@ interface IAutomationBase {
         uint256 nftRevealCounter,
         uint256 block
     );
-
-    function reveal() external;
 
     function setCallerAddress(address newCaller_) external;
 
