@@ -5,6 +5,7 @@ import {UniswapPoolCheckerStorage} from "./UniswapPoolCheckerStorage.sol";
 import {IUniswapV3PoolImmutables as IUniswapV3Pool} from "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol";
 import {IUniswapV3Factory} from "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import {IUniswapPoolChecker} from "./IUniswapPoolChecker.sol";
+import "hardhat/console.sol";
 
 /// @title UniswapPoolChecker
 /// @notice The UniswapPoolChecker facilities and  provide the abilitiy to check if an address is a pool
@@ -50,12 +51,15 @@ abstract contract UniswapPoolChecker is IUniswapPoolChecker {
             return false;
         }
 
-        return
-            target ==
-            UniswapPoolCheckerStorage.layout().uniswapFactory.getPool(
-                token0,
-                token1,
-                fee
-            );
+        IUniswapV3Factory f = UniswapPoolCheckerStorage.layout().uniswapFactory;
+
+        // We can't trust without uniswap factory
+        if (address(f) == address(0)) return false;
+
+        try f.getPool(token0, token1, fee) returns (address pool) {
+            return target == pool;
+        } catch (bytes memory) {
+            return false;
+        }
     }
 }
