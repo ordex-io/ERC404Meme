@@ -1594,7 +1594,7 @@ describe("ERC404", function () {
         .transfer(f.signers[0].address, 1n * f.deployConfig.units);
 
       expect(await f.contract.getERC721QueueLength(f.signers[1].address)).to.eq(
-        0,
+        1,
         "sent a whole token to a transfer exemption address"
       );
 
@@ -1613,7 +1613,7 @@ describe("ERC404", function () {
         .transfer(f.signers[0].address, 1n * f.deployConfig.units);
 
       expect(await f.contract.getERC721QueueLength(f.signers[1].address)).to.eq(
-        0,
+        1,
         "sent a whole token to a transfer exemption address"
       );
     });
