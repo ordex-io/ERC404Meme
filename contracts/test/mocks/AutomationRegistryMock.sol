@@ -14,6 +14,6 @@ import {IAutomationBase} from "../../automation/IAutomationBase.sol";
  */
 contract AutomationRegistryMock {
     function simulateAutoReveal(IAutomationBase automationContract_) public {
-        automationContract_.reveal();
+        automationContract_.performUpkeep(bytes(""));
     }
 }
