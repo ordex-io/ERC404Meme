@@ -478,8 +478,263 @@ describe.only("PET404 - Uniswap transactions", () => {
       }
     });
   });
+
   describe.only("Sells using uniswap", () => {
-    it("Sell fraction from 1 full NFT", async () => {
+    it("should sell fraction from full NFT and buy again", async () => {
+      const { PET404ContractsData, Uniswap } = await loadFixture(
+        deployUniswapPool
+      );
+
+      const {
+        diamondContract: PET404Contract,
+        pet404Facet,
+        ownerSigner,
+      } = PET404ContractsData;
+      const { swapRouter, erc20Token, fee } = Uniswap;
+
+      const [, alice] = await ethers.getSigners();
+
+      // Check that is not a transfer exemption
+      expect(
+        await PET404Contract.erc721TransferExempt(alice.address)
+      ).to.be.equal(false);
+
+      // Checking the inital balances of the tokens in the pool
+      // ERC404
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(0);
+      // ERC20
+      expect(await erc20Token.balanceOf(alice.address)).to.be.equal(0);
+
+      // Mint a full token for PET404 to alice
+      const pet404amout = await PET404Contract.units(); // 1 full token
+
+      const txMint = await PET404Contract.connect(ownerSigner)[
+        "mintERC20(address,uint256)"
+      ](alice.address, pet404amout);
+
+      const events721 = await getERC721TransfersEventsArgs(txMint, pet404Facet);
+      expect(events721.length).to.be.equal(1);
+      const { id: nftId } = events721[0];
+
+      // Should get the PET404 amount
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        pet404amout
+      );
+      // And also get one NFT
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        1
+      );
+      expect(await PET404Contract.ownerOf(nftId)).to.be.equal(alice.address);
+      // Personal vault should be empty
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(0);
+
+      // Make a swap to "sell" a fraction
+      const fractionAmount = (await PET404Contract.units()) / 10n; // 0.1
+      const receiverAddress = alice.address;
+      const deadline = (await getTimeStamp()) + 100000; // +100000 just for sake of test
+
+      // Approve swap router to handle the tokens
+      await PET404Contract.connect(alice).approve(
+        await swapRouter.getAddress(),
+        fractionAmount
+      );
+
+      const argsIn: ISwapRouter.ExactInputSingleParamsStruct = {
+        tokenIn: await PET404Contract.getAddress(),
+        tokenOut: await erc20Token.getAddress(),
+        fee,
+        recipient: receiverAddress,
+        deadline: deadline,
+        amountIn: fractionAmount,
+        amountOutMinimum: 0,
+        sqrtPriceLimitX96: 0,
+      };
+
+      // Send the swap
+      await swapRouter.connect(alice).exactInputSingle(argsIn);
+
+      // Should lost the tokens
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        pet404amout - fractionAmount
+      );
+      // And also lost the ownership of a NFT
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        0
+      );
+      expect(PET404Contract.ownerOf(nftId)).to.be.revertedWithCustomError(
+        pet404Facet,
+        "NotFound"
+      );
+      // Tokens should be stored on personal vault
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(1);
+
+      // Buy to get a full NFT again
+      // Mint ERC20 tokens
+      const amount0 = ethers.parseUnits("1000000", 18); // 1 million
+      await erc20Token.connect(alice).mint(amount0);
+
+      // Make a swap to "buy" a fraction
+      const deadline1 = (await getTimeStamp()) + 100000; // +100000 just for sake of test
+      const amountInMaximum = await erc20Token.balanceOf(alice.address);
+      const oldPet404Balance = await PET404Contract.balanceOf(alice.address);
+
+      // Approve swap router to handle the tokens
+      await erc20Token
+        .connect(alice)
+        .approve(await swapRouter.getAddress(), amountInMaximum);
+
+      const argsOut: ISwapRouter.ExactOutputSingleParamsStruct = {
+        tokenIn: await erc20Token.getAddress(),
+        tokenOut: await PET404Contract.getAddress(),
+        fee,
+        recipient: receiverAddress,
+        deadline: deadline1,
+        amountOut: fractionAmount,
+        amountInMaximum,
+        sqrtPriceLimitX96: 0,
+      };
+
+      // Send the swap
+      await swapRouter.connect(alice).exactOutputSingle(argsOut);
+
+      // Should get the tokens
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        oldPet404Balance + fractionAmount
+      );
+      // And get a NFT
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        1
+      );
+      // And should be the exact nft from the personal vault
+      expect(await PET404Contract.ownerOf(nftId)).to.be.equal(alice.address);
+
+      // Tokens should be picked from personal vault
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(0);
+    });
+
+    it("should sell fraction from full NFT and receive a transfer from other source", async () => {
+      const { PET404ContractsData, Uniswap } = await loadFixture(
+        deployUniswapPool
+      );
+
+      const {
+        diamondContract: PET404Contract,
+        pet404Facet,
+        ownerSigner,
+      } = PET404ContractsData;
+      const { swapRouter, erc20Token, fee } = Uniswap;
+
+      const [, alice] = await ethers.getSigners();
+
+      // Check that is not a transfer exemption
+      expect(
+        await PET404Contract.erc721TransferExempt(alice.address)
+      ).to.be.equal(false);
+
+      // Checking the inital balances of the tokens in the pool
+      // ERC404
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(0);
+      // ERC20
+      expect(await erc20Token.balanceOf(alice.address)).to.be.equal(0);
+
+      // Mint a full token for PET404 to alice
+      const pet404amout = await PET404Contract.units(); // 1 full token
+
+      const txMint = await PET404Contract.connect(ownerSigner)[
+        "mintERC20(address,uint256)"
+      ](alice.address, pet404amout);
+
+      const events721 = await getERC721TransfersEventsArgs(txMint, pet404Facet);
+      expect(events721.length).to.be.equal(1);
+      const { id: nftId } = events721[0];
+
+      // Should get the PET404 amount
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        pet404amout
+      );
+      // And also get one NFT
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        1
+      );
+      expect(await PET404Contract.ownerOf(nftId)).to.be.equal(alice.address);
+      // Personal vault should be empty
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(0);
+
+      // Make a swap to "sell" a fraction
+      const fractionAmount = (await PET404Contract.units()) / 10n; // 0.1
+      const receiverAddress = alice.address;
+      const deadline = (await getTimeStamp()) + 100000; // +100000 just for sake of test
+
+      // Approve swap router to handle the tokens
+      await PET404Contract.connect(alice).approve(
+        await swapRouter.getAddress(),
+        fractionAmount
+      );
+
+      const argsIn: ISwapRouter.ExactInputSingleParamsStruct = {
+        tokenIn: await PET404Contract.getAddress(),
+        tokenOut: await erc20Token.getAddress(),
+        fee,
+        recipient: receiverAddress,
+        deadline: deadline,
+        amountIn: fractionAmount,
+        amountOutMinimum: 0,
+        sqrtPriceLimitX96: 0,
+      };
+
+      // Send the swap
+      await swapRouter.connect(alice).exactInputSingle(argsIn);
+
+      // Should lost the tokens
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        pet404amout - fractionAmount
+      );
+      // And also lost the ownership of a NFT
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        0
+      );
+      expect(PET404Contract.ownerOf(nftId)).to.be.revertedWithCustomError(
+        pet404Facet,
+        "NotFound"
+      );
+      // Tokens should be stored on personal vault
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(1);
+
+      // Receive a PET404 transfer to get units require to get a NFT
+      const oldPet404Balance = await PET404Contract.balanceOf(alice.address);
+      await PET404Contract.connect(ownerSigner)["mintERC20(address,uint256)"](
+        alice.address,
+        fractionAmount
+      );
+
+      // Should get the tokens
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        oldPet404Balance + fractionAmount
+      );
+      // And get a NFT
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        1
+      );
+      // And should be the exact nft from the personal vault
+      expect(await PET404Contract.ownerOf(nftId)).to.be.equal(alice.address);
+
+      // Tokens should be picked from personal vault
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(0);
+    });
+
+    xit("should sell 1 full NFT leaving zero balance", async () => {
       const { PET404ContractsData, Uniswap } = await loadFixture(
         deployUniswapPool
       );
@@ -513,10 +768,55 @@ describe.only("PET404 - Uniswap transactions", () => {
       expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
         pet404amout
       );
-      // But not get NFT yet
+      // And also get one NFT
       expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
         1
       );
+      // Personal vault should be empty
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(0);
+
+      // Make a swap to "sell" a fraction
+      const amount = await PET404Contract.units(); // 1 ful token
+      const receiverAddress = alice.address;
+      const deadline = (await getTimeStamp()) + 100000; // +100000 just for sake of test
+
+      // Approve swap router to handle the tokens
+      await PET404Contract.connect(alice).approve(
+        await swapRouter.getAddress(),
+        amount
+      );
+
+      const argsIn: ISwapRouter.ExactInputSingleParamsStruct = {
+        tokenIn: await PET404Contract.getAddress(),
+        tokenOut: await erc20Token.getAddress(),
+        fee,
+        recipient: receiverAddress,
+        deadline: deadline,
+        amountIn: amount,
+        amountOutMinimum: 0,
+        sqrtPriceLimitX96: 0,
+      };
+
+      // Send the swap
+      await swapRouter.connect(alice).exactInputSingle(argsIn);
+
+      // Should get the tokens
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        pet404amout - amount
+      );
+      // But since it's fraction, should not get a NFT
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        0
+      );
+      // Tokens should be on personal vault
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(1);
     });
+
+    it("should sell fraction from multiple NFTs");
+    it("should not reveal NFT after stored on personal vault");
   });
 });
