@@ -10,7 +10,7 @@ import {IERC404} from "./IERC404.sol";
 import {ERC404Storage} from "./ERC404Storage.sol";
 import {IERC404Errors} from "./IERC404Errors.sol";
 import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
-import {UniswapPoolChecker} from "../../UniswapPoolChecker/UniswapPoolChecker.sol";
+import {UniswapPoolChecker} from "../UniswapPoolChecker/UniswapPoolChecker.sol";
 
 /**
  * @title ERC404 Upgradeable
