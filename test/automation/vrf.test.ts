@@ -138,7 +138,7 @@ describe("Automation - VRF", () => {
       deployAutoVRFMock
     );
 
-    await contract.setIsWaiting(true);
+    await contract.increasePendingReveal();
 
     const tx = await automationRegistry.simulateAutoReveal(contractAddress);
 
@@ -156,7 +156,7 @@ describe("Automation - VRF", () => {
     const { contract, contractAddress, automationRegistry, coordinatorv2 } =
       await loadFixture(deployAutoVRFMock);
 
-    await contract.setIsWaiting(true);
+    await contract.increasePendingReveal();
 
     // Call the reveal using the AutoRegistry
     const txRevealCall = await automationRegistry.simulateAutoReveal(
