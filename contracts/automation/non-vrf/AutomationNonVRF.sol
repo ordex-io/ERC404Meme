@@ -9,12 +9,28 @@ import {IAutomationNonVRF} from "./IAutomationNonVRF.sol";
 
 contract AutomationNonVRF is AutomationBase, IAutomationNonVRF, Initializable {
     function __AutomationNonVRF_init(
-        address automationRegistry_
+        address caller_,
+        uint96 minPending_,
+        uint256 maxWaiting_
     )
         public
         reinitializer(3) // reinitializer using 3 (3rd contract calling his init)
     {
-        __AutomationBase_Init(automationRegistry_);
+        __AutomationBase_Init(caller_, minPending_, maxWaiting_);
+    }
+
+    function checkUpkeep(
+        bytes calldata
+    )
+        external
+        cannotExecute
+        returns (bool upkeepNeeded, bytes memory performData)
+    {
+        //
+    }
+
+    function performUpkeep(bytes calldata) external {
+        //
     }
 
     function reveal() external override {
