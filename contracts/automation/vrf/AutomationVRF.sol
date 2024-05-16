@@ -12,7 +12,8 @@ contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
     function __AutomationVRF_init(
         address caller_,
         uint96 minPending_,
-        uint256 maxWaiting_,
+        uint128 minWait_,
+        uint128 maxWait_,
         VRFParams memory randomParams_
     )
         public
@@ -22,7 +23,7 @@ contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
         __VRFConsumerV2_init(randomParams_.vrfCoordinator);
 
         // Automation Registry for calls
-        __AutomationBase_Init(caller_, minPending_, maxWaiting_);
+        __AutomationBase_Init(caller_, minPending_, minWait_, maxWait_);
 
         // VRF params for VRF request calls
         AutomationVRFStorage.layout().keyHash = randomParams_.keyHash;
@@ -39,24 +40,8 @@ contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
         AutomationVRFStorage.layout().numWords = randomParams_.numWords;
     }
 
-    function checkUpkeep(
-        bytes calldata
-    )
-        external
-        cannotExecute
-        returns (bool upkeepNeeded, bytes memory performData)
-    {
-        //
-    }
-
     function performUpkeep(bytes calldata) external {
-        //
-    }
-
-    function reveal() external override {
         AutomationBaseStorage.onlyAutoRegistry();
-
-        // TODO: Check if waiting
 
         AutomationVRFStorage.Layout memory l = AutomationVRFStorage.layout();
 

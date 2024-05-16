@@ -17,7 +17,8 @@ interface IAutomationVRF is IAutomationBase, IVRFConsumerV2 {
     function __AutomationVRF_init(
         address caller_,
         uint96 minPending_,
-        uint256 maxWaiting_,
+        uint128 minWait_,
+        uint128 maxWait_,
         VRFParams memory randomParams_
     ) external;
 }
