@@ -23,7 +23,7 @@ library AutomationBaseStorage {
     }
 
     function onlyAutoRegistry() internal view {
-        // This prevent calls for others than the registry
+        // This prevent calls for others than the caller registered
         if (msg.sender != layout().automationRegistry) {
             revert NoAutomationRegister();
         }
