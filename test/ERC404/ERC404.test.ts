@@ -826,7 +826,6 @@ describe("ERC404", function () {
           // No NFT gain for the receiver
           expect(toBalancesAfter.erc721).to.equal(toBalancesBefore.erc721);
           // Contract gains an NFT (it's stored in the contract in this scenario).
-          // TODO - Verify this with the contract's balance.
         });
       }
     );
@@ -2655,10 +2654,6 @@ describe("ERC404", function () {
       await expect(
         f.contract.ownerOf(f.deployConfig.idPrefix + 97n)
       ).to.be.revertedWithCustomError(f.contract, "NotFound");
-    });
-
-    it("Various weird scenarios where addresses are added and removed from the ERC-721 transfer exempt list", async function () {
-      // TODO
     });
   });
 
