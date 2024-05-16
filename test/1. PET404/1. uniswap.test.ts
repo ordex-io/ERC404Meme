@@ -1223,4 +1223,110 @@ describe("PET404 - Uniswap transactions", () => {
       );
     });
   });
+
+  describe("Exemption adddresses", () => {
+    it("should transfer normally to and from exemption addresses", async () => {
+      const { PET404ContractsData } = await loadFixture(deployUniswapPool);
+
+      const {
+        diamondContract: PET404Contract,
+        pet404Facet,
+        ownerSigner,
+      } = PET404ContractsData;
+
+      const [, alice, bob] = await ethers.getSigners();
+
+      // Init states
+      expect(await PET404Contract.erc721TransferExempt(alice.address)).to.be
+        .false;
+      expect(await PET404Contract.erc721TransferExempt(bob.address)).to.be
+        .false;
+
+      // ERC404
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(0);
+      expect(await PET404Contract.balanceOf(bob.address)).to.be.equal(0);
+
+      // Bob set him self as transfer exemption
+      await PET404Contract.connect(bob).setSelfERC721TransferExempt(true);
+
+      expect(await PET404Contract.erc721TransferExempt(bob.address)).to.be.true;
+
+      // Mint a full token for PET404 to alice
+      const pet404amout = await PET404Contract.units(); // 1 full token
+
+      const txMint = await PET404Contract.connect(ownerSigner)[
+        "mintERC20(address,uint256)"
+      ](alice.address, pet404amout);
+
+      // It should get the correct amounts and values
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        pet404amout
+      );
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        1
+      );
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(0);
+
+      // Get ERC721transfer events
+      const events721 = await getERC721TransfersEventsArgs(txMint, pet404Facet);
+
+      expect(events721.length).to.be.equal(1);
+
+      // We get the ID
+      const { id: nftId } = events721[0];
+
+      expect(await PET404Contract.ownerOf(nftId)).to.be.equal(alice.address);
+
+      // Send the whole token to bob
+      await PET404Contract.connect(alice).transfer(bob.address, pet404amout);
+
+      // Moved the tokens from alice to bob
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(0);
+      expect(await PET404Contract.balanceOf(bob.address)).to.be.equal(
+        pet404amout
+      );
+
+      // None of the accoutn should have NFTS
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        0
+      );
+      expect(await PET404Contract.erc721BalanceOf(bob.address)).to.be.equal(0);
+
+      // And alice should have his ID on personal vault
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(1);
+
+      // The NFT is not under the ownership of Alice
+      expect(PET404Contract.ownerOf(nftId)).to.be.revertedWithCustomError(
+        pet404Facet,
+        "NotFound"
+      );
+
+      // Send back the amount
+      await PET404Contract.connect(bob).transfer(alice.address, pet404amout);
+
+      // Moved the tokens from bob to alice again
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        pet404amout
+      );
+      expect(await PET404Contract.balanceOf(bob.address)).to.be.equal(0);
+
+      // Alice get his NFT back
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        1
+      );
+      expect(await PET404Contract.erc721BalanceOf(bob.address)).to.be.equal(0);
+
+      // Using the ID from the alice personal vault
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(0);
+
+      // The NFT is ownership of Alice
+      expect(await PET404Contract.ownerOf(nftId)).to.be.equal(alice.address);
+    });
+  });
 });
