@@ -6,6 +6,7 @@ library DNABaseStorage {
     error NotWaitingReveal(uint256 block_number);
 
     struct Layout {
+        uint256 pendingReveals;
         uint256 currentCounter;
         bytes32 schema_hash;
         string[] variants_name;
@@ -34,7 +35,8 @@ library DNABaseStorage {
     }
 
     function setCounterForId(uint256 id_) internal {
-        layout().countersById[id_] = layout().currentCounter;
+        layout().countersById[id_] = currentCounter();
+        layout().pendingReveals += 1;
     }
 
     function hasCounterId(uint256 id_) internal view returns (bool) {
@@ -49,6 +51,13 @@ library DNABaseStorage {
 
         // New counter ID for new words and mint
         increaseCounter();
+        layout().pendingReveals = 0;
+    }
+
+    /// @notice Obtain the amount of tokens waiting to be revealed
+    /// @return An uint256 that expose the amount of tokens pending
+    function pendingReveals() internal view returns (uint256) {
+        return layout().pendingReveals;
     }
 
     function currentCounter() internal view returns (uint256) {
@@ -57,12 +66,5 @@ library DNABaseStorage {
 
     function increaseCounter() internal {
         layout().currentCounter += 1;
-    }
-
-    function checkWaiting() internal view {
-        // TODO: FIX
-        if (false) {
-            revert NotWaitingReveal(block.timestamp);
-        }
     }
 }
