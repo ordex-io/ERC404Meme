@@ -1,1 +1,1 @@
-export { deployFullPET404DiamondNonVrf } from "./deploy";
+export { deployFullPET404DiamondNonVrf, deployUniswapPool } from "./deploy";

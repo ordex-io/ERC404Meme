@@ -1,11 +1,23 @@
 import { ethers } from "hardhat";
 import {
+  addLiquidityToPool,
+  approveTokens,
+  checkBalances,
+  createPool,
   deployAutomationNonVrfFacet,
   deployDNAFacet,
+  deployERC20Token,
+  deployNonfungiblePositionManager,
   deployPET404ExposerFacet,
   deployPET404Facet,
+  deploySwapRouter,
+  deployUniswapV3Factory,
+  deployWeth,
+  encodePriceSqrt,
   fulfillFacetCut,
   getInitData,
+  initializePool,
+  setAddressesAsExempt,
 } from "../../utils";
 
 export async function deployFullPET404DiamondNonVrf() {
@@ -136,6 +148,118 @@ export async function deployFullPET404DiamondNonVrf() {
       dna: dnaFacetCuts,
       automation: automationFacetCuts,
       pet404: pet404FacetCuts,
+    },
+  };
+}
+
+export async function deployUniswapPool() {
+  // Deploy Uniswap Factory
+  const uniswapFactory = await deployUniswapV3Factory();
+
+  // WETH token
+  const weth = await deployWeth();
+
+  // Position manager
+  const positionManager = await deployNonfungiblePositionManager(
+    uniswapFactory,
+    weth
+  );
+
+  // Swap router
+  const swapRouter = await deploySwapRouter(uniswapFactory, weth);
+
+  // ERC20 token to use to create the pool
+  const erc20Token = await deployERC20Token();
+
+  // PET404 Related contracts
+  const PET404ContractsData = await deployFullPET404DiamondNonVrf();
+
+  // Configuration for the pool
+  const token1Address = await erc20Token.getAddress(); // token0
+  const erc404Address = await PET404ContractsData.diamondContract.getAddress(); // token1
+  // (0.05, 0.3, 1, 0.01)
+  const fee = 0.3 * 10000;
+  // The recipient signer is the same signer that we used when deploying the PET404 (initialMintRecipient)
+  const [recipientSigner] = await ethers.getSigners();
+
+  // Create the pool
+  const poolAddress = await createPool(
+    uniswapFactory,
+    erc404Address,
+    token1Address,
+    fee
+  );
+
+  // Set Uniswap addresses as transfer exemptions so they don't mint NFTs for they own
+  await setAddressesAsExempt(
+    PET404ContractsData.diamondContract,
+    PET404ContractsData.ownerSigner,
+    [
+      await positionManager.getAddress(),
+      await swapRouter.getAddress(),
+      poolAddress,
+    ]
+  );
+
+  // Config for initialization of the pool
+  const price = encodePriceSqrt(404, 1);
+
+  // Initilize the pool (the signer can be anyone who want to initialize the pool
+  await initializePool(poolAddress, price, recipientSigner);
+
+  // ADDING LIQUIDITY
+
+  // Config for adding liquidity
+  const positMangAddr = await positionManager.getAddress();
+  const chainId = (await recipientSigner.provider.getNetwork()).chainId;
+  const token1Decimals = await erc20Token.decimals();
+  const erc404Decimals = await PET404ContractsData.diamondContract.decimals();
+  const amountToken1 = await erc20Token.balanceOf(recipientSigner.address);
+  const amountErc404 = await PET404ContractsData.diamondContract.erc20BalanceOf(
+    recipientSigner.address
+  );
+
+  // Check balances of the signer for both tokens
+  await checkBalances(erc20Token, recipientSigner.address, amountToken1);
+  await checkBalances(
+    PET404ContractsData.diamondContract,
+    recipientSigner.address,
+    amountErc404
+  );
+
+  // Approve the tokens to be used b the position manager
+  await approveTokens(erc20Token, recipientSigner, amountToken1, positMangAddr);
+  await approveTokens(
+    PET404ContractsData.diamondContract,
+    recipientSigner,
+    amountErc404,
+    positMangAddr
+  );
+
+  // Add liquidity to the pool
+  await addLiquidityToPool(
+    poolAddress,
+    recipientSigner,
+    chainId,
+    token1Decimals,
+    erc404Decimals,
+    token1Address,
+    erc404Address,
+    amountToken1,
+    amountErc404,
+    fee,
+    await positionManager.getAddress()
+  );
+
+  return {
+    PET404ContractsData,
+    Uniswap: {
+      uniswapFactory,
+      weth,
+      positionManager,
+      swapRouter,
+      erc20Token,
+      fee
     },
   };
 }
