@@ -310,5 +310,291 @@ describe("PET404 - Non VRF", () => {
         expect(await PET404Contract.dnaOf(nftId)).to.be.equal(expectedDna);
       }
     });
+
+    it("should reveal NFT and maintain the same after furure reveal", async () => {
+      const {
+        diamondContract: PET404Contract,
+        pet404Facet,
+        dnaFacet,
+        automationRegistry,
+      } = await loadFixture(deployFullPET404DiamondNonVrf);
+
+      const [signer1, alice, bob] = await ethers.getSigners();
+
+      // Check balance of initial recipient. It should have the whole supply
+      expect(
+        await PET404Contract.erc721TransferExempt(signer1.address)
+      ).to.be.equal(true);
+      expect(await PET404Contract.erc20BalanceOf(signer1.address)).to.be.equal(
+        await PET404Contract.erc20TotalSupply()
+      );
+
+      // check initial alice's balance
+      expect(await PET404Contract.erc20BalanceOf(alice.address)).to.be.equal(0);
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        0
+      );
+
+      // Send tokens to alice to get one NFT
+      const nftsToGet0 = 1n;
+      const amountToSent0 = nftsToGet0 * (await PET404Contract.units()); // One full token
+
+      const tx0 = await PET404Contract.connect(signer1).transfer(
+        alice.address,
+        amountToSent0
+      );
+
+      // check that received the tokens
+      expect(await PET404Contract.erc20BalanceOf(alice.address)).to.be.equal(
+        amountToSent0
+      );
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        nftsToGet0
+      );
+
+      // Get  ERC721transfer events
+      const events721_0 = await getERC721TransfersEventsArgs(tx0, pet404Facet);
+
+      // Should be just one NFT mint
+      expect(events721_0.length).to.be.equal(nftsToGet0);
+
+      // We get the ID
+      const { id: nftId0 } = events721_0[0];
+
+      // It should not be revealed yet
+      expect(PET404Contract.dnaOf(nftId0)).to.be.revertedWithCustomError(
+        dnaFacet,
+        "NotRevealed"
+      );
+
+      // Mock the reveal call using a Automation Register caller mock
+      const txReveal0 = await automationRegistry.simulateAutoReveal(
+        await PET404Contract.getAddress()
+      );
+
+      // Calculate the expected DNA.
+      const words0 = [BigInt(await getBlockHash(txReveal0.blockNumber! - 1))];
+      const expectedDna0 = calculateDNA(nftId0, words0);
+      const dna0 = await PET404Contract.dnaOf(nftId0);
+
+      // NFT should be revealed
+      expect(dna0).to.be.equal(expectedDna0);
+
+      // Sent tokens to bob so he can get one NFT without reveal too
+      const nftsToGet1 = 1n;
+      const amountToSent1 = nftsToGet1 * (await PET404Contract.units()); // One full token
+
+      const tx1 = await PET404Contract.connect(signer1).transfer(
+        bob.address,
+        amountToSent1
+      );
+
+      // check that Bob received the tokens
+      expect(await PET404Contract.erc20BalanceOf(bob.address)).to.be.equal(
+        amountToSent1
+      );
+      expect(await PET404Contract.erc721BalanceOf(bob.address)).to.be.equal(
+        nftsToGet1
+      );
+
+      // Get  ERC721transfer events
+      const events721_1 = await getERC721TransfersEventsArgs(tx1, pet404Facet);
+
+      // Should be just one NFT mint
+      expect(events721_1.length).to.be.equal(nftsToGet1);
+
+      // We get the ID
+      const { id: nftId1 } = events721_1[0];
+
+      // It should not be revealed yet
+      expect(PET404Contract.dnaOf(nftId1)).to.be.revertedWithCustomError(
+        dnaFacet,
+        "NotRevealed"
+      );
+
+      // Mock the reveal call using a Automation Register caller mock
+      const txReveal1 = await automationRegistry.simulateAutoReveal(
+        await PET404Contract.getAddress()
+      );
+
+      // Calculate the expected DNA for Bob's NFt
+      const words1 = [BigInt(await getBlockHash(txReveal1.blockNumber! - 1))];
+      const expectedDna1 = calculateDNA(nftId1, words1);
+      const dna1 = await PET404Contract.dnaOf(nftId1);
+
+      // NFT should be revealed
+      expect(dna1).to.be.equal(expectedDna1);
+
+      // And current DNA for first should remain the same than before
+      expect(dna0).to.be.equal(await PET404Contract.dnaOf(nftId0));
+    });
+
+    it("should reveal NFT and maintain the same after furure transfer and reveal", async () => {
+      const {
+        diamondContract: PET404Contract,
+        pet404Facet,
+        dnaFacet,
+        automationRegistry,
+      } = await loadFixture(deployFullPET404DiamondNonVrf);
+
+      const [signer1, alice, bob] = await ethers.getSigners();
+
+      // Check balance of initial recipient. It should have the whole supply
+      expect(
+        await PET404Contract.erc721TransferExempt(signer1.address)
+      ).to.be.equal(true);
+      expect(await PET404Contract.erc20BalanceOf(signer1.address)).to.be.equal(
+        await PET404Contract.erc20TotalSupply()
+      );
+
+      // check initial alice's balance
+      expect(await PET404Contract.erc20BalanceOf(alice.address)).to.be.equal(0);
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        0
+      );
+
+      // Send tokens to alice to get one NFT
+      const nftsToGet0 = 1n;
+      const amountToSent0 = nftsToGet0 * (await PET404Contract.units()); // One full token
+
+      const tx0 = await PET404Contract.connect(signer1).transfer(
+        alice.address,
+        amountToSent0
+      );
+
+      // check that received the tokens
+      expect(await PET404Contract.erc20BalanceOf(alice.address)).to.be.equal(
+        amountToSent0
+      );
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        nftsToGet0
+      );
+
+      // Get  ERC721transfer events
+      const events721_0 = await getERC721TransfersEventsArgs(tx0, pet404Facet);
+
+      // Should be just one NFT mint
+      expect(events721_0.length).to.be.equal(nftsToGet0);
+
+      // We get the ID
+      const { id: nftId0 } = events721_0[0];
+
+      // It should not be revealed yet
+      expect(PET404Contract.dnaOf(nftId0)).to.be.revertedWithCustomError(
+        dnaFacet,
+        "NotRevealed"
+      );
+
+      // Mock the reveal call using a Automation Register caller mock
+      const txReveal0 = await automationRegistry.simulateAutoReveal(
+        await PET404Contract.getAddress()
+      );
+
+      // Calculate the expected DNA.
+      const words0 = [BigInt(await getBlockHash(txReveal0.blockNumber! - 1))];
+      const expectedDna0 = calculateDNA(nftId0, words0);
+      const dna0 = await PET404Contract.dnaOf(nftId0);
+
+      // NFT should be revealed
+      expect(dna0).to.be.equal(expectedDna0);
+
+      // Sent tokens to bob so he can get one NFT without reveal too
+      const nftsToGet1 = 1n;
+      const amountToSent1 = nftsToGet1 * (await PET404Contract.units()); // One full token
+
+      const tx1 = await PET404Contract.connect(signer1).transfer(
+        bob.address,
+        amountToSent1
+      );
+
+      // check that Bob received the tokens
+      expect(await PET404Contract.erc20BalanceOf(bob.address)).to.be.equal(
+        amountToSent1
+      );
+      expect(await PET404Contract.erc721BalanceOf(bob.address)).to.be.equal(
+        nftsToGet1
+      );
+
+      // Get  ERC721transfer events
+      const events721_1 = await getERC721TransfersEventsArgs(tx1, pet404Facet);
+
+      // Should be just one NFT mint
+      expect(events721_1.length).to.be.equal(nftsToGet1);
+
+      // We get the ID
+      const { id: nftId1 } = events721_1[0];
+
+      // It should not be revealed yet
+      expect(PET404Contract.dnaOf(nftId1)).to.be.revertedWithCustomError(
+        dnaFacet,
+        "NotRevealed"
+      );
+
+      // Send partial partial
+      const partialAmount2 = (await PET404Contract.units()) / 10n; // 0.1 token
+
+      // Check that personal vault should be empty before transfer
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(0);
+
+      await PET404Contract.connect(alice).transfer(bob.address, partialAmount2);
+
+      // Alice should lost the NFT
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        0
+      );
+      expect(PET404Contract.ownerOf(nftId0)).to.be.revertedWithCustomError(
+        pet404Facet,
+        "NotFound"
+      );
+
+      // Personal vault for alice should be updated
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(1);
+
+      // Now we want to try to get the NFT back
+      // Send partial partial to get full nft
+      const partialAmount3 = (await PET404Contract.units()) / 10n; // 0.1 token
+      await PET404Contract.connect(signer1).transfer(
+        alice.address,
+        partialAmount3
+      );
+
+      // Alice should gain the NFT
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        1
+      );
+      // Personal vault should be empty now
+      expect(
+        await PET404Contract.getERC721QueueLength(alice.address)
+      ).to.be.equal(0);
+
+      // DNA should remain the same after this transfer
+      expect(dna0).to.be.equal(await PET404Contract.dnaOf(nftId0));
+
+      // But Bob Nft remain NOT revealed yet
+      expect(PET404Contract.dnaOf(nftId1)).to.be.revertedWithCustomError(
+        dnaFacet,
+        "NotRevealed"
+      );
+
+      // Now we mock the reveal call using a Automation Register caller mock
+      const txReveal2 = await automationRegistry.simulateAutoReveal(
+        await PET404Contract.getAddress()
+      );
+
+      // Calculate the expected DNA for Bob's NFt
+      const words1 = [BigInt(await getBlockHash(txReveal2.blockNumber! - 1))];
+      const expectedDna1 = calculateDNA(nftId1, words1);
+      const dna1 = await PET404Contract.dnaOf(nftId1);
+
+      // NFT should be revealed
+      expect(dna1).to.be.equal(expectedDna1);
+
+      // And current DNA for first NFT (alice's nft) should remain the same than before
+      expect(dna0).to.be.equal(await PET404Contract.dnaOf(nftId0));
+    });
   });
 });

@@ -21,12 +21,12 @@ contract DNA is IDNA, Initializable {
         DNABaseStorage.increaseCounter();
     }
 
-    function getSchemaHash() external view returns (bytes32) {
-        return DNABaseStorage.getSchemaHash();
+    function getSchemaHash() public view returns (bytes32) {
+        return DNABaseStorage.layout().schema_hash;
     }
 
-    function getVariantsName() external view returns (string[] memory) {
-        return DNABaseStorage.getVariantsName();
+    function getVariantsName() public view returns (string[] memory) {
+        return DNABaseStorage.layout().variants_name;
     }
 
     function dnaOf(uint256 id_) public view returns (bytes32) {
@@ -40,8 +40,8 @@ contract DNA is IDNA, Initializable {
         return
             _decodeDna(
                 DNABaseStorage.getDnaById(id_),
-                DNABaseStorage.getSchemaHash(),
-                DNABaseStorage.getVariantsName(),
+                getSchemaHash(),
+                getVariantsName(),
                 variants_count_
             );
     }
