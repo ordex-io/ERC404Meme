@@ -475,6 +475,9 @@ abstract contract ERC404 is
                 } else if (isUniswapV3Pool(to_)) {
                     // We know it is an Uniswap pool
                     _withdrawAndStoreERC721(from_, false);
+                } else {
+                    // It's not an uniswap pool
+                    _withdrawAndStoreERC721(from_, true);
                 }
 
                 unchecked {
@@ -727,8 +730,7 @@ abstract contract ERC404 is
             revert MintLimitReached();
         }
 
-        _transferERC20WithERC721(address(0), to_, value_);            // amountOut % units() == 0 --> Global
-
+        _transferERC20WithERC721(address(0), to_, value_); // amountOut % units() == 0 --> Global
     }
 
     /// @notice Internal function to compute domain separator for EIP-2612 permits
