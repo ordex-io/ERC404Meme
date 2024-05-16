@@ -11,32 +11,17 @@ contract AutomationNonVRF is AutomationBase, IAutomationNonVRF, Initializable {
     function __AutomationNonVRF_init(
         address caller_,
         uint96 minPending_,
-        uint256 maxWaiting_
+        uint128 minWait_,
+        uint128 maxWait_
     )
         public
         reinitializer(3) // reinitializer using 3 (3rd contract calling his init)
     {
-        __AutomationBase_Init(caller_, minPending_, maxWaiting_);
-    }
-
-    function checkUpkeep(
-        bytes calldata
-    )
-        external
-        cannotExecute
-        returns (bool upkeepNeeded, bytes memory performData)
-    {
-        //
+        __AutomationBase_Init(caller_, minPending_, minWait_, maxWait_);
     }
 
     function performUpkeep(bytes calldata) external {
-        //
-    }
-
-    function reveal() external override {
         AutomationBaseStorage.onlyAutoRegistry();
-
-        // TODO: Check if waiting
 
         uint256[] memory words = new uint256[](1);
         words[0] = uint256(blockhash(block.number - 1));
