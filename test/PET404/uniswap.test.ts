@@ -11,7 +11,7 @@ import {
 import { ISwapRouter } from "../../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts/SwapRouter";
 
 describe.only("PET404 - Uniswap transactions", () => {
-  describe.only("Buys using uniswap", () => {
+  describe("Buys using uniswap", () => {
     it("should buy fraction from zero balance", async () => {
       const { PET404ContractsData, Uniswap } = await loadFixture(
         deployUniswapPool
@@ -478,10 +478,45 @@ describe.only("PET404 - Uniswap transactions", () => {
       }
     });
   });
-  xdescribe("Sells using uniswap", () => {
-    //
+  describe.only("Sells using uniswap", () => {
     it("Sell fraction from 1 full NFT", async () => {
-      const l = await loadFixture(deployUniswapPool);
+      const { PET404ContractsData, Uniswap } = await loadFixture(
+        deployUniswapPool
+      );
+
+      const { diamondContract: PET404Contract, ownerSigner } =
+        PET404ContractsData;
+      const { swapRouter, erc20Token, fee } = Uniswap;
+
+      const [, alice] = await ethers.getSigners();
+
+      // Check that is not a transfer exemption
+      expect(
+        await PET404Contract.erc721TransferExempt(alice.address)
+      ).to.be.equal(false);
+
+      // Checking the inital balances of the tokens in the pool
+      // ERC404
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(0);
+      // ERC20
+      expect(await erc20Token.balanceOf(alice.address)).to.be.equal(0);
+
+      // Mint a full token for PET404 to alice
+      const pet404amout = await PET404Contract.units(); // 1 full token
+
+      await PET404Contract.connect(ownerSigner)["mintERC20(address,uint256)"](
+        alice.address,
+        pet404amout
+      );
+
+      // Should get the PET404 amount
+      expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
+        pet404amout
+      );
+      // But not get NFT yet
+      expect(await PET404Contract.erc721BalanceOf(alice.address)).to.be.equal(
+        1
+      );
     });
   });
 });
