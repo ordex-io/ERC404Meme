@@ -60,9 +60,8 @@ contract PET404 is IPET404, ERC404, SafeOwnable {
         // Check if's a valid and minted id
         _existingId(id_);
 
-        // Check if it's revealed
         // This will revert if cannot get the DNA (means not revealed)
-        // DNABaseStorage.getDnaById(id_);
+        DNABaseStorage.getDnaById(id_);
 
         return string.concat(ERC404Storage.getBaseUri(), Strings.toString(id_));
     }
@@ -81,9 +80,9 @@ contract PET404 is IPET404, ERC404, SafeOwnable {
     ) internal override {
         super._transferERC721(from_, to_, id_);
 
-        // If "from" is an address zero, it means a mint
-        // This happens after whole transfer, so it would guarantee sucess this part
-        if (from_ == address(0)) {
+        // If "from" is an address zero, it could means a mint or that ID comes from personal
+        // vault. We avoid to override the `counterId` (it's waiting or already revealed).
+        if (from_ == address(0) && !DNABaseStorage.hasCounterId(id_)) {
             DNABaseStorage.setCounterForId(id_);
         }
     }
