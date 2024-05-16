@@ -7,11 +7,10 @@ library DNABaseStorage {
 
     struct Layout {
         uint256 currentCounter;
-        mapping(uint256 => uint256) countersById;
-        mapping(uint256 => uint256[]) wordsByCounter;
         bytes32 schema_hash;
         string[] variants_name;
-        bool waitingReveal;
+        mapping(uint256 => uint256) countersById;
+        mapping(uint256 => uint256[]) wordsByCounter;
     }
 
     bytes32 internal constant STORAGE_SLOT =
@@ -24,23 +23,9 @@ library DNABaseStorage {
         }
     }
 
-    function getSchemaHash() internal view returns (bytes32) {
-        return layout().schema_hash;
-    }
-
-    function getVariantsName() internal view returns (string[] memory) {
-        return layout().variants_name;
-    }
-
-    function getWordsById(
-        uint256 id_
-    ) internal view returns (uint256[] memory) {
-        uint256 counterPoint_ = DNABaseStorage.layout().countersById[id_];
-        return layout().wordsByCounter[counterPoint_];
-    }
-
     function getDnaById(uint256 id_) internal view returns (bytes32) {
-        uint256[] memory words = getWordsById(id_);
+        uint256 counterPoint_ = layout().countersById[id_];
+        uint256[] memory words = layout().wordsByCounter[counterPoint_];
         if (words.length == 0) {
             revert NotRevealed(id_, block.number);
         }
@@ -49,25 +34,21 @@ library DNABaseStorage {
     }
 
     function setCounterForId(uint256 id_) internal {
-        DNABaseStorage.layout().countersById[id_] = DNABaseStorage
-            .currentCounter();
-
-        // Flag to know internally that is waiting for reveal
-        if (!layout().waitingReveal) {
-            layout().waitingReveal = true;
-        }
+        layout().countersById[id_] = layout().currentCounter;
     }
 
-    function saveWords(uint256[] memory words_) internal returns (uint256) {
-        layout().waitingReveal = false;
-        uint256 counterId = currentCounter();
+    function hasCounterId(uint256 id_) internal view returns (bool) {
+        return layout().countersById[id_] != 0;
+    }
 
+    function saveWords(
+        uint256[] memory words_
+    ) internal returns (uint256 counterId) {
+        counterId = currentCounter();
         layout().wordsByCounter[counterId] = words_;
 
         // New counter ID for new words and mint
         increaseCounter();
-
-        return counterId;
     }
 
     function currentCounter() internal view returns (uint256) {
@@ -79,7 +60,8 @@ library DNABaseStorage {
     }
 
     function checkWaiting() internal view {
-        if (!layout().waitingReveal) {
+        // TODO: FIX
+        if (false) {
             revert NotWaitingReveal(block.timestamp);
         }
     }
