@@ -20,7 +20,7 @@ import {
   setAddressesAsExempt,
 } from "../../utils";
 
-export async function deployFullPET404DiamondNonVrf() {
+export async function deployFullPET404DiamondNonVrf(uniswapFactory_?: string) {
   // Factory Diamond
   const zeroDiamond = await ethers.getContractAt("Diamond", ethers.ZeroAddress);
   const zeroIDiamont404 = await ethers.getContractAt(
@@ -49,6 +49,10 @@ export async function deployFullPET404DiamondNonVrf() {
     pet404ContractAddress,
     deployArgs: pet404Args,
   } = await deployPET404Facet();
+
+  if (uniswapFactory_) {
+    pet404Args.uniswapFactory_ = uniswapFactory_;
+  }
 
   // Deploy PET404 Facet (NOTE: only tests)
   const { pet404ExposerContract } = await deployPET404ExposerFacet();
@@ -172,7 +176,9 @@ export async function deployUniswapPool() {
   const erc20Token = await deployERC20Token();
 
   // PET404 Related contracts
-  const PET404ContractsData = await deployFullPET404DiamondNonVrf();
+  const PET404ContractsData = await deployFullPET404DiamondNonVrf(
+    await uniswapFactory.getAddress()
+  );
 
   // Configuration for the pool
   const token1Address = await erc20Token.getAddress(); // token0
@@ -202,7 +208,7 @@ export async function deployUniswapPool() {
   );
 
   // Config for initialization of the pool
-  const price = encodePriceSqrt(404, 1);
+  const price = encodePriceSqrt(404000, 1);
 
   // Initilize the pool (the signer can be anyone who want to initialize the pool
   await initializePool(poolAddress, price, recipientSigner);
@@ -210,14 +216,20 @@ export async function deployUniswapPool() {
   // ADDING LIQUIDITY
 
   // Config for adding liquidity
+  const mulLiquidity =
+    PET404ContractsData.facetsArgs.pet404.maxTotalSupplyERC721_;
   const positMangAddr = await positionManager.getAddress();
   const chainId = (await recipientSigner.provider.getNetwork()).chainId;
   const token1Decimals = await erc20Token.decimals();
   const erc404Decimals = await PET404ContractsData.diamondContract.decimals();
-  const amountToken1 = await erc20Token.balanceOf(recipientSigner.address);
-  const amountErc404 = await PET404ContractsData.diamondContract.erc20BalanceOf(
-    recipientSigner.address
-  );
+  const amountErc404 =
+    mulLiquidity * (await PET404ContractsData.diamondContract.units());
+  const amountToken1 = ethers.parseUnits(mulLiquidity.toString(), 18) * mulLiquidity;
+
+  const bal = await erc20Token.balanceOf(recipientSigner.address);
+  if (amountToken1 > bal) {
+    await erc20Token.connect(recipientSigner).mint(amountToken1 - bal);
+  }
 
   // Check balances of the signer for both tokens
   await checkBalances(erc20Token, recipientSigner.address, amountToken1);
@@ -259,7 +271,8 @@ export async function deployUniswapPool() {
       positionManager,
       swapRouter,
       erc20Token,
-      fee
+      fee,
+      poolAddress,
     },
   };
 }
