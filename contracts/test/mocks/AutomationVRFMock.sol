@@ -53,6 +53,6 @@ contract AutomationVRFMock is AutomationVRF {
     }
 
     function setIsWaiting(bool flag_) external {
-        DNABaseStorage.layout().waitingReveal = flag_;
+        // DNABaseStorage.layout().waitingReveal = flag_;
     }
 }
