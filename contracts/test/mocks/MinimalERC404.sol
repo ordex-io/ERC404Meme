@@ -14,7 +14,7 @@ contract MinimalERC404 is Ownable, ERC404 {
         string memory baseUri_,
         address initialOwner_
     ) {
-        __ERC404_init(name_, symbol_, decimals_, units_);
+        __ERC404_init(name_, symbol_, decimals_, units_, address(0));
 
         // Save the base URI
         ERC404Storage.setBaseUri(baseUri_);

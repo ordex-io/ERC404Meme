@@ -3,20 +3,21 @@ pragma solidity ^0.8.24;
 
 import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
 import {AutomationBaseStorage} from "../AutomationBaseStorage.sol";
+import {AutomationBase} from "../AutomationBase.sol";
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
 import {IAutomationNonVRF} from "./IAutomationNonVRF.sol";
 
-contract AutomationNonVRF is IAutomationNonVRF, Initializable {
+contract AutomationNonVRF is AutomationBase, IAutomationNonVRF, Initializable {
     function __AutomationNonVRF_init(
         address automationRegistry_
     )
         public
         reinitializer(3) // reinitializer using 3 (3rd contract calling his init)
     {
-        AutomationBaseStorage.layout().automationRegistry = automationRegistry_;
+        __AutomationBase_Init(automationRegistry_);
     }
 
-    function reveal() external {
+    function reveal() external override {
         AutomationBaseStorage.onlyAutoRegistry();
 
         // Check if waiting

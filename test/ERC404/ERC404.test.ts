@@ -521,9 +521,11 @@ describe("ERC404", function () {
       // Total supply should be 0
       expect(await f.contract.erc721TotalSupply()).to.equal(0n);
 
-      // Expect the contract's bank to be empty
+      // Expect the user's bank to be empty
       expect(await f.contract.balanceOf(f.contractAddress)).to.equal(0n);
-      expect(await f.contract.getERC721QueueLength()).to.equal(0n);
+      expect(
+        await f.contract.getERC721QueueLength(f.signers[1].address)
+      ).to.equal(0n);
 
       const nftQty = 10n;
       const value = nftQty * f.deployConfig.units;
@@ -569,7 +571,9 @@ describe("ERC404", function () {
 
       // Expect the contract's bank to be empty
       expect(await f.contract.balanceOf(f.contractAddress)).to.equal(0n);
-      expect(await f.contract.getERC721QueueLength()).to.equal(0n);
+      expect(
+        await f.contract.getERC721QueueLength(f.signers[1].address)
+      ).to.equal(0n);
 
       const nftQty = 10n;
       const value = nftQty * f.deployConfig.units;
@@ -582,7 +586,9 @@ describe("ERC404", function () {
 
       // Expect the contract's bank to be empty
       expect(await f.contract.balanceOf(f.contractAddress)).to.equal(0n);
-      expect(await f.contract.getERC721QueueLength()).to.equal(0n);
+      expect(
+        await f.contract.getERC721QueueLength(f.signers[1].address)
+      ).to.equal(0n);
 
       // Move a fraction of a token to another address to break apart a full NFT.
 
@@ -625,7 +631,9 @@ describe("ERC404", function () {
       // The contract's balance is still 0
       expect(await f.contract.balanceOf(f.contractAddress)).to.equal(0n);
       // The contract's bank to contain 1 NFT
-      expect(await f.contract.getERC721QueueLength()).to.equal(1n);
+      expect(
+        await f.contract.getERC721QueueLength(f.signers[1].address)
+      ).to.equal(1n);
     });
 
     it("Retrieves ERC721s from the contract's bank when the contract's bank holds NFTs and the user regains a full token", async function () {
@@ -662,7 +670,9 @@ describe("ERC404", function () {
       // The contract's NFT balance should be 0
       expect(await f.contract.erc721BalanceOf(f.contractAddress)).to.equal(0n);
       // The contract's bank should contain 1 NFTs
-      expect(await f.contract.getERC721QueueLength()).to.equal(1n);
+      expect(
+        await f.contract.getERC721QueueLength(f.signers[1].address)
+      ).to.equal(1n);
 
       // Transfer the fractional portion needed to regain a full token back to the original sender
       const regainFullTokenTx = await f.contract
@@ -702,7 +712,9 @@ describe("ERC404", function () {
       // The contract's NFT balance should be 0
       expect(await f.contract.erc721BalanceOf(f.contractAddress)).to.equal(0n);
       // The contract's bank should contain 0 NFTs
-      expect(await f.contract.getERC721QueueLength()).to.equal(0n);
+      expect(
+        await f.contract.getERC721QueueLength(f.signers[1].address)
+      ).to.equal(0n);
     });
   });
 
@@ -1576,26 +1588,34 @@ describe("ERC404", function () {
         .connect(f.signers[0])
         .transfer(f.signers[1].address, 4n * f.deployConfig.units);
 
-      // Send 1 tokens to deployer
+      // Send 1 tokens to deployer (transfer exemp)
       await f.contract
         .connect(f.signers[1])
         .transfer(f.signers[0].address, 1n * f.deployConfig.units);
 
-      expect(await f.contract.getERC721QueueLength()).to.eq(1);
+      expect(await f.contract.getERC721QueueLength(f.signers[1].address)).to.eq(
+        1,
+        "sent a whole token to a transfer exemption address"
+      );
 
       // Send 1 tokens to address
       await f.contract
         .connect(f.signers[0])
         .transfer(f.signers[1].address, 1n * f.deployConfig.units);
 
-      expect(await f.contract.getERC721QueueLength()).to.eq(0);
+      expect(await f.contract.getERC721QueueLength(f.signers[1].address)).to.eq(
+        0
+      );
 
       // Send 1 tokens to deployer
       await f.contract
         .connect(f.signers[1])
         .transfer(f.signers[0].address, 1n * f.deployConfig.units);
 
-      expect(await f.contract.getERC721QueueLength()).to.eq(1);
+      expect(await f.contract.getERC721QueueLength(f.signers[1].address)).to.eq(
+        1,
+        "sent a whole token to a transfer exemption address"
+      );
     });
   });
 
@@ -1681,13 +1701,12 @@ describe("ERC404", function () {
 
       // Target ERC721 balance should be adjusted
       expect(await f.contract.erc721BalanceOf(targetAddress)).to.equal(0n);
-      expect(await f.contract.getERC721QueueLength()).to.equal(3n);
       expect(await f.contract.erc20BalanceOf(targetAddress)).to.equal(
         (35n * f.deployConfig.units) / 10n
       );
-      expect((await f.contract.getERC721TokensInQueue(0, 3))[0]).to.equal(
-        f.deployConfig.idPrefix + 1n
-      );
+      expect(
+        (await f.contract.getERC721TokensInQueue(0, 3, targetAddress))[0]
+      ).to.equal(f.deployConfig.idPrefix + 1n);
 
       // Remove that address from the exemption list.
       await f.contract
@@ -1696,7 +1715,7 @@ describe("ERC404", function () {
 
       // Target ERC721 balance should be adjusted
       expect(await f.contract.erc721BalanceOf(targetAddress)).to.equal(3n);
-      expect(await f.contract.getERC721QueueLength()).to.equal(0n);
+      expect(await f.contract.getERC721QueueLength(targetAddress)).to.equal(0n);
       expect(await f.contract.erc20BalanceOf(targetAddress)).to.equal(
         (35n * f.deployConfig.units) / 10n
       );
@@ -2679,7 +2698,9 @@ describe("ERC404", function () {
           expect(await f.contract.erc721BalanceOf(f.contractAddress)).to.equal(
             0n
           );
-          expect(await f.contract.getERC721QueueLength()).to.equal(0n);
+          expect(
+            await f.contract.getERC721QueueLength(f.signers[0].address)
+          ).to.equal(0n);
 
           expect(await f.contract.erc721TotalSupply()).to.equal(0n);
 
@@ -2701,7 +2722,9 @@ describe("ERC404", function () {
           expect(await f.contract.erc721BalanceOf(f.contractAddress)).to.equal(
             0n
           );
-          expect(await f.contract.getERC721QueueLength()).to.equal(0n);
+          expect(
+            await f.contract.getERC721QueueLength(f.signers[0].address)
+          ).to.equal(0n);
 
           expect(await f.contract.erc721TotalSupply()).to.equal(0n);
 
@@ -2728,7 +2751,9 @@ describe("ERC404", function () {
           );
 
           // Expect the contract to have 0 ERC-721 token in the queue
-          expect(await f.contract.getERC721QueueLength()).to.equal(0n);
+          expect(
+            await f.contract.getERC721QueueLength(f.contractAddress)
+          ).to.equal(0n);
 
           // Expect the contract to own token 1
           expect(

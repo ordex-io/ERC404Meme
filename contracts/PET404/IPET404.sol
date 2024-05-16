@@ -12,7 +12,8 @@ interface IPET404 is IERC404, ISafeOwnable {
         uint256 units_,
         string memory baseUri_,
         uint256 maxTotalSupplyERC721_,
-        address initialMintRecipient_
+        address initialMintRecipient_,
+        address uniswapFactory_
     ) external;
 
     function setERC721TransferExempt(address target_, bool state_) external;

@@ -31,7 +31,6 @@ export async function createPool(
   );
 
   if (poolAdd === "0x0000000000000000000000000000000000000000") {
-    console.log("Creating pool");
     let txs;
     txs = await uniswapFactory_contract.createPool(
       token1Address.toLowerCase(),
@@ -53,7 +52,6 @@ export async function createPool(
     );
   }
 
-  console.log("Pool address", poolAdd);
   return poolAdd;
 }
 
@@ -64,13 +62,10 @@ export async function initializePool(
 ) {
   const poolContract = getUniswapPool(poolAdd_, signer_);
 
-  console.log("Initializating Pool");
-
   let txs = await poolContract.initialize(price_.toString(), {
     gasLimit: 3000000,
   });
   await txs.wait();
-  console.log("Pool Initialized");
 }
 
 export function getUniswapPool(
@@ -193,10 +188,8 @@ export async function addLiquidityToPool(
     from: deployerAddress,
     gasLimit: 10000000,
   };
-  console.log("Transacting");
   const txRes = await deployer.sendTransaction(transaction);
   await txRes.wait();
-  console.log("Added liquidity");
 }
 
 export async function checkBalances(

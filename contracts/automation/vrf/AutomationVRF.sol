@@ -2,13 +2,13 @@
 pragma solidity ^0.8.24;
 
 import {AutomationBaseStorage} from "../AutomationBaseStorage.sol";
-import {IAutomationBase} from "../IAutomationBase.sol";
+import {AutomationBase} from "../AutomationBase.sol";
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
 import {VRFConsumerV2} from "./chainlink/VRFConsumerV2.sol";
 import {AutomationVRFStorage} from "./AutomationVRFStorage.sol";
 import {IAutomationVRF, VRFParams} from "./IAutomationVRF.sol";
 
-contract AutomationVRF is IAutomationVRF, VRFConsumerV2 {
+contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
     function __AutomationVRF_init(
         address automationRegistry_,
         VRFParams memory randomParams_
@@ -20,7 +20,7 @@ contract AutomationVRF is IAutomationVRF, VRFConsumerV2 {
         __VRFConsumerV2_init(randomParams_.vrfCoordinator);
 
         // Automation Registry for calls
-        AutomationBaseStorage.layout().automationRegistry = automationRegistry_;
+        __AutomationBase_Init(automationRegistry_);
 
         // VRF params for VRF request calls
         AutomationVRFStorage.layout().keyHash = randomParams_.keyHash;
@@ -37,7 +37,7 @@ contract AutomationVRF is IAutomationVRF, VRFConsumerV2 {
         AutomationVRFStorage.layout().numWords = randomParams_.numWords;
     }
 
-    function reveal() external {
+    function reveal() external override {
         AutomationBaseStorage.onlyAutoRegistry();
 
         // Check if waiting

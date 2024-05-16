@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {IUniswapPoolChecker} from "../../UniswapPoolChecker/IUniswapPoolChecker.sol";
+
 /**
  * @dev ERC404 interface
  */
-interface IERC404 {
+interface IERC404 is IUniswapPoolChecker {
     /**
      * @dev Returns the name of the token.
      */
@@ -85,11 +87,14 @@ interface IERC404 {
     /**
      * @dev Length of the queue of ERC-721 tokens stored in the contract
      */
-    function getERC721QueueLength() external view returns (uint256);
+    function getERC721QueueLength(
+        address owner_
+    ) external view returns (uint256);
 
     function getERC721TokensInQueue(
         uint256 start_,
-        uint256 count_
+        uint256 count_,
+        address owner_
     ) external view returns (uint256[] memory);
 
     /**
@@ -246,5 +251,5 @@ interface IERC404 {
     /**
      * Constant for token id encoding
      */
-    function ID_ENCODING_PREFIX() external returns (uint256);
+    function ID_ENCODING_PREFIX() external view returns (uint256);
 }

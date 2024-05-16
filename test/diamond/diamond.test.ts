@@ -70,6 +70,7 @@ async function deployFullPET404DiamondNonVrf() {
     pet404Args.baseUri,
     pet404Args.maxTotalSupplyERC721_,
     pet404Args.initialMintRecipient_,
+    pet404Args.uniswapFactory_
   ]);
 
   const dnaCalldata = getInitData(dnaContract, "__DNA_init", [
