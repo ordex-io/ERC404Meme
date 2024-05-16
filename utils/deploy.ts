@@ -9,6 +9,16 @@ import { BaseContract } from "ethers";
 import { VRFParamsStruct } from "../typechain-types/artifacts/contracts/automation/vrf/AutomationVRF";
 import { getEventArgs } from "./events";
 import { SubscriptionCreatedEvent } from "../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
+import { getInitData } from "./diamond";
+
+type AutomationBaseArgs = {
+  caller_: string;
+  minPending_: bigint;
+  maxWaiting_: bigint;
+};
+type AutomationVRFArgs = AutomationBaseArgs & {
+  randomParams_: VRFParamsStruct;
+};
 
 export async function deployVRFCoordinartorV2Mock() {
   const factory = await ethers.getContractFactory("CoordinatorV2Mock");
@@ -83,8 +93,10 @@ export async function deployAutomationNonVrfFacet() {
   const automationRegistry = await loadFixture(deployAutomationRegistryMock);
   const automationRegistryAddress = await automationRegistry.getAddress();
 
-  const deployArgs = {
-    automationRegistryAddress,
+  const deployArgs: AutomationBaseArgs = {
+    caller_: automationRegistryAddress,
+    minPending_: 1n, // Minimum 1 NFT
+    maxWaiting_: 10n, // 10 secs
   };
 
   const factory = await ethers.getContractFactory("AutomationNonVRF");
@@ -92,11 +104,18 @@ export async function deployAutomationNonVrfFacet() {
 
   await automationNonVrf.waitForDeployment();
 
+  const initData = getInitData(automationNonVrf, "__AutomationNonVRF_init", [
+    deployArgs.caller_,
+    deployArgs.minPending_,
+    deployArgs.maxWaiting_,
+  ]);
+
   return {
     automationNonVrf,
     automationNonVrfAddress: await automationNonVrf.getAddress(),
     automationRegistry,
     deployArgs,
+    initData,
   };
 }
 

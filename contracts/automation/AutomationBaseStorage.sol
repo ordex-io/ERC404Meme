@@ -7,7 +7,9 @@ library AutomationBaseStorage {
     struct Layout {
         address automationRegistry;
         uint96 minPending;
-        uint256 maxWaiting;
+        uint128 minWait;
+        uint128 maxWait;
+        uint128 lastCall;
     }
 
     bytes32 internal constant STORAGE_SLOT =
