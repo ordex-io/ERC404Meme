@@ -4,12 +4,12 @@ pragma solidity ^0.8.24;
 import {SafeOwnable} from "@solidstate/contracts/access/ownable/SafeOwnable.sol";
 import {AutomationBaseStorage} from "./AutomationBaseStorage.sol";
 import {IAutomationBase} from "./IAutomationBase.sol";
-import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
+import {AutomationCompatible} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 
 abstract contract AutomationBase is
     IAutomationBase,
     SafeOwnable,
-    AutomationCompatibleInterface
+    AutomationCompatible
 {
     /// @param caller_ The address that will be performing the automation calls
     /// @param minPending_ The minimum of NFT waiting to be revealed
