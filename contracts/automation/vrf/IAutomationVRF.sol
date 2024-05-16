@@ -15,7 +15,9 @@ struct VRFParams {
 
 interface IAutomationVRF is IAutomationBase, IVRFConsumerV2 {
     function __AutomationVRF_init(
-        address automationRegistry_,
+        address caller_,
+        uint96 minPending_,
+        uint256 maxWaiting_,
         VRFParams memory randomParams_
     ) external;
 }
