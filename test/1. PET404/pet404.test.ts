@@ -28,7 +28,7 @@ describe("PET404 - Non VRF", () => {
         dnaArgs.schemaHash
       );
       expect(await PET404Contract.getCallerAddress()).to.be.equal(
-        autoArgs.automationRegistryAddress
+        autoArgs.caller_
       );
 
       // No NFTs are minted. No owners.
@@ -137,7 +137,7 @@ describe("PET404 - Non VRF", () => {
       const { diamondContract: PET404Contract, automationNonVrfFacet } =
         await loadFixture(deployFullPET404DiamondNonVrf);
 
-      expect(PET404Contract.reveal()).to.be.revertedWithCustomError(
+      expect(PET404Contract.performUpkeep("")).to.be.revertedWithCustomError(
         automationNonVrfFacet,
         "NoAutomationRegister"
       );
