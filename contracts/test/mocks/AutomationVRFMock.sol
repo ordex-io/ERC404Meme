@@ -41,7 +41,7 @@ contract AutomationVRFMock is AutomationVRF {
     }
 
     function getAutomationRegistry() public view returns (address) {
-        return AutomationBaseStorage.layout().automationRegistry;
+        return AutomationBaseStorage.layout().upKeepCaller;
     }
 
     function getKeyHash() public view returns (bytes32) {
