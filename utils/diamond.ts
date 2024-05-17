@@ -77,3 +77,21 @@ export async function setAddressesAsExempt(
     }
   }
 }
+
+export async function setAddressAsSpecialExempt(
+  erc404: IPET404,
+  owner: Signer,
+  addresses: string[]
+) {
+  for (let i = 0; i < addresses.length; i++) {
+    const address_ = addresses[i];
+
+    // Only send meaningful transactions
+    const isSpecialExempt = await erc404.isSpecialExempt(address_);
+
+    if (!isSpecialExempt) {
+      const tx = await erc404.connect(owner).setSpecialExempt(address_, true);
+      await tx.wait();
+    }
+  }
+}

@@ -18,10 +18,10 @@ import {
   encodePriceSqrt,
   fulfillFacetCut,
   initializePool,
-  setAddressesAsExempt,
+  setAddressAsSpecialExempt,
 } from "../../utils";
 
-export async function deployFullPET404DiamondNonVrf(uniswapFactory_?: string) {
+export async function deployFullPET404DiamondNonVrf() {
   // Factory Diamond
   const zeroDiamond = await ethers.getContractAt("Diamond", ethers.ZeroAddress);
   const zeroIDiamont404 = await ethers.getContractAt(
@@ -52,7 +52,7 @@ export async function deployFullPET404DiamondNonVrf(uniswapFactory_?: string) {
     pet404ContractAddress,
     deployArgs: pet404Args,
     initData: pet404Calldata,
-  } = await deployPET404Facet(uniswapFactory_);
+  } = await deployPET404Facet();
 
   // Deploy PET404 Facet (NOTE: only tests)
   const { pet404ExposerContract } = await deployPET404ExposerFacet();
@@ -154,9 +154,7 @@ export async function deployUniswapPool() {
   const erc20Token = await deployERC20Token();
 
   // PET404 Related contracts
-  const PET404ContractsData = await deployFullPET404DiamondNonVrf(
-    await uniswapFactory.getAddress()
-  );
+  const PET404ContractsData = await deployFullPET404DiamondNonVrf();
 
   // Configuration for the pool
   const token1Address = await erc20Token.getAddress(); // token0
@@ -174,8 +172,10 @@ export async function deployUniswapPool() {
     fee
   );
 
-  // Set Uniswap addresses as transfer exemptions so they don't mint NFTs for they own
-  await setAddressesAsExempt(
+  // Set Uniswap addresses as transfer exemptions and special exemption so they don't mint
+  // NFTs for they own and behave correclty.
+  // This is hihgly recommend to be used with pools
+  await setAddressAsSpecialExempt(
     PET404ContractsData.diamondContract,
     PET404ContractsData.ownerSigner,
     [

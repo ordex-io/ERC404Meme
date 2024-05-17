@@ -34,10 +34,7 @@ export async function deployAutomationRegistryMock() {
   return contract;
 }
 
-export async function deployPET404Facet(
-  uniswapFactory_?: string,
-  initialMintRecipient_?: string
-) {
+export async function deployPET404Facet(initialMintRecipient_?: string) {
   const [initialRecipient] = await ethers.getSigners();
   const decimals = 18n;
 
@@ -49,12 +46,8 @@ export async function deployPET404Facet(
     baseUri: "https://www.example.com/token/",
     maxTotalSupplyERC721_: 20n, // 20 tokens
     initialMintRecipient_: await initialRecipient.getAddress(),
-    uniswapFactory_: ethers.ZeroAddress,
   };
 
-  if (uniswapFactory_) {
-    deployArgs.uniswapFactory_ = uniswapFactory_;
-  }
   if (initialMintRecipient_) {
     deployArgs.initialMintRecipient_ = initialMintRecipient_;
   }
@@ -72,7 +65,6 @@ export async function deployPET404Facet(
     deployArgs.baseUri,
     deployArgs.maxTotalSupplyERC721_,
     deployArgs.initialMintRecipient_,
-    deployArgs.uniswapFactory_,
   ]);
 
   return {

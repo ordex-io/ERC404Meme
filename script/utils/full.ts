@@ -164,7 +164,6 @@ export async function deployUniswapPool(
 }
 
 export async function deployFullPET404DiamondNonVrf({
-  uniswapFactory_,
   recipient_,
   owner_,
 }: Pet404DiamondOptions) {
@@ -198,7 +197,7 @@ export async function deployFullPET404DiamondNonVrf({
     pet404ContractAddress,
     deployArgs: pet404Args,
     initData: pet404Calldata,
-  } = await deployPET404Facet(uniswapFactory_, recipient_);
+  } = await deployPET404Facet(recipient_);
 
   // Deploy PET404 Facet (NOTE: only tests)
   const { pet404ExposerContract } = await deployPET404ExposerFacet();
