@@ -39,7 +39,7 @@ These videos demonstrate the innovative interactions within the ERC404 ecosystem
 
 ### Workflow 🖼️
 
-![ERC404Meme Workflow](https://github.com/ordex-io/404-contract/assets/81595884/134b2084-268e-42f5-822f-8c3dbe829afc)
+![ERC404Meme drawio](https://github.com/ordex-io/ERC404Meme/assets/81595884/abb414de-581c-4651-b57a-35bca117752d)
 
 ## Getting Started
 
