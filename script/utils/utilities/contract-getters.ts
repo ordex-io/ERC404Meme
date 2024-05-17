@@ -1,12 +1,11 @@
 import {
-  AutomationRegistryMock,
   ERC20Mock,
   IPET404Exposer,
   NonfungiblePositionManager,
   SwapRouter,
   UniswapV3Factory,
   WETH,
-} from "../typechain-types";
+} from "../../../typechain-types";
 import { Signer, Contract } from "ethers";
 import { ethers } from "hardhat";
 
@@ -63,11 +62,4 @@ export async function getDiamondPET404(
 ): Promise<IPET404Exposer> {
   return await ethers.getContractAt("IPET404Exposer", address, signer);
   // return await ethers.getContractAt("IDiamondPET404", address, signer);
-}
-
-export async function getAutomationMock(
-  address: string,
-  signer: Signer
-): Promise<AutomationRegistryMock> {
-  return await ethers.getContractAt("AutomationRegistryMock", address, signer);
 }

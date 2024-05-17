@@ -1,15 +1,24 @@
 import { ethers } from "hardhat";
-import { UniswapV3Factory } from "../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
+import { UniswapV3Factory } from "../../../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
 import {
   NonfungiblePositionManager,
   SwapRouter,
-} from "../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts";
+} from "../../../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts";
 import { BaseContract } from "ethers";
-import { VRFParamsStruct } from "../typechain-types/artifacts/contracts/automation/vrf/AutomationVRF";
+import { VRFParamsStruct } from "../../../typechain-types/artifacts/contracts/automation/vrf/AutomationVRF";
 import { getEventArgs } from "./events";
-import { SubscriptionCreatedEvent } from "../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
+import { SubscriptionCreatedEvent } from "../../../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
 import { getInitData } from "./diamond";
-import { IERC2535DiamondCutInternal } from "../typechain-types";
+import {
+  IERC2535DiamondCutInternal,
+  WETH,
+  ERC20Mock,
+  AutomationNonVRF,
+  DNA,
+  PET404,
+  DiamondMultiInit,
+  Diamond,
+} from "../../../typechain-types";
 
 type AutomationBaseArgs = {
   caller_: string;
@@ -46,8 +55,7 @@ export async function deployPET404Facet(
     symbol: "P404",
     decimals: decimals,
     units: 404000n * 10n ** decimals,
-    // baseUri: "https://www.example.com/token/",
-    baseUri: "http://localhost:3333/api/",
+    baseUri: "https://vercel-api-404.vercel.app/api/token/",
     maxTotalSupplyERC721_: 20n, // 20 tokens
     initialMintRecipient_: await initialRecipient.getAddress(),
     uniswapFactory_: ethers.ZeroAddress,
@@ -62,8 +70,9 @@ export async function deployPET404Facet(
 
   const factory = await ethers.getContractFactory("PET404");
 
-  const pet404Contract = await factory.deploy();
-  await pet404Contract.waitForDeployment();
+  const pet404Contract = factory.attach(
+    "0xCbCC5582A9dF57067105b350757430a37E2479aa"
+  ) as PET404;
 
   const initData = getInitData(pet404Contract, "__PET404_init", [
     deployArgs.name,
@@ -103,8 +112,9 @@ export async function deployDNAFacet() {
 
   const factory = await ethers.getContractFactory("DNA");
 
-  const dnaContract = await factory.deploy();
-  await dnaContract.waitForDeployment();
+  const dnaContract = factory.attach(
+    "0xC6A8DA983f47E9c444Dac0b1881253bf8848a117"
+  ) as DNA;
 
   const initData = getInitData(dnaContract, "__DNA_init", [
     deployArgs.schemaHash,
@@ -120,20 +130,17 @@ export async function deployDNAFacet() {
 }
 
 export async function deployAutomationNonVrfFacet() {
-  const automationRegistry = await deployAutomationRegistryMock();
-  const automationRegistryAddress = await automationRegistry.getAddress();
-
   const deployArgs: AutomationBaseArgs = {
-    caller_: automationRegistryAddress,
+    caller_: "0x3E402D2C04ed46c2E757E79144b787A49fAEf276",
     minPending_: 1n, // Minimum 1 NFT
     minWait_: 0n, // Wait atleast 10 secs
     maxWait_: 0n, // Max wait is 60 secs
   };
 
   const factory = await ethers.getContractFactory("AutomationNonVRF");
-  const automationNonVrf = await factory.deploy();
-
-  await automationNonVrf.waitForDeployment();
+  const automationNonVrf = factory.attach(
+    "0x535C0ae92B66F75aFF5B0125298E43B1CBc3fa63"
+  ) as AutomationNonVRF;
 
   const initData = getInitData(automationNonVrf, "__AutomationNonVRF_init", [
     deployArgs.caller_,
@@ -145,7 +152,7 @@ export async function deployAutomationNonVrfFacet() {
   return {
     automationNonVrf,
     automationNonVrfAddress: await automationNonVrf.getAddress(),
-    automationRegistry,
+    // automationRegistry,
     deployArgs,
     initData,
   };
@@ -226,31 +233,23 @@ export async function deployAutomationVrfFacet() {
   };
 }
 
-export async function deployWeth() {
+export async function deployWeth(): Promise<WETH> {
   const factory = await ethers.getContractFactory("WETH");
-  const wethContract = await factory.deploy();
-  await wethContract.waitForDeployment();
-
-  return wethContract;
+  return factory.attach(
+    "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14"
+  ) as unknown as WETH;
 }
 
 export async function deployUniswapV3Factory(): Promise<UniswapV3Factory> {
   const signers = await ethers.getSigners();
 
-  // Deploy Uniswap v3 factory.
   const uniswapV3FactorySource = require("@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json");
-  const uniswapV3FactoryContract = (await new ethers.ContractFactory(
+
+  return new ethers.Contract(
+    "0x0227628f3F023bb0B980b67D528571c95c6DaC1c",
     uniswapV3FactorySource.abi,
-    uniswapV3FactorySource.bytecode,
     signers[0]
-  ).deploy()) as UniswapV3Factory;
-
-  await uniswapV3FactoryContract.waitForDeployment();
-
-  // Add the 100bps fee tier.
-  await uniswapV3FactoryContract.connect(signers[0]).enableFeeAmount(100, 1);
-
-  return uniswapV3FactoryContract;
+  ) as unknown as UniswapV3Factory;
 }
 
 export async function deployNonfungiblePositionManager(
@@ -258,22 +257,13 @@ export async function deployNonfungiblePositionManager(
   wethContract_: BaseContract
 ) {
   const signers = await ethers.getSigners();
-
   const uniswapV3NonfungiblePositionManagerSource = require("@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json");
-  const uniswapV3NonfungiblePositionManagerContract =
-    (await new ethers.ContractFactory(
-      uniswapV3NonfungiblePositionManagerSource.abi,
-      uniswapV3NonfungiblePositionManagerSource.bytecode,
-      signers[0]
-    ).deploy(
-      await uniswapV3FactoryContract_.getAddress(),
-      await wethContract_.getAddress(),
-      // Skip the token descriptor address (we don't really need this for testing).
-      ethers.ZeroAddress
-    )) as NonfungiblePositionManager;
-  await uniswapV3NonfungiblePositionManagerContract.waitForDeployment();
 
-  return uniswapV3NonfungiblePositionManagerContract;
+  return new ethers.Contract(
+    "0x1238536071E1c677A632429e3655c799b22cDA52",
+    uniswapV3NonfungiblePositionManagerSource.abi,
+    signers[0]
+  ) as unknown as NonfungiblePositionManager;
 }
 
 export async function deploySwapRouter(
@@ -284,18 +274,11 @@ export async function deploySwapRouter(
 
   // Deploy Uniswap v3 router.
   const uniswapV3Router = require("@uniswap/v3-periphery/artifacts/contracts/SwapRouter.sol/SwapRouter.json");
-  const uniswapV3RouterContract = (await new ethers.ContractFactory(
+  return new ethers.Contract(
+    "0x54e9f478698Fca654048379E6880b794f828A824",
     uniswapV3Router.abi,
-    uniswapV3Router.bytecode,
     signers[0]
-  ).deploy(
-    await uniswapV3FactoryContract_.getAddress(),
-    await wethContract_.getAddress()
-  )) as SwapRouter;
-
-  await uniswapV3RouterContract.waitForDeployment();
-
-  return uniswapV3RouterContract;
+  ) as unknown as SwapRouter;
 }
 
 export async function deployLinkToken() {
@@ -310,10 +293,9 @@ export async function deployLinkToken() {
 export async function deployERC20Token() {
   const factory = await ethers.getContractFactory("ERC20Mock");
 
-  const contract = await factory.deploy();
-  await contract.waitForDeployment();
-
-  return contract;
+  return factory.attach(
+    "0x2b730c060FFA83Ce5D2B29016591874f31405A23"
+  ) as ERC20Mock;
 }
 
 export async function deployMultiInit(
@@ -322,8 +304,9 @@ export async function deployMultiInit(
 ) {
   const factory = await ethers.getContractFactory("DiamondMultiInit");
 
-  const contract = await factory.deploy();
-  await contract.waitForDeployment();
+  const contract = factory.attach(
+    "0x8a28BD4F8F210e6BE7Ee83f06b310Fe89A72c142"
+  ) as DiamondMultiInit;
 
   const calldataMultiInit: string = getInitData(contract, "multiInit", [
     targets_, // Targets
@@ -344,13 +327,9 @@ export async function deployDiamond(
 ) {
   const factory = await ethers.getContractFactory("Diamond");
 
-  const diamondContract = await factory.deploy(
-    owner_,
-    facetCuts_,
-    multiInit_,
-    calldataMultiInit_
-  );
-  await diamondContract.waitForDeployment();
+  const diamondContract = factory.attach(
+    "0xa6703bAC5A591fa7f59B1aF76060D4c34c7DaAaB"
+  ) as Diamond;
 
   return diamondContract;
 }
