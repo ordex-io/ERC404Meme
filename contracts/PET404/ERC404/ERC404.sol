@@ -623,20 +623,26 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         _setERC721TransferExempt(msg.sender, state_);
     }
 
-    /// @notice Check if a given target is a special exemption for this contracts.
+    /// @notice Check if a given `target_` is a special exemption for this contracts.
     /// This means that is a transfer exemption and cannot get NFT and also it will have a
     /// diferent behavior on transfer. It's really useful to be used with Liquidity Pool addresses.
+    /// @dev If the `target_` manually removed his `erc721TransferExempt()`, then it's not a
+    /// special exemption and should `_setSpecialExempt()` again
     function isSpecialExempt(
         address target_
     ) public view virtual returns (bool) {
-        return ERC404Storage.layout()._especialExempt[target_];
+        return
+            ERC404Storage.layout()._especialExempt[target_] &&
+            erc721TransferExempt(target_);
     }
 
-    /// @notice Change the state of a given target to be an ERC721TransferExempt
+    /// @notice Change the state of a given `target_` to be an ERC721TransferExempt
     /// and a special exemption. It's really useful to be used with Liquidity Pool
     /// addresses.
-    /// @dev Take special care about who can call this function
+    /// @dev Take special care about who can call this function, since it will change
+    /// the ERC721TransferExempt state of the `target_` too.
     function _setSpecialExempt(address target_, bool state_) internal virtual {
+        _setERC721TransferExempt(target_, state_);
         ERC404Storage.layout()._especialExempt[target_] = state_;
     }
 
