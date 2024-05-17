@@ -40,9 +40,7 @@ contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
         AutomationVRFStorage.layout().numWords = randomParams_.numWords;
     }
 
-    function performUpkeep(bytes calldata) external {
-        AutomationBaseStorage.onlyAutoRegistry();
-
+    function performUpkeep(bytes calldata) external onlyUpKeepCaller {
         AutomationVRFStorage.Layout memory l = AutomationVRFStorage.layout();
 
         uint256 requestId = _vrfCoordinator().requestRandomWords(

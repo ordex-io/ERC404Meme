@@ -20,9 +20,7 @@ contract AutomationNonVRF is AutomationBase, IAutomationNonVRF, Initializable {
         __AutomationBase_Init(caller_, minPending_, minWait_, maxWait_);
     }
 
-    function performUpkeep(bytes calldata) external {
-        AutomationBaseStorage.onlyAutoRegistry();
-
+    function performUpkeep(bytes calldata) external onlyUpKeepCaller {
         uint256[] memory words = new uint256[](1);
         words[0] = uint256(blockhash(block.number - 1));
 
