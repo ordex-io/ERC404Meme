@@ -10,17 +10,11 @@ import {IERC404} from "./IERC404.sol";
 import {ERC404Storage} from "./ERC404Storage.sol";
 import {IERC404Errors} from "./IERC404Errors.sol";
 import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
-import {UniswapPoolChecker} from "../UniswapPoolChecker/UniswapPoolChecker.sol";
 
 /**
  * @title ERC404 Upgradeable
  */
-abstract contract ERC404 is
-    IERC404,
-    IERC404Errors,
-    Initializable,
-    UniswapPoolChecker
-{
+abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
     using DoubleEndedQueue for DoubleEndedQueue.Uint256Deque;
 
     /// @dev Address bitmask for packed ownership data
@@ -36,8 +30,7 @@ abstract contract ERC404 is
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
-        uint256 units_,
-        address uniswapFactory_
+        uint256 units_
     ) internal {
         ERC404Storage.layout().name = name_;
         ERC404Storage.layout().symbol = symbol_;
@@ -61,8 +54,6 @@ abstract contract ERC404 is
         ERC404Storage
             .layout()
             ._INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
-
-        __UniswapPoolChecker_Init(uniswapFactory_);
     }
 
     /**
@@ -472,7 +463,7 @@ abstract contract ERC404 is
                     _withdrawAndStoreERC721(from_, isFraction);
                     // Remove the flag since just one goes to personal if partial part found
                     isFraction = false;
-                } else if (isUniswapV3Pool(to_)) {
+                } else if (isSpecialExempt(to_)) {
                     // We know it is an Uniswap pool
                     _withdrawAndStoreERC721(from_, false);
                 } else {
@@ -630,6 +621,23 @@ abstract contract ERC404 is
 
     function setSelfERC721TransferExempt(bool state_) public virtual {
         _setERC721TransferExempt(msg.sender, state_);
+    }
+
+    /// @notice Check if a given target is a special exemption for this contracts.
+    /// This means that is a transfer exemption and cannot get NFT and also it will have a
+    /// diferent behavior on transfer. It's really useful to be used with Liquidity Pool addresses.
+    function isSpecialExempt(
+        address target_
+    ) public view virtual returns (bool) {
+        return ERC404Storage.layout()._especialExempt[target_];
+    }
+
+    /// @notice Change the state of a given target to be an ERC721TransferExempt
+    /// and a special exemption. It's really useful to be used with Liquidity Pool
+    /// addresses.
+    /// @dev Take special care about who can call this function
+    function _setSpecialExempt(address target_, bool state_) internal virtual {
+        ERC404Storage.layout()._especialExempt[target_] = state_;
     }
 
     /// @notice For a token token id to be considered valid, it just needs
