@@ -776,7 +776,6 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         // `getFromPersonal_` specifically ask for get NFT for personal vault if not empty
         // When doing `_transferERC20WithERC721` all the paths lead to get from personal
         // unless the adress have zero balance, which will lead to have no NFT at all.
-        // TODO: Update README
         // See: https://github.com/ordex-io/404-contract/tree/main?tab=readme-ov-file#transfers-flowchart-%EF%B8%8F
         if (
             getFromPersonal_ &&
