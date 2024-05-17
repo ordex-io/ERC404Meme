@@ -12,6 +12,16 @@ abstract contract AutomationBase is
     SafeOwnable,
     AutomationCompatible
 {
+    /// @notice This modifier prevent calls for others than the caller registered.
+    /// Necessary to protect performUpkeep from untrusted callers
+    modifier onlyUpKeepCaller() {
+        // This prevent calls for others than the caller registered
+        if (msg.sender != AutomationBaseStorage.layout().upKeepCaller) {
+            revert NoAutomationRegister();
+        }
+        _;
+    }
+
     /// @param caller_ The address that will be performing the automation calls
     /// @param minPending_ The minimum of NFT waiting to be revealed
     /// @param minWait_ The minimum time to wait before reveal
@@ -25,7 +35,7 @@ abstract contract AutomationBase is
         uint128 minWait_,
         uint128 maxWait_
     ) internal {
-        AutomationBaseStorage.layout().automationRegistry = caller_;
+        AutomationBaseStorage.layout().upKeepCaller = caller_;
         AutomationBaseStorage.layout().minPending = minPending_;
         AutomationBaseStorage.layout().minWait = minWait_;
         AutomationBaseStorage.layout().maxWait = maxWait_;
@@ -69,11 +79,11 @@ abstract contract AutomationBase is
 
     /// @param newCaller_ The new address that will be performing the automation calls. Using chainlink, can be forwarder.
     function setCallerAddress(address newCaller_) public onlyOwner {
-        AutomationBaseStorage.layout().automationRegistry = newCaller_;
+        AutomationBaseStorage.layout().upKeepCaller = newCaller_;
     }
 
     /// @return The address that can make the automation calls
     function getCallerAddress() public view returns (address) {
-        return AutomationBaseStorage.layout().automationRegistry;
+        return AutomationBaseStorage.layout().upKeepCaller;
     }
 }
