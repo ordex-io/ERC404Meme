@@ -1,5 +1,4 @@
 import { ethers } from "hardhat";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { UniswapV3Factory } from "../typechain-types/node_modules/@uniswap/v3-core/artifacts/contracts";
 import {
   NonfungiblePositionManager,
@@ -35,7 +34,10 @@ export async function deployAutomationRegistryMock() {
   return contract;
 }
 
-export async function deployPET404Facet(uniswapFactory_?: string) {
+export async function deployPET404Facet(
+  uniswapFactory_?: string,
+  initialMintRecipient_?: string
+) {
   const [initialRecipient] = await ethers.getSigners();
   const decimals = 18n;
 
@@ -52,6 +54,9 @@ export async function deployPET404Facet(uniswapFactory_?: string) {
 
   if (uniswapFactory_) {
     deployArgs.uniswapFactory_ = uniswapFactory_;
+  }
+  if (initialMintRecipient_) {
+    deployArgs.initialMintRecipient_ = initialMintRecipient_;
   }
 
   const factory = await ethers.getContractFactory("PET404");
@@ -114,7 +119,7 @@ export async function deployDNAFacet() {
 }
 
 export async function deployAutomationNonVrfFacet() {
-  const automationRegistry = await loadFixture(deployAutomationRegistryMock);
+  const automationRegistry = await deployAutomationRegistryMock();
   const automationRegistryAddress = await automationRegistry.getAddress();
 
   const deployArgs: AutomationBaseArgs = {
@@ -146,7 +151,7 @@ export async function deployAutomationNonVrfFacet() {
 }
 
 export async function deployAutomationNonVrfFacetMock() {
-  const automationRegistry = await loadFixture(deployAutomationRegistryMock);
+  const automationRegistry = await deployAutomationRegistryMock();
   const automationRegistryAddress = await automationRegistry.getAddress();
 
   const deployArgs = {
@@ -168,10 +173,10 @@ export async function deployAutomationNonVrfFacetMock() {
 }
 
 export async function deployAutomationVrfFacet() {
-  const automationRegistry = await loadFixture(deployAutomationRegistryMock);
+  const automationRegistry = await deployAutomationRegistryMock();
   const automationRegistryAddress = await automationRegistry.getAddress();
 
-  const coordinatorv2 = await loadFixture(deployVRFCoordinartorV2Mock);
+  const coordinatorv2 = await deployVRFCoordinartorV2Mock();
   const coordinatorv2Address = await coordinatorv2.getAddress();
 
   // Create the subscription on the VRF coordinator
