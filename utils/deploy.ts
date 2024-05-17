@@ -117,8 +117,8 @@ export async function deployAutomationNonVrfFacet() {
   const deployArgs: AutomationBaseArgs = {
     caller_: automationRegistryAddress,
     minPending_: 1n, // Minimum 1 NFT
-    minWait_: 10n, // Wait atleast 10 secs
-    maxWait_: 60n, // Max wait is 60 secs
+    minWait_: 0n, // Wait atleast 10 secs
+    maxWait_: 0n, // Max wait is 60 secs
   };
 
   const factory = await ethers.getContractFactory("AutomationNonVRF");
