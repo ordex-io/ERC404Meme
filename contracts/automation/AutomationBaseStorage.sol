@@ -2,10 +2,8 @@
 pragma solidity ^0.8.24;
 
 library AutomationBaseStorage {
-    error NoAutomationRegister();
-
     struct Layout {
-        address automationRegistry;
+        address upKeepCaller;
         uint96 minPending;
         uint128 minWait;
         uint128 maxWait;
@@ -19,13 +17,6 @@ library AutomationBaseStorage {
         bytes32 slot = STORAGE_SLOT;
         assembly {
             l.slot := slot
-        }
-    }
-
-    function onlyAutoRegistry() internal view {
-        // This prevent calls for others than the caller registered
-        if (msg.sender != layout().automationRegistry) {
-            revert NoAutomationRegister();
         }
     }
 }
