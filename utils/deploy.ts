@@ -10,11 +10,13 @@ import { VRFParamsStruct } from "../typechain-types/artifacts/contracts/automati
 import { getEventArgs } from "./events";
 import { SubscriptionCreatedEvent } from "../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
 import { getInitData } from "./diamond";
+import { IERC2535DiamondCutInternal } from "../typechain-types";
 
 type AutomationBaseArgs = {
   caller_: string;
   minPending_: bigint;
-  maxWaiting_: bigint;
+  minWait_: bigint;
+  maxWait_: bigint;
 };
 type AutomationVRFArgs = AutomationBaseArgs & {
   randomParams_: VRFParamsStruct;
@@ -33,7 +35,7 @@ export async function deployAutomationRegistryMock() {
   return contract;
 }
 
-export async function deployPET404Facet() {
+export async function deployPET404Facet(uniswapFactory_?: string) {
   const [initialRecipient] = await ethers.getSigners();
   const decimals = 18n;
 
@@ -48,15 +50,31 @@ export async function deployPET404Facet() {
     uniswapFactory_: ethers.ZeroAddress,
   };
 
+  if (uniswapFactory_) {
+    deployArgs.uniswapFactory_ = uniswapFactory_;
+  }
+
   const factory = await ethers.getContractFactory("PET404");
 
   const pet404Contract = await factory.deploy();
   await pet404Contract.waitForDeployment();
 
+  const initData = getInitData(pet404Contract, "__PET404_init", [
+    deployArgs.name,
+    deployArgs.symbol,
+    deployArgs.decimals,
+    deployArgs.units,
+    deployArgs.baseUri,
+    deployArgs.maxTotalSupplyERC721_,
+    deployArgs.initialMintRecipient_,
+    deployArgs.uniswapFactory_,
+  ]);
+
   return {
     pet404Contract,
     pet404ContractAddress: await pet404Contract.getAddress(),
     deployArgs,
+    initData,
   };
 }
 
@@ -82,10 +100,16 @@ export async function deployDNAFacet() {
   const dnaContract = await factory.deploy();
   await dnaContract.waitForDeployment();
 
+  const initData = getInitData(dnaContract, "__DNA_init", [
+    deployArgs.schemaHash,
+    deployArgs.variantsName,
+  ]);
+
   return {
     dnaContract,
     dnaContractAddress: await dnaContract.getAddress(),
     deployArgs,
+    initData,
   };
 }
 
@@ -96,7 +120,8 @@ export async function deployAutomationNonVrfFacet() {
   const deployArgs: AutomationBaseArgs = {
     caller_: automationRegistryAddress,
     minPending_: 1n, // Minimum 1 NFT
-    maxWaiting_: 10n, // 10 secs
+    minWait_: 10n, // Wait atleast 10 secs
+    maxWait_: 60n, // Max wait is 60 secs
   };
 
   const factory = await ethers.getContractFactory("AutomationNonVRF");
@@ -107,7 +132,8 @@ export async function deployAutomationNonVrfFacet() {
   const initData = getInitData(automationNonVrf, "__AutomationNonVRF_init", [
     deployArgs.caller_,
     deployArgs.minPending_,
-    deployArgs.maxWaiting_,
+    deployArgs.maxWait_,
+    deployArgs.maxWait_,
   ]);
 
   return {
@@ -282,4 +308,43 @@ export async function deployERC20Token() {
   await contract.waitForDeployment();
 
   return contract;
+}
+
+export async function deployMultiInit(
+  targets_: string[],
+  calldatas_: string[]
+) {
+  const factory = await ethers.getContractFactory("DiamondMultiInit");
+
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+
+  const calldataMultiInit: string = getInitData(contract, "multiInit", [
+    targets_, // Targets
+    calldatas_, // Calldata
+  ]);
+
+  return {
+    diamondMultiInit: contract,
+    calldataMultiInit,
+  };
+}
+
+export async function deployDiamond(
+  owner_: string,
+  facetCuts_: IERC2535DiamondCutInternal.FacetCutStruct[],
+  multiInit_: string,
+  calldataMultiInit_: string
+) {
+  const factory = await ethers.getContractFactory("Diamond");
+
+  const diamondContract = await factory.deploy(
+    owner_,
+    facetCuts_,
+    multiInit_,
+    calldataMultiInit_
+  );
+  await diamondContract.waitForDeployment();
+
+  return diamondContract;
 }
