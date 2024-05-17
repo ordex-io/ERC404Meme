@@ -19,15 +19,14 @@ contract PET404 is IPET404, ERC404, SafeOwnable {
         uint256 units_,
         string memory baseUri_,
         uint256 maxTotalSupplyERC721_,
-        address initialMintRecipient_,
-        address uniswapFactory_
+        address initialMintRecipient_
     )
         public
         reinitializer(1) // reinitializer using 1 (1st contract calling his init)
     {
         // The `__ERC404_init` function already have the initializer modifier,
         // so, if the contract is already initialized, then this function will fail.
-        __ERC404_init(name_, symbol_, decimals_, units_, uniswapFactory_);
+        __ERC404_init(name_, symbol_, decimals_, units_);
         ERC404Storage.setBaseUri(baseUri_);
 
         // Do not mint the ERC721s to the initial owner, as it's a waste of gas.
@@ -44,6 +43,12 @@ contract PET404 is IPET404, ERC404, SafeOwnable {
         bool state_
     ) external onlyOwner {
         _setERC721TransferExempt(target_, state_);
+    }
+
+    /// @notice Set the Special Exempt state for the target.
+    /// @dev Only the owner/admin can set this special exemptions
+    function setSpecialExempt(address target_, bool state_) external onlyOwner {
+        _setSpecialExempt(target_, state_);
     }
 
     function getBaseUri() external view returns (string memory) {
