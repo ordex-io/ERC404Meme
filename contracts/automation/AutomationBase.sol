@@ -49,28 +49,30 @@ abstract contract AutomationBase is
 
         // Execute if max wait is reached OR minPending and minWait were not defined
         if (
-            (l.maxWait != 0 && l.lastCall + l.maxWait <= block.timestamp) ||
+            (l.maxWait != 0 && block.timestamp >= l.lastCall + l.maxWait) ||
             (l.minPending == 0 && l.minWait == 0)
         ) {
-            // So means that need atleast one NFT on pending list to perfmon
-            upkeepNeeded = DNABaseStorage.pendingReveals() >= 1;
+            // So means that need atleast one NFT on pending list to perform
+            upkeepNeeded = DNABaseStorage.pendingReveals() != 0;
         }
         // Both values were defined
         else if (l.minPending != 0 && l.minWait != 0) {
-            // Both values need to be true to perfomUpkeep
-            upkeepNeeded =
-                l.minPending >= DNABaseStorage.pendingReveals() &&
-                l.lastCall + l.minWait <= block.timestamp;
+            // Both values need to be met to perfomUpkeep and need atleast one NFT
+            // on pending list to perform
+            upkeepNeeded = upkeepNeeded =
+                DNABaseStorage.pendingReveals() != 0 &&
+                DNABaseStorage.pendingReveals() >= l.minPending &&
+                block.timestamp >= l.lastCall + l.minWait;
         }
         // Only min pending is defined
         else if (l.minPending != 0) {
             // Only need the mimium amout of NFT on pending list to perfomUpkeep
-            upkeepNeeded = l.minPending <= DNABaseStorage.pendingReveals();
+            upkeepNeeded = DNABaseStorage.pendingReveals() >= l.minPending;
         }
         // Only min wait time is defined
         else if (l.minWait != 0) {
             // Only need to reach the minimum time to perfomUpkeep
-            upkeepNeeded = l.lastCall + l.minWait <= block.timestamp;
+            upkeepNeeded = block.timestamp >= l.lastCall + l.minWait;
         }
 
         return (upkeepNeeded, bytes(""));
