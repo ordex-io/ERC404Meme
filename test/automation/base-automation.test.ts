@@ -194,4 +194,28 @@ describe.only("AutomationBase", () => {
     const result2 = await checkUpKeepCall(automationContract, ethers.provider);
     expect(result2.upkeepNeeded).to.be.true;
   });
+
+  it(
+    "should return upkeepNeeded correctly when both minPending and minWait are met"
+  );
+
+  it(
+    "should return upkeepNeeded correctly when minPending is met but minWait is not"
+  );
+
+  it(
+    "should return upkeepNeeded correctly when minWait is met but minPending is not"
+  );
+
+  it("should return upkeepNeeded correctly when only minPending is defined");
+
+  it(
+    "should return upkeepNeeded correctly when only minPending and maxWait are defined"
+  );
+
+  it("should return upkeepNeeded correctly when only minWait is defined");
+
+  it(
+    "should return upkeepNeeded correctly when only minWait and maxWait are defined"
+  );
 });
