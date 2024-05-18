@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
 import { deployAutomationRegistryMock, getTimeStamp } from "../../utils";
@@ -12,7 +11,7 @@ describe("AutomationBase", () => {
     maxWait_: bigint,
     deployer_: Signer
   ) {
-    let automationRegistry = await loadFixture(deployAutomationRegistryMock);
+    let automationRegistry = await deployAutomationRegistryMock();
     let automationRegistryAddress = await automationRegistry.getAddress();
 
     const factory = await ethers.getContractFactory(
