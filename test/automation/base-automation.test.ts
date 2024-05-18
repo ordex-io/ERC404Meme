@@ -117,6 +117,24 @@ describe.only("AutomationBase", () => {
     expect(result.performData).to.be.equal("0x");
   });
 
+  it("should revert when maxWait is non-zero and less than minWait", async () => {
+    const [deployer] = await ethers.getSigners();
+    const minPending = 100n; // 100 pendings
+    const minWait = 31n; // 31 sec
+    const maxWait = 30n; // 30 sec
+
+    // Get an instance to use the interface
+    const contract = await ethers.getContractAt(
+      "AutomationBaseImplementer",
+      ethers.ZeroAddress
+    );
+
+    expect(maxWait).to.be.lessThan(minWait);
+    expect(
+      deployAutomationBase(minPending, minWait, maxWait, deployer)
+    ).to.be.revertedWithCustomError(contract, "TimeMismatch");
+  });
+
   it("should success checkUpkeep if maxWait is reached and other conditions are not met", async () => {
     const [deployer] = await ethers.getSigners();
     const minPending = 100n; // 100 pendings
