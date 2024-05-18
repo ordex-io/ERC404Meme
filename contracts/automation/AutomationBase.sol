@@ -47,13 +47,11 @@ abstract contract AutomationBase is
     ) external view cannotExecute returns (bool upkeepNeeded, bytes memory) {
         AutomationBaseStorage.Layout memory l = AutomationBaseStorage.layout();
 
-        // Execute if max wait is reached
-        if (l.maxWait != 0 && l.lastCall + l.maxWait <= block.timestamp) {
-            // So means that need atleast one NFT on pending list to perfmon
-            upkeepNeeded = DNABaseStorage.pendingReveals() >= 1;
-        }
-        // None of this were defined
-        else if (l.minPending == 0 && l.minWait == 0) {
+        // Execute if max wait is reached OR minPending and minWait were not defined
+        if (
+            (l.maxWait != 0 && l.lastCall + l.maxWait <= block.timestamp) ||
+            (l.minPending == 0 && l.minWait == 0)
+        ) {
             // So means that need atleast one NFT on pending list to perfmon
             upkeepNeeded = DNABaseStorage.pendingReveals() >= 1;
         }
