@@ -130,7 +130,7 @@ describe.only("AutomationBase", () => {
       deployer
     );
 
-    // Check that the checkUpkeep is false
+    // Check that the checkUpkeep is false because the maxTime is not met yet
     const result0 = await checkUpKeepCall(automationContract, ethers.provider);
     expect(result0.upkeepNeeded).to.be.false;
 
@@ -142,7 +142,16 @@ describe.only("AutomationBase", () => {
     await increaseTimestampBy(timeAtDeploy + Number(maxWait));
 
     // Check that the checkUpkeep is false
+    // Because there is no pending reveals, the check upKeep still false.
+    // This is to avoid callings for no reasons
     const result1 = await checkUpKeepCall(automationContract, ethers.provider);
-    expect(result1.upkeepNeeded).to.be.true;
+    expect(result1.upkeepNeeded).to.be.false;
+
+    // Increase the pending reveals to one
+    await automationContract.setPendingReveals(1);
+
+    // Check that the checkUpkeep is now true
+    const result2 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result2.upkeepNeeded).to.be.true;
   });
 });
