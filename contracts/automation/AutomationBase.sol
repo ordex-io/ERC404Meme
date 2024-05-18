@@ -49,13 +49,13 @@ abstract contract AutomationBase is
 
         // Execute if max wait is reached
         if (l.maxWait != 0 && l.lastCall + l.maxWait <= block.timestamp) {
-            // So means that need only one NFT on pending list to perfmon
-            upkeepNeeded = DNABaseStorage.pendingReveals() == 1;
+            // So means that need atleast one NFT on pending list to perfmon
+            upkeepNeeded = DNABaseStorage.pendingReveals() >= 1;
         }
         // None of this were defined
         else if (l.minPending == 0 && l.minWait == 0) {
-            // So means that need only one NFT on pending list to perfmon
-            upkeepNeeded = DNABaseStorage.pendingReveals() == 1;
+            // So means that need atleast one NFT on pending list to perfmon
+            upkeepNeeded = DNABaseStorage.pendingReveals() >= 1;
         }
         // Both values were defined
         else if (l.minPending != 0 && l.minWait != 0) {
