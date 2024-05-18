@@ -153,5 +153,45 @@ describe.only("AutomationBase", () => {
     // Check that the checkUpkeep is now true
     const result2 = await checkUpKeepCall(automationContract, ethers.provider);
     expect(result2.upkeepNeeded).to.be.true;
+
+    // Increase the pending reveals to minPending - 1
+    await automationContract.setPendingReveals(minPending - 1n);
+
+    // Check that the checkUpkeep still true
+    const result3 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result3.upkeepNeeded).to.be.true;
+  });
+
+  it("should require just one pending reveal is no condition is defined", async () => {
+    const [deployer] = await ethers.getSigners();
+    // None condition
+    const minPending = 0n;
+    const minWait = 0n;
+    const maxWait = 0n;
+
+    const { automationContract } = await deployAutomationBase(
+      minPending,
+      minWait,
+      maxWait,
+      deployer
+    );
+
+    // Check that the checkUpkeep is false because there is no pending reveal yet
+    const result0 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result0.upkeepNeeded).to.be.false;
+
+    // Increase the pending reveals to one
+    await automationContract.setPendingReveals(1);
+
+    // Check that the checkUpkeep is now true
+    const result1 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result1.upkeepNeeded).to.be.true;
+
+    // Increase the pending reveals to 10
+    await automationContract.setPendingReveals(10);
+
+    // Check that the checkUpkeep is now true
+    const result2 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result2.upkeepNeeded).to.be.true;
   });
 });
