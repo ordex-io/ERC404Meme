@@ -195,17 +195,89 @@ describe.only("AutomationBase", () => {
     expect(result2.upkeepNeeded).to.be.true;
   });
 
-  it(
-    "should return upkeepNeeded correctly when both minPending and minWait are met"
-  );
+  it("should return upkeepNeeded correctly when both minPending and minWait are met", async () => {
+    const [deployer] = await ethers.getSigners();
+    const minPending = 100n; // 100 pendings
+    const minWait = 30n; // 30 sec
+    const maxWait = 0n; // Non max wait
 
-  it(
-    "should return upkeepNeeded correctly when minPending is met but minWait is not"
-  );
+    const { automationContract } = await deployAutomationBase(
+      minPending,
+      minWait,
+      maxWait,
+      deployer
+    );
 
-  it(
-    "should return upkeepNeeded correctly when minWait is met but minPending is not"
-  );
+    // Check that the checkUpkeep is false because the non of the contions are met yet
+    const result0 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result0.upkeepNeeded).to.be.false;
+
+    // Make the contract to reach the minPending
+    await automationContract.setPendingReveals(minPending);
+
+    // Increase the time to the time when automation was deployer plus the minTime
+    const timeAtDeploy = await getTimeStamp(
+      automationContract.deploymentTransaction()?.blockNumber
+    );
+    await increaseTimestampBy(timeAtDeploy + Number(minWait));
+
+    // Check that the checkUpkeep is true now since both condtions are met
+    const result1 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result1.upkeepNeeded).to.be.true;
+  });
+
+  it("should return upkeepNeeded correctly when minPending is met but minWait is not", async () => {
+    const [deployer] = await ethers.getSigners();
+    const minPending = 100n; // 100 pendings
+    const minWait = 30n; // 30 sec
+    const maxWait = 0n; // Non max wait
+
+    const { automationContract } = await deployAutomationBase(
+      minPending,
+      minWait,
+      maxWait,
+      deployer
+    );
+
+    // Check that the checkUpkeep is false because the non of the contions are met yet
+    const result0 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result0.upkeepNeeded).to.be.false;
+
+    // Make the contract to reach the minPending
+    await automationContract.setPendingReveals(minPending);
+
+    // Check that the checkUpkeep still false because only minPending is met
+    const result1 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result1.upkeepNeeded).to.be.false;
+  });
+
+  it("should return upkeepNeeded correctly when minWait is met but minPending is not", async () => {
+    const [deployer] = await ethers.getSigners();
+    const minPending = 100n; // 100 pendings
+    const minWait = 30n; // 30 sec
+    const maxWait = 0n; // Non max wait
+
+    const { automationContract } = await deployAutomationBase(
+      minPending,
+      minWait,
+      maxWait,
+      deployer
+    );
+
+    // Check that the checkUpkeep is false because the non of the contions are met yet
+    const result0 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result0.upkeepNeeded).to.be.false;
+
+    // Increase the time to the time when automation was deployer plus the minTime
+    const timeAtDeploy = await getTimeStamp(
+      automationContract.deploymentTransaction()?.blockNumber
+    );
+    await increaseTimestampBy(timeAtDeploy + Number(minWait));
+
+    // Check that the checkUpkeep still false because only minWait is met
+    const result1 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result1.upkeepNeeded).to.be.false;
+  });
 
   it("should return upkeepNeeded correctly when only minPending is defined");
 
