@@ -24,7 +24,10 @@ describe("Automation - Non VRF", () => {
     await contract.waitForDeployment();
 
     const tx = await contract.__AutomationNonVRF_init(
-      automationRegistryAddress
+      automationRegistryAddress,
+      0,
+      0,
+      0
     );
     await tx.wait();
 
@@ -45,18 +48,15 @@ describe("Automation - Non VRF", () => {
     const caller2 = signers[2];
     const { contract } = await loadFixture(deployAutoNonVRFMock);
 
-    expect(contract.connect(caller0).reveal()).to.be.revertedWithCustomError(
-      contract,
-      "NoAutomationRegister"
-    );
-    expect(contract.connect(caller1).reveal()).to.be.revertedWithCustomError(
-      contract,
-      "NoAutomationRegister"
-    );
-    expect(contract.connect(caller2).reveal()).to.be.revertedWithCustomError(
-      contract,
-      "NoAutomationRegister"
-    );
+    expect(
+      contract.connect(caller0).performUpkeep("")
+    ).to.be.revertedWithCustomError(contract, "NoAutomationRegister");
+    expect(
+      contract.connect(caller1).performUpkeep("")
+    ).to.be.revertedWithCustomError(contract, "NoAutomationRegister");
+    expect(
+      contract.connect(caller2).performUpkeep("")
+    ).to.be.revertedWithCustomError(contract, "NoAutomationRegister");
   });
 
   it("should call reveal from the automation registry ", async () => {

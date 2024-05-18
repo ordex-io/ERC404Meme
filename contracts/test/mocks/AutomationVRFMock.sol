@@ -10,8 +10,20 @@ import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interface
  * @notice Expose the words and request params saved for the Automation VRF.
  */
 contract AutomationVRFMock is AutomationVRF {
-    constructor(address automationRegistry_, VRFParams memory randomParams_) {
-        __AutomationVRF_init(automationRegistry_, randomParams_);
+    constructor(
+        address caller_,
+        uint96 minPending_,
+        uint128 minWait_,
+        uint128 maxWait_,
+        VRFParams memory randomParams_
+    ) {
+        __AutomationVRF_init(
+            caller_,
+            minPending_,
+            minWait_,
+            maxWait_,
+            randomParams_
+        );
     }
 
     function getWordsByPointer(
@@ -29,7 +41,7 @@ contract AutomationVRFMock is AutomationVRF {
     }
 
     function getAutomationRegistry() public view returns (address) {
-        return AutomationBaseStorage.layout().automationRegistry;
+        return AutomationBaseStorage.layout().upKeepCaller;
     }
 
     function getKeyHash() public view returns (bytes32) {

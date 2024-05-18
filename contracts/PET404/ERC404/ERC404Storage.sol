@@ -21,6 +21,7 @@ library ERC404Storage {
         mapping(uint256 => uint256) _ownedData;
         mapping(address => uint256[]) _owned;
         mapping(address => bool) _erc721TransferExempt;
+        mapping(address => bool) _especialExempt;
         // Private
         mapping(address => DoubleEndedQueue.Uint256Deque) _personalVault;
         uint256 _INITIAL_CHAIN_ID;

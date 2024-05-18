@@ -50,6 +50,9 @@ describe("Automation - VRF", () => {
     const factory = await ethers.getContractFactory("AutomationVRFMock");
     const contract = await factory.deploy(
       automationRegistryAddress,
+      0,
+      0,
+      0,
       vrfArguments
     );
     await contract.waitForDeployment();
@@ -119,18 +122,15 @@ describe("Automation - VRF", () => {
     const caller2 = signers[2];
     const { contract } = await loadFixture(deployAutoVRFMock);
 
-    expect(contract.connect(caller0).reveal()).to.be.revertedWithCustomError(
-      contract,
-      "NoAutomationRegister"
-    );
-    expect(contract.connect(caller1).reveal()).to.be.revertedWithCustomError(
-      contract,
-      "NoAutomationRegister"
-    );
-    expect(contract.connect(caller2).reveal()).to.be.revertedWithCustomError(
-      contract,
-      "NoAutomationRegister"
-    );
+    expect(
+      contract.connect(caller0).performUpkeep("")
+    ).to.be.revertedWithCustomError(contract, "NoAutomationRegister");
+    expect(
+      contract.connect(caller1).performUpkeep("")
+    ).to.be.revertedWithCustomError(contract, "NoAutomationRegister");
+    expect(
+      contract.connect(caller2).performUpkeep("")
+    ).to.be.revertedWithCustomError(contract, "NoAutomationRegister");
   });
 
   it("should call reveal from the automation registry ", async () => {

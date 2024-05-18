@@ -5,8 +5,10 @@ import {
   checkBalances,
   createPool,
   deployAutomationNonVrfFacet,
+  deployDiamond,
   deployDNAFacet,
   deployERC20Token,
+  deployMultiInit,
   deployNonfungiblePositionManager,
   deployPET404ExposerFacet,
   deployPET404Facet,
@@ -15,12 +17,11 @@ import {
   deployWeth,
   encodePriceSqrt,
   fulfillFacetCut,
-  getInitData,
   initializePool,
-  setAddressesAsExempt,
+  setAddressAsSpecialExempt,
 } from "../../utils";
 
-export async function deployFullPET404DiamondNonVrf(uniswapFactory_?: string) {
+export async function deployFullPET404DiamondNonVrf() {
   // Factory Diamond
   const zeroDiamond = await ethers.getContractAt("Diamond", ethers.ZeroAddress);
   const zeroIDiamont404 = await ethers.getContractAt(
@@ -34,6 +35,7 @@ export async function deployFullPET404DiamondNonVrf(uniswapFactory_?: string) {
     automationRegistry,
     automationNonVrfAddress,
     deployArgs: automationArgs,
+    initData: automationCalldata,
   } = await deployAutomationNonVrfFacet();
 
   // Deploy DNA Facet
@@ -41,6 +43,7 @@ export async function deployFullPET404DiamondNonVrf(uniswapFactory_?: string) {
     dnaContract,
     dnaContractAddress,
     deployArgs: dnaArgs,
+    initData: dnaCalldata,
   } = await deployDNAFacet();
 
   // Deploy PET404 Facet
@@ -48,11 +51,8 @@ export async function deployFullPET404DiamondNonVrf(uniswapFactory_?: string) {
     pet404Contract,
     pet404ContractAddress,
     deployArgs: pet404Args,
+    initData: pet404Calldata,
   } = await deployPET404Facet();
-
-  if (uniswapFactory_) {
-    pet404Args.uniswapFactory_ = uniswapFactory_;
-  }
 
   // Deploy PET404 Facet (NOTE: only tests)
   const { pet404ExposerContract } = await deployPET404ExposerFacet();
@@ -76,51 +76,29 @@ export async function deployFullPET404DiamondNonVrf(uniswapFactory_?: string) {
   ]);
 
   // Initializations calldata
-  const pet404Calldata = getInitData(pet404Contract, "__PET404_init", [
-    pet404Args.name,
-    pet404Args.symbol,
-    pet404Args.decimals,
-    pet404Args.units,
-    pet404Args.baseUri,
-    pet404Args.maxTotalSupplyERC721_,
-    pet404Args.initialMintRecipient_,
-    pet404Args.uniswapFactory_,
-  ]);
-
-  const dnaCalldata = getInitData(dnaContract, "__DNA_init", [
-    dnaArgs.schemaHash,
-    dnaArgs.variantsName,
-  ]);
-
-  const automationCalldata = getInitData(
-    automationNonVrf,
-    "__AutomationNonVRF_init",
-    [automationArgs.automationRegistryAddress]
-  );
-
   // Multi initializer diamond
-  const factoryDiamondMultiInit = await ethers.getContractFactory(
-    "DiamondMultiInit"
-  );
-  const diamondMultiInit = await factoryDiamondMultiInit.deploy();
+  const targets = [
+    pet404ContractAddress,
+    dnaContractAddress,
+    automationNonVrfAddress,
+  ];
+  const calldatas = [pet404Calldata, dnaCalldata, automationCalldata];
 
-  const calldataMultiInit: string = getInitData(diamondMultiInit, "multiInit", [
-    [pet404ContractAddress, dnaContractAddress, automationNonVrfAddress], // Targets
-    [pet404Calldata, dnaCalldata, automationCalldata], // Calldata
-  ]);
+  const { diamondMultiInit, calldataMultiInit } = await deployMultiInit(
+    targets,
+    calldatas
+  );
 
   // Deploy Diamond contract
   // Owner of the Diamond (have the ownership of the whole contract facets)
   const ownerSigner = (await ethers.getSigners())[9];
 
-  const factoryDiamond = await ethers.getContractFactory("Diamond");
-  const diamondContract = await factoryDiamond.deploy(
-    ownerSigner.address, // owner
-    [pet404FacetCuts, dnaFacetCuts, automationFacetCuts, exposer404FacetCuts], //  Faucets
+  const diamondContract = await deployDiamond(
+    ownerSigner.address,
+    [pet404FacetCuts, dnaFacetCuts, automationFacetCuts, exposer404FacetCuts],
     await diamondMultiInit.getAddress(), // Target address for initialization
     calldataMultiInit // Calldata that will be used for initialization
   );
-  await diamondContract.waitForDeployment();
 
   const diamondAddress = await diamondContract.getAddress();
 
@@ -176,9 +154,7 @@ export async function deployUniswapPool() {
   const erc20Token = await deployERC20Token();
 
   // PET404 Related contracts
-  const PET404ContractsData = await deployFullPET404DiamondNonVrf(
-    await uniswapFactory.getAddress()
-  );
+  const PET404ContractsData = await deployFullPET404DiamondNonVrf();
 
   // Configuration for the pool
   const token1Address = await erc20Token.getAddress(); // token0
@@ -196,8 +172,10 @@ export async function deployUniswapPool() {
     fee
   );
 
-  // Set Uniswap addresses as transfer exemptions so they don't mint NFTs for they own
-  await setAddressesAsExempt(
+  // Set Uniswap addresses as transfer exemptions and special exemption so they don't mint
+  // NFTs for they own and behave correclty.
+  // This is hihgly recommend to be used with pools
+  await setAddressAsSpecialExempt(
     PET404ContractsData.diamondContract,
     PET404ContractsData.ownerSigner,
     [
@@ -224,7 +202,8 @@ export async function deployUniswapPool() {
   const erc404Decimals = await PET404ContractsData.diamondContract.decimals();
   const amountErc404 =
     mulLiquidity * (await PET404ContractsData.diamondContract.units());
-  const amountToken1 = ethers.parseUnits(mulLiquidity.toString(), 18) * mulLiquidity;
+  const amountToken1 =
+    ethers.parseUnits(mulLiquidity.toString(), 18) * mulLiquidity;
 
   const bal = await erc20Token.balanceOf(recipientSigner.address);
   if (amountToken1 > bal) {

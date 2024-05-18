@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
-import { deployFullPET404DiamondNonVrf } from "../utils";
+import { checkUpKeepCall, deployFullPET404DiamondNonVrf } from "../utils";
 import {
   calculateDNA,
   getBlockHash,
@@ -28,7 +28,7 @@ describe("PET404 - Non VRF", () => {
         dnaArgs.schemaHash
       );
       expect(await PET404Contract.getCallerAddress()).to.be.equal(
-        autoArgs.automationRegistryAddress
+        autoArgs.caller_
       );
 
       // No NFTs are minted. No owners.
@@ -137,7 +137,7 @@ describe("PET404 - Non VRF", () => {
       const { diamondContract: PET404Contract, automationNonVrfFacet } =
         await loadFixture(deployFullPET404DiamondNonVrf);
 
-      expect(PET404Contract.reveal()).to.be.revertedWithCustomError(
+      expect(PET404Contract.performUpkeep("")).to.be.revertedWithCustomError(
         automationNonVrfFacet,
         "NoAutomationRegister"
       );
@@ -200,6 +200,14 @@ describe("PET404 - Non VRF", () => {
         dnaFacet,
         "NotRevealed"
       );
+
+      // Check that the reveal is ready using checkUpKeep
+      const { upkeepNeeded } = await checkUpKeepCall(
+        PET404Contract,
+        ethers.provider
+      );
+
+      expect(upkeepNeeded).to.be.true;
 
       // Mock the reveal call using a Automation Register caller mock
       const txReveal = await automationRegistry.simulateAutoReveal(
@@ -290,6 +298,14 @@ describe("PET404 - Non VRF", () => {
         );
       }
 
+      // Check that the reveal is ready using checkUpKeep
+      const { upkeepNeeded } = await checkUpKeepCall(
+        PET404Contract,
+        ethers.provider
+      );
+
+      expect(upkeepNeeded).to.be.true;
+
       // Mock the reveal call using a Automation Register caller mock
       const txReveal = await automationRegistry.simulateAutoReveal(
         await PET404Contract.getAddress()
@@ -367,6 +383,14 @@ describe("PET404 - Non VRF", () => {
         "NotRevealed"
       );
 
+      // Check that the reveal is ready using checkUpKeep
+      const { upkeepNeeded: upkeepNeeded0 } = await checkUpKeepCall(
+        PET404Contract,
+        ethers.provider
+      );
+
+      expect(upkeepNeeded0).to.be.true;
+
       // Mock the reveal call using a Automation Register caller mock
       const txReveal0 = await automationRegistry.simulateAutoReveal(
         await PET404Contract.getAddress()
@@ -411,6 +435,14 @@ describe("PET404 - Non VRF", () => {
         dnaFacet,
         "NotRevealed"
       );
+
+      // Check that the reveal is ready using checkUpKeep
+      const { upkeepNeeded: upkeepNeeded1 } = await checkUpKeepCall(
+        PET404Contract,
+        ethers.provider
+      );
+
+      expect(upkeepNeeded1).to.be.true;
 
       // Mock the reveal call using a Automation Register caller mock
       const txReveal1 = await automationRegistry.simulateAutoReveal(
@@ -484,6 +516,14 @@ describe("PET404 - Non VRF", () => {
         dnaFacet,
         "NotRevealed"
       );
+
+      // Check that the reveal is ready using checkUpKeep
+      const { upkeepNeeded: upkeepNeeded0 } = await checkUpKeepCall(
+        PET404Contract,
+        ethers.provider
+      );
+
+      expect(upkeepNeeded0).to.be.true;
 
       // Mock the reveal call using a Automation Register caller mock
       const txReveal0 = await automationRegistry.simulateAutoReveal(
@@ -579,6 +619,14 @@ describe("PET404 - Non VRF", () => {
         dnaFacet,
         "NotRevealed"
       );
+
+      // Check that the reveal is ready using checkUpKeep
+      const { upkeepNeeded: upkeepNeeded1 } = await checkUpKeepCall(
+        PET404Contract,
+        ethers.provider
+      );
+
+      expect(upkeepNeeded1).to.be.true;
 
       // Now we mock the reveal call using a Automation Register caller mock
       const txReveal2 = await automationRegistry.simulateAutoReveal(

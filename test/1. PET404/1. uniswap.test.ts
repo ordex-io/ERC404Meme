@@ -2,12 +2,7 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 import { deployUniswapPool } from "../utils";
-import {
-  getERC721TransfersEventsArgs,
-  // calculateDNA,
-  // getBlockHash,
-  getTimeStamp,
-} from "../../utils";
+import { getERC721TransfersEventsArgs, getTimeStamp } from "../../utils";
 import { ISwapRouter } from "../../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts/SwapRouter";
 
 describe("PET404 - Uniswap transactions", () => {

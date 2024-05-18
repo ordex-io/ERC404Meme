@@ -26,7 +26,6 @@ export type Configuration = {
   };
 
   AutomationNonVRF: {
-    // TODO: Read this by chain id
     args: { automationRegistry_: string };
   };
   DNA: {
@@ -116,3 +115,5 @@ export async function saveDeployment(deployments: any) {
   const pathDeploy = path.join(initPath, `${Date.now()}.json`);
   writeFile(pathDeploy, JSON.stringify(deployments, null, 2));
 }
+
+export { deployUniswapPool, deployFullPET404DiamondNonVrf } from "./full";

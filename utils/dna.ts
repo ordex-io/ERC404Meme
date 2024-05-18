@@ -51,8 +51,13 @@ export async function getBlockNumber() {
   return await ethers.provider.getBlockNumber();
 }
 
-export async function getTimeStamp() {
-  const block = await ethers.provider.getBlock(await getBlockNumber());
+export async function getTimeStamp(
+  blocknumber?: bigint | number | null | undefined
+): Promise<number> {
+  if (!blocknumber) {
+    blocknumber = await getBlockNumber();
+  }
+  const block = await ethers.provider.getBlock(blocknumber);
 
   if (!block) throw "cannto get current block";
 

@@ -10,7 +10,10 @@ import {IAutomationVRF, VRFParams} from "./IAutomationVRF.sol";
 
 contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
     function __AutomationVRF_init(
-        address automationRegistry_,
+        address caller_,
+        uint96 minPending_,
+        uint128 minWait_,
+        uint128 maxWait_,
         VRFParams memory randomParams_
     )
         public
@@ -20,7 +23,7 @@ contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
         __VRFConsumerV2_init(randomParams_.vrfCoordinator);
 
         // Automation Registry for calls
-        __AutomationBase_Init(automationRegistry_);
+        __AutomationBase_Init(caller_, minPending_, minWait_, maxWait_);
 
         // VRF params for VRF request calls
         AutomationVRFStorage.layout().keyHash = randomParams_.keyHash;
@@ -37,11 +40,7 @@ contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
         AutomationVRFStorage.layout().numWords = randomParams_.numWords;
     }
 
-    function reveal() external override {
-        AutomationBaseStorage.onlyAutoRegistry();
-
-        // TODO: Check if waiting
-
+    function performUpkeep(bytes calldata) external onlyUpKeepCaller {
         AutomationVRFStorage.Layout memory l = AutomationVRFStorage.layout();
 
         uint256 requestId = _vrfCoordinator().requestRandomWords(
