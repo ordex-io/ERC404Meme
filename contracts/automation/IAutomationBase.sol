@@ -5,6 +5,7 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/autom
 
 interface IAutomationBase is AutomationCompatibleInterface {
     error NoAutomationRegister();
+    error TimeMismatch();
 
     event RevealCalled(uint256 requestId, uint256 block);
 

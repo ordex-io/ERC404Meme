@@ -35,7 +35,9 @@ abstract contract AutomationBase is
         uint128 minWait_,
         uint128 maxWait_
     ) internal {
-        require(minWait_ <= maxWait_, "TIME_MISMATCH");
+        if (maxWait_ != 0 && maxWait_ < minWait_) {
+            revert TimeMismatch();
+        }
         AutomationBaseStorage.layout().upKeepCaller = caller_;
         AutomationBaseStorage.layout().minPending = minPending_;
         AutomationBaseStorage.layout().minWait = minWait_;
