@@ -35,6 +35,7 @@ abstract contract AutomationBase is
         uint128 minWait_,
         uint128 maxWait_
     ) internal {
+        require(minWait_ <= maxWait_, "TIME_MISMATCH");
         AutomationBaseStorage.layout().upKeepCaller = caller_;
         AutomationBaseStorage.layout().minPending = minPending_;
         AutomationBaseStorage.layout().minWait = minWait_;
@@ -71,8 +72,11 @@ abstract contract AutomationBase is
         }
         // Only min wait time is defined
         else if (l.minWait != 0) {
-            // Only need to reach the minimum time to perfomUpkeep
-            upkeepNeeded = block.timestamp >= l.lastCall + l.minWait;
+            // Only need to reach the minimum time to perfomUpkeep and need atleast
+            // one NFT on pending list to perform
+            upkeepNeeded =
+                DNABaseStorage.pendingReveals() != 0 &&
+                block.timestamp >= l.lastCall + l.minWait;
         }
 
         return (upkeepNeeded, bytes(""));
