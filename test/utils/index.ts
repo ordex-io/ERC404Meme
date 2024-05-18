@@ -4,7 +4,7 @@ import { AutomationBase } from "../../typechain-types";
 
 type checkUpKeppResponse = { upkeepNeeded: boolean; performData: string };
 
-export async function checkUpKeppCall(
+export async function checkUpKeepCall(
   contract_: AutomationBase,
   provider_: typeof ethers.provider | JsonRpcProvider
 ): Promise<checkUpKeppResponse> {

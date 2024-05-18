@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
-import { checkUpKeppCall, deployFullPET404DiamondNonVrf } from "../utils";
+import { checkUpKeepCall, deployFullPET404DiamondNonVrf } from "../utils";
 import {
   calculateDNA,
   getBlockHash,
@@ -202,7 +202,7 @@ describe("PET404 - Non VRF", () => {
       );
 
       // Check that the reveal is ready using checkUpKeep
-      const { upkeepNeeded } = await checkUpKeppCall(
+      const { upkeepNeeded } = await checkUpKeepCall(
         PET404Contract,
         ethers.provider
       );
@@ -299,7 +299,7 @@ describe("PET404 - Non VRF", () => {
       }
 
       // Check that the reveal is ready using checkUpKeep
-      const { upkeepNeeded } = await checkUpKeppCall(
+      const { upkeepNeeded } = await checkUpKeepCall(
         PET404Contract,
         ethers.provider
       );
@@ -384,7 +384,7 @@ describe("PET404 - Non VRF", () => {
       );
 
       // Check that the reveal is ready using checkUpKeep
-      const { upkeepNeeded: upkeepNeeded0 } = await checkUpKeppCall(
+      const { upkeepNeeded: upkeepNeeded0 } = await checkUpKeepCall(
         PET404Contract,
         ethers.provider
       );
@@ -437,7 +437,7 @@ describe("PET404 - Non VRF", () => {
       );
 
       // Check that the reveal is ready using checkUpKeep
-      const { upkeepNeeded: upkeepNeeded1 } = await checkUpKeppCall(
+      const { upkeepNeeded: upkeepNeeded1 } = await checkUpKeepCall(
         PET404Contract,
         ethers.provider
       );
@@ -518,7 +518,7 @@ describe("PET404 - Non VRF", () => {
       );
 
       // Check that the reveal is ready using checkUpKeep
-      const { upkeepNeeded: upkeepNeeded0 } = await checkUpKeppCall(
+      const { upkeepNeeded: upkeepNeeded0 } = await checkUpKeepCall(
         PET404Contract,
         ethers.provider
       );
@@ -621,7 +621,7 @@ describe("PET404 - Non VRF", () => {
       );
 
       // Check that the reveal is ready using checkUpKeep
-      const { upkeepNeeded: upkeepNeeded1 } = await checkUpKeppCall(
+      const { upkeepNeeded: upkeepNeeded1 } = await checkUpKeepCall(
         PET404Contract,
         ethers.provider
       );
