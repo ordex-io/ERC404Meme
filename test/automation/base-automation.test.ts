@@ -2,7 +2,8 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
-import { deployAutomationRegistryMock } from "../../utils";
+import { deployAutomationRegistryMock, getTimeStamp } from "../../utils";
+import { checkUpKeepCall, increaseTimestampBy } from "../utils";
 
 describe.only("AutomationBase", () => {
   async function deployAutomationBase(
@@ -109,21 +110,39 @@ describe.only("AutomationBase", () => {
     );
 
     // Check that the checkUpkeep can only be called by zero address as view value
-    const result = await ethers.provider.call({
-      to: await automationContract.getAddress(),
-      data: automationContract.interface.encodeFunctionData("checkUpkeep", [
-        "0x",
-      ]),
-      from: ethers.ZeroAddress,
-    });
-
-    // Decode the response
-    const decodedResult = automationContract.interface
-      .decodeFunctionResult("checkUpkeep", result)
-      .toArray();
+    const result = await checkUpKeepCall(automationContract, ethers.provider);
 
     // The response
-    expect(decodedResult[0]).to.be.false;
-    expect(decodedResult[1]).to.be.equal("0x");
+    expect(result.upkeepNeeded).to.be.false;
+    expect(result.performData).to.be.equal("0x");
+  });
+
+  it("should success checkUpkeep if maxWait is reached and other conditions are not met", async () => {
+    const [deployer] = await ethers.getSigners();
+    const minPending = 100n; // 100 pendings
+    const minWait = 10n; // 10 sec
+    const maxWait = 30n; // 30 sec
+
+    const { automationContract } = await deployAutomationBase(
+      minPending,
+      minWait,
+      maxWait,
+      deployer
+    );
+
+    // Check that the checkUpkeep is false
+    const result0 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result0.upkeepNeeded).to.be.false;
+
+    // Increase the time to the time when automation was deployer plus the maxTime
+    const timeAtDeploy = await getTimeStamp(
+      automationContract.deploymentTransaction()?.blockNumber
+    );
+
+    await increaseTimestampBy(timeAtDeploy + Number(maxWait));
+
+    // Check that the checkUpkeep is false
+    const result1 = await checkUpKeepCall(automationContract, ethers.provider);
+    expect(result1.upkeepNeeded).to.be.true;
   });
 });
