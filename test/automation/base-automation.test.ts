@@ -5,7 +5,7 @@ import { Signer } from "ethers";
 import { deployAutomationRegistryMock, getTimeStamp } from "../../utils";
 import { checkUpKeepCall, increaseTimestampBy } from "../utils";
 
-describe.only("AutomationBase", () => {
+describe("AutomationBase", () => {
   async function deployAutomationBase(
     minPending_: bigint,
     minWait_: bigint,
