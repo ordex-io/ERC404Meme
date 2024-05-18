@@ -1,11 +1,11 @@
 import { ethers } from "hardhat";
 import { JsonRpcProvider } from "ethers";
-import { IPET404Exposer } from "../../typechain-types";
+import { AutomationBase } from "../../typechain-types";
 
 type checkUpKeppResponse = { upkeepNeeded: boolean; performData: string };
 
 export async function checkUpKeppCall(
-  contract_: IPET404Exposer,
+  contract_: AutomationBase,
   provider_: typeof ethers.provider | JsonRpcProvider
 ): Promise<checkUpKeppResponse> {
   const result = await provider_.call({
@@ -14,12 +14,15 @@ export async function checkUpKeppCall(
     from: ethers.ZeroAddress,
   });
 
-  const decodedResult = contract_.interface.decodeFunctionResult(
-    "checkUpkeep",
-    result
-  );
+  const decodedResult = contract_.interface
+    .decodeFunctionResult("checkUpkeep", result)
+    .toArray();
 
-  return decodedResult.toObject() as checkUpKeppResponse;
+  return {
+    upkeepNeeded: decodedResult[0],
+    performData: decodedResult[1],
+  };
 }
 
 export { deployFullPET404DiamondNonVrf, deployUniswapPool } from "./deploy";
+export { increaseTimestampTo as increaseTimestampBy } from "./time";
