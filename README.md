@@ -1,12 +1,8 @@
 # ERC404Meme: Next-gen Hybrid Memecoin Standard
 
-ERC404Meme is an opionated yet practical reimplementation of the legacy [ERC404](https://github.com/Pandora-Labs-Org/erc404) standard, designed to enhance the functionality of real-world memecoin projects by integrating them with the robust features of NFTs.
+ERC404Meme is an opinionated yet practical reimplementation of the [ERC404](https://github.com/Pandora-Labs-Org/erc404) standard, aimed at adding substantial value and utility to memecoins on EVM chains (like [Base](https://base.org)) by enabling generative PFP NFT collections that are natively tied to them.
 
-## Introduction
-
-ERC404 combines the features of ERC-20 (fungible tokens) and ERC-721 (non-fungible tokens). ERC404Meme expands upon this foundation by enabling the creation of generative PFP NFT collections directly tied to memecoins, thus adding significant value and utility to each token.
-
-![ERC404Meme Banner](https://github.com/ordex-io/ERC404MEME/assets/85253037/3fe1a8ed-0663-47ec-b2b4-0cc2e15be137)
+![ERC404Meme Banner](https://github.com/ordex-io/ERC404MEME/assets/85253037/3fe1a8ed-066347ec-b2b4-0cc2e15be137)
 
 ## Key Features
 
