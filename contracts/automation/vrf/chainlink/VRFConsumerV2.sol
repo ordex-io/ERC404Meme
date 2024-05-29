@@ -2,7 +2,7 @@
 pragma solidity ^0.8.4;
 
 import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
-import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerV2Storage} from "./VRFConsumerV2Storage.sol";
 import {IVRFConsumerV2} from "./IVRFConsumerV2.sol";
 

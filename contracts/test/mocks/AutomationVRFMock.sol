@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
 import {AutomationVRF, VRFParams, AutomationVRFStorage, AutomationBaseStorage} from "../../automation/vrf/AutomationVRF.sol";
-import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
 
 /**
  * @title AutomationVRFMock
