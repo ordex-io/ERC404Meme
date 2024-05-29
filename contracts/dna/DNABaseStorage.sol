@@ -2,21 +2,21 @@
 pragma solidity ^0.8.24;
 
 library DNABaseStorage {
-    error NotRevealed(uint256 id, uint256 block_number);
-    error NotWaitingReveal(uint256 block_number);
+    error NotRevealed(uint256 id, uint256 blockNumber);
+    error NotWaitingReveal(uint256 blockNumber);
     error NotExistingId(uint256 id);
 
     struct Layout {
         uint256 pendingReveals;
         uint256 currentCounter;
-        string schema_hash;
-        string[] variants_name;
+        string schemaHash;
+        string[] variantsName;
         mapping(uint256 => uint256) countersById;
         mapping(uint256 => uint256[]) wordsByCounter;
     }
 
     bytes32 internal constant STORAGE_SLOT =
-        keccak256("ordex.contracts.storage.DNABase");
+        keccak256("ordex.contracts.storage.DNA");
 
     function layout() internal pure returns (Layout storage l) {
         bytes32 slot = STORAGE_SLOT;

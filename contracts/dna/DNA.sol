@@ -14,8 +14,8 @@ contract DNA is IDNA, Initializable {
         public
         reinitializer(2) // reinitializer using 2 (2nd contract calling his init)
     {
-        DNABaseStorage.layout().schema_hash = schemaHash;
-        DNABaseStorage.layout().variants_name = variantsName;
+        DNABaseStorage.layout().schemaHash = schemaHash;
+        DNABaseStorage.layout().variantsName = variantsName;
 
         // Start with counter = 1 to avoid pointing to index 0 on `wordsByCounter`
         DNABaseStorage.increaseCounter();
@@ -25,11 +25,11 @@ contract DNA is IDNA, Initializable {
      * @dev The schema hash also represent the IPFS CID for the NFT
      */
     function getSchemaHash() public view returns (string memory) {
-        return DNABaseStorage.layout().schema_hash;
+        return DNABaseStorage.layout().schemaHash;
     }
 
     function getVariantsName() public view returns (string[] memory) {
-        return DNABaseStorage.layout().variants_name;
+        return DNABaseStorage.layout().variantsName;
     }
 
     function dnaOf(uint256 id_) public view returns (bytes32) {
