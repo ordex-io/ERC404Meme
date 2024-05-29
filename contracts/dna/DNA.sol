@@ -21,6 +21,9 @@ contract DNA is IDNA, Initializable {
         DNABaseStorage.increaseCounter();
     }
 
+    /**
+     * @dev The schema hash also represent the IPFS CID for the NFT
+     */
     function getSchemaHash() public view returns (string memory) {
         return DNABaseStorage.layout().schema_hash;
     }
