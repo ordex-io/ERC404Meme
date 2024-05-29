@@ -834,7 +834,7 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         } else {
             // Since this means that the token will be totally burnt
             // His reference to his DNA and metadada should not be retrieved either
-            DNABaseStorage.layout().countersById[id] == 0;
+            DNABaseStorage.layout().countersById[id] = 0;
         }
     }
 
