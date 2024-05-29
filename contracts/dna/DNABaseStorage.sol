@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 library DNABaseStorage {
     error NotRevealed(uint256 id, uint256 block_number);
     error NotWaitingReveal(uint256 block_number);
+    error NotExistingId(uint256 id);
 
     struct Layout {
         uint256 pendingReveals;
@@ -25,6 +26,10 @@ library DNABaseStorage {
     }
 
     function getDnaById(uint256 id_) internal view returns (bytes32) {
+        if (!hasCounterId(id_)) {
+            revert NotExistingId(id_);
+        }
+
         uint256 counterPoint_ = layout().countersById[id_];
         uint256[] memory words = layout().wordsByCounter[counterPoint_];
         if (words.length == 0) {
