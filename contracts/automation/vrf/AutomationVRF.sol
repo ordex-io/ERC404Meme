@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {AutomationBaseStorage} from "../AutomationBaseStorage.sol";
 import {AutomationBase} from "../AutomationBase.sol";
-import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
+import {DNAStorage} from "../../dna/DNAStorage.sol";
 import {VRFConsumerV2} from "./chainlink/VRFConsumerV2.sol";
 import {AutomationVRFStorage} from "./AutomationVRFStorage.sol";
 import {IAutomationVRF, VRFParams} from "./IAutomationVRF.sol";
@@ -60,7 +60,7 @@ contract AutomationVRF is AutomationBase, IAutomationVRF, VRFConsumerV2 {
     ) internal override {
         // Save the words on DNA storage AND get the counter ID about where are
         // stored on the DNA mapping
-        uint256 counterId = DNABaseStorage.saveWords(randomWords);
+        uint256 counterId = DNAStorage.saveWords(randomWords);
         emit NftsRevealed(requestId, counterId, block.number);
     }
 }

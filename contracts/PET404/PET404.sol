@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {SafeOwnable} from "@solidstate/contracts/access/ownable/SafeOwnable.sol";
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
-import {ERC404, ERC404Storage, DNABaseStorage} from "./ERC404/ERC404.sol";
+import {ERC404, ERC404Storage, DNAStorage} from "./ERC404/ERC404.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IPET404} from "./IPET404.sol";
 
@@ -65,7 +65,7 @@ contract PET404 is IPET404, ERC404, SafeOwnable {
         _existingId(id_);
 
         // This will revert if cannot get the DNA (means not revealed)
-        DNABaseStorage.getDnaById(id_);
+        DNAStorage.getDnaById(id_);
 
         return string.concat(ERC404Storage.getBaseUri(), Strings.toString(id_));
     }
@@ -86,8 +86,8 @@ contract PET404 is IPET404, ERC404, SafeOwnable {
 
         // If "from" is an address zero, it could means a mint or that ID comes from personal
         // vault. We avoid to override the `counterId` (it's waiting or already revealed).
-        if (from_ == address(0) && !DNABaseStorage.hasCounterId(id_)) {
-            DNABaseStorage.setCounterForId(id_);
+        if (from_ == address(0) && !DNAStorage.hasCounterId(id_)) {
+            DNAStorage.setCounterForId(id_);
         }
     }
 

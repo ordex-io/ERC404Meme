@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
+import {DNAStorage} from "../../dna/DNAStorage.sol";
 import {AutomationVRF, VRFParams, AutomationVRFStorage, AutomationBaseStorage} from "../../automation/vrf/AutomationVRF.sol";
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
 
@@ -29,7 +29,7 @@ contract AutomationVRFMock is AutomationVRF {
     function getWordsByPointer(
         uint256 pointer_
     ) external view returns (uint256[] memory) {
-        return DNABaseStorage.layout().wordsByCounter[pointer_];
+        return DNAStorage.layout().wordsByCounter[pointer_];
     }
 
     function getVrfCoordinator()
@@ -65,6 +65,6 @@ contract AutomationVRFMock is AutomationVRF {
     }
 
     function increasePendingReveal() external {
-        DNABaseStorage.layout().pendingReveals += 1;
+        DNAStorage.layout().pendingReveals += 1;
     }
 }

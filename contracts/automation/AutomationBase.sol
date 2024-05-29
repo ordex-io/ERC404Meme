@@ -5,7 +5,7 @@ import {SafeOwnable} from "@solidstate/contracts/access/ownable/SafeOwnable.sol"
 import {AutomationBaseStorage} from "./AutomationBaseStorage.sol";
 import {IAutomationBase} from "./IAutomationBase.sol";
 import {AutomationCompatible} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
-import {DNABaseStorage} from "../dna/DNABaseStorage.sol";
+import {DNAStorage} from "../dna/DNAStorage.sol";
 
 abstract contract AutomationBase is
     IAutomationBase,
@@ -56,28 +56,28 @@ abstract contract AutomationBase is
             (l.minPending == 0 && l.minWait == 0)
         ) {
             // So means that need atleast one NFT on pending list to perform
-            upkeepNeeded = DNABaseStorage.pendingReveals() != 0;
+            upkeepNeeded = DNAStorage.pendingReveals() != 0;
         }
         // Both values were defined
         else if (l.minPending != 0 && l.minWait != 0) {
             // Both values need to be met to perfomUpkeep and need atleast one NFT
             // on pending list to perform
             upkeepNeeded = upkeepNeeded =
-                DNABaseStorage.pendingReveals() != 0 &&
-                DNABaseStorage.pendingReveals() >= l.minPending &&
+                DNAStorage.pendingReveals() != 0 &&
+                DNAStorage.pendingReveals() >= l.minPending &&
                 block.timestamp >= l.lastCall + l.minWait;
         }
         // Only min pending is defined
         else if (l.minPending != 0) {
             // Only need the mimium amout of NFT on pending list to perfomUpkeep
-            upkeepNeeded = DNABaseStorage.pendingReveals() >= l.minPending;
+            upkeepNeeded = DNAStorage.pendingReveals() >= l.minPending;
         }
         // Only min wait time is defined
         else if (l.minWait != 0) {
             // Only need to reach the minimum time to perfomUpkeep and need atleast
             // one NFT on pending list to perform
             upkeepNeeded =
-                DNABaseStorage.pendingReveals() != 0 &&
+                DNAStorage.pendingReveals() != 0 &&
                 block.timestamp >= l.lastCall + l.minWait;
         }
 

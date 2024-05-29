@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {DNA, DNABaseStorage} from "../../dna/DNA.sol";
+import {DNA, DNAStorage} from "../../dna/DNA.sol";
 
 contract DNAMock is DNA {
     event WordsSaved(uint256 counterId, uint256[] words);
@@ -22,10 +22,10 @@ contract DNAMock is DNA {
         uint256[] memory words_
     ) public {
         for (uint256 i = 0; i < ids_.length; i++) {
-            DNABaseStorage.setCounterForId(ids_[i]);
+            DNAStorage.setCounterForId(ids_[i]);
         }
 
-        uint256 counterId = DNABaseStorage.saveWords(words_);
+        uint256 counterId = DNAStorage.saveWords(words_);
 
         emit WordsSaved(counterId, words_);
     }

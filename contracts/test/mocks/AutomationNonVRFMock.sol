@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
+import {DNAStorage} from "../../dna/DNAStorage.sol";
 import {AutomationNonVRF} from "../../automation/non-vrf/AutomationNonVRF.sol";
 
 /**
@@ -12,11 +12,11 @@ contract AutomationNonVRFMock is AutomationNonVRF {
     function getWordsByPointer(
         uint256 pointer_
     ) external view returns (uint256[] memory) {
-        return DNABaseStorage.layout().wordsByCounter[pointer_];
+        return DNAStorage.layout().wordsByCounter[pointer_];
     }
 
     function increasePendingReveal() external {
-        DNABaseStorage.layout().pendingReveals += 1;
+        DNAStorage.layout().pendingReveals += 1;
     }
 
     function mock_reveal() external {
@@ -25,7 +25,7 @@ contract AutomationNonVRFMock is AutomationNonVRF {
 
         // Save the words on DNA storage AND get the counter ID about where are
         // stored on the DNA mapping
-        uint256 counterID = DNABaseStorage.saveWords(words);
+        uint256 counterID = DNAStorage.saveWords(words);
 
         // Using 0 as request Id since it's a NON VRF call.
         emit RevealCalled(0, block.number);

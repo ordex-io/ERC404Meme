@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
 import {AutomationBaseStorage} from "../AutomationBaseStorage.sol";
 import {AutomationBase} from "../AutomationBase.sol";
-import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
+import {DNAStorage} from "../../dna/DNAStorage.sol";
 import {IAutomationNonVRF} from "./IAutomationNonVRF.sol";
 
 contract AutomationNonVRF is AutomationBase, IAutomationNonVRF, Initializable {
@@ -26,7 +26,7 @@ contract AutomationNonVRF is AutomationBase, IAutomationNonVRF, Initializable {
 
         // Save the words on DNA storage AND get the counter ID about where are
         // stored on the DNA mapping
-        uint256 counterID = DNABaseStorage.saveWords(words);
+        uint256 counterID = DNAStorage.saveWords(words);
 
         // Using 0 as request Id since it's a NON VRF call.
         emit RevealCalled(0, block.number);
