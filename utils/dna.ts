@@ -23,7 +23,7 @@ export function dnaToJsonString(
     expectedJson[name_] = (
       BigInt(
         solidityPackedKeccak256(
-          ["bytes32", "bytes32", "bytes32"],
+          ["string", "bytes32", "bytes32"],
           [schemaHash_, dna_, solidityPackedKeccak256(["string"], [name_])]
         )
       ) % variantCounters_[index_]

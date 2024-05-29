@@ -8,7 +8,7 @@ import {IDNA} from "./IDNA.sol";
 
 contract DNA is IDNA, Initializable {
     function __DNA_init(
-        bytes32 schemaHash,
+        string memory schemaHash,
         string[] memory variantsName
     )
         public
@@ -21,7 +21,10 @@ contract DNA is IDNA, Initializable {
         DNABaseStorage.increaseCounter();
     }
 
-    function getSchemaHash() public view returns (bytes32) {
+    /**
+     * @dev The schema hash also represent the IPFS CID for the NFT
+     */
+    function getSchemaHash() public view returns (string memory) {
         return DNABaseStorage.layout().schema_hash;
     }
 
@@ -48,7 +51,7 @@ contract DNA is IDNA, Initializable {
 
     function _decodeDna(
         bytes32 dna_,
-        bytes32 schema_hash_,
+        string memory schema_hash_,
         string[] memory variant_name_,
         uint256[] memory param_variants_count_
     ) private pure returns (string memory) {

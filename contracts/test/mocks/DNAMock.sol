@@ -6,7 +6,7 @@ import {DNA, DNABaseStorage} from "../../dna/DNA.sol";
 contract DNAMock is DNA {
     event WordsSaved(uint256 counterId, uint256[] words);
 
-    constructor(bytes32 schemaHash, string[] memory variantsName) {
+    constructor(string memory schemaHash, string[] memory variantsName) {
         __DNA_init(schemaHash, variantsName);
     }
 

@@ -3,11 +3,11 @@ pragma solidity ^0.8.24;
 
 interface IDNA {
     function __DNA_init(
-        bytes32 schemaHash,
+        string memory schemaHash,
         string[] memory variantsName
     ) external;
 
-    function getSchemaHash() external view returns (bytes32);
+    function getSchemaHash() external view returns (string memory);
 
     function getVariantsName() external view returns (string[] memory);
 

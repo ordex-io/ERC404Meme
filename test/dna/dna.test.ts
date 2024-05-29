@@ -5,7 +5,7 @@ import { ethers } from "hardhat";
 
 describe("DNA Tests", () => {
   async function deployDnaMock() {
-    const schema_hash = ethers.randomBytes(32);
+    const schema_hash = ethers.randomBytes(32).toString();
     const variants_name = ["head", "hat", "background", "eyes"];
 
     const factory = await ethers.getContractFactory("DNAMock");
