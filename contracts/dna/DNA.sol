@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
-import {DNABaseStorage} from "./DNABaseStorage.sol";
+import {DNAStorage} from "./DNAStorage.sol";
 import {IDNA} from "./IDNA.sol";
 
 contract DNA is IDNA, Initializable {
@@ -14,26 +14,26 @@ contract DNA is IDNA, Initializable {
         public
         reinitializer(2) // reinitializer using 2 (2nd contract calling his init)
     {
-        DNABaseStorage.layout().schemaHash = schemaHash;
-        DNABaseStorage.layout().variantsName = variantsName;
+        DNAStorage.layout().schemaHash = schemaHash;
+        DNAStorage.layout().variantsName = variantsName;
 
         // Start with counter = 1 to avoid pointing to index 0 on `wordsByCounter`
-        DNABaseStorage.increaseCounter();
+        DNAStorage.increaseCounter();
     }
 
     /**
      * @dev The schema hash also represent the IPFS CID for the NFT
      */
     function getSchemaHash() public view returns (string memory) {
-        return DNABaseStorage.layout().schemaHash;
+        return DNAStorage.layout().schemaHash;
     }
 
     function getVariantsName() public view returns (string[] memory) {
-        return DNABaseStorage.layout().variantsName;
+        return DNAStorage.layout().variantsName;
     }
 
     function dnaOf(uint256 id_) public view returns (bytes32) {
-        return DNABaseStorage.getDnaById(id_);
+        return DNAStorage.getDnaById(id_);
     }
 
     function dnaOfToJson(
@@ -42,7 +42,7 @@ contract DNA is IDNA, Initializable {
     ) public view returns (string memory) {
         return
             _decodeDna(
-                DNABaseStorage.getDnaById(id_),
+                DNAStorage.getDnaById(id_),
                 getSchemaHash(),
                 getVariantsName(),
                 variants_count_

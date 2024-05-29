@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-library DNABaseStorage {
+library DNAStorage {
     error NotRevealed(uint256 id, uint256 blockNumber);
     error NotWaitingReveal(uint256 blockNumber);
     error NotExistingId(uint256 id);

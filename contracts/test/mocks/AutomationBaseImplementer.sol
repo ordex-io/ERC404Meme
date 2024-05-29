@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {AutomationBase, DNABaseStorage} from "../../automation/AutomationBase.sol";
+import {AutomationBase, DNAStorage} from "../../automation/AutomationBase.sol";
 
 contract AutomationBaseImplementer is AutomationBase {
     constructor(
@@ -19,6 +19,6 @@ contract AutomationBaseImplementer is AutomationBase {
     }
 
     function setPendingReveals(uint256 value_) public {
-        DNABaseStorage.layout().pendingReveals = value_;
+        DNAStorage.layout().pendingReveals = value_;
     }
 }
