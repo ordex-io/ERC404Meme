@@ -3,8 +3,7 @@ pragma solidity ^0.8.24;
 
 import {SafeOwnable} from "@solidstate/contracts/access/ownable/SafeOwnable.sol";
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
-import {ERC404, ERC404Storage} from "./ERC404/ERC404.sol";
-import {DNABaseStorage} from "../dna/DNABaseStorage.sol";
+import {ERC404, ERC404Storage, DNABaseStorage} from "./ERC404/ERC404.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IPET404} from "./IPET404.sol";
 
