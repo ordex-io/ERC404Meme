@@ -10,6 +10,7 @@ import {IERC404} from "./IERC404.sol";
 import {ERC404Storage} from "./ERC404Storage.sol";
 import {IERC404Errors} from "./IERC404Errors.sol";
 import {Initializable} from "@solidstate/contracts/security/initializable/Initializable.sol";
+import {DNABaseStorage} from "../../dna/DNABaseStorage.sol";
 
 /**
  * @title ERC404 Upgradeable
@@ -830,6 +831,10 @@ abstract contract ERC404 is IERC404, IERC404Errors, Initializable {
         if (saveToPersonal_) {
             // Record the token in the user's bank queue.
             ERC404Storage.layout()._personalVault[from_].pushFront(id);
+        } else {
+            // Since this means that the token will be totally burnt
+            // His reference to his DNA and metadada should not be retrieved either
+            DNABaseStorage.layout().countersById[id] == 0;
         }
     }
 
