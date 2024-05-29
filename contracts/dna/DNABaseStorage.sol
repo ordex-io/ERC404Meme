@@ -9,7 +9,7 @@ library DNABaseStorage {
     struct Layout {
         uint256 pendingReveals;
         uint256 currentCounter;
-        bytes32 schema_hash;
+        string schema_hash;
         string[] variants_name;
         mapping(uint256 => uint256) countersById;
         mapping(uint256 => uint256[]) wordsByCounter;
