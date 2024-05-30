@@ -48,10 +48,8 @@ To begin working with ERC404Meme, follow these steps:
 3. Run tests to ensure setup is correct: `npm test`
 4. Dive into various facets and functionalities available in the ERC404 ecosystem.
 
-## Contributing
+## Credits
+
+ERC404Meme was collaboratively developed with insights and contributions from the teams at [404.Pet](https://x.com/404pet) and [Ordex.io](https://x.com/ordex_io), along with significant individual contributions from: [@NanezX](https://github.com/NanezX), [@pash7ka](https://github.com/pash7ka)
 
 We welcome contributions from the community. If you have suggestions, bug fixes, or enhancements, please submit a pull request or open an issue on GitHub. Let's build a more engaging and valuable memecoin ecosystem together!
-
-## License
-
-Unlicensed until full audit is complete; intended for review and community feedback.
