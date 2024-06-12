@@ -25,6 +25,12 @@ const config: HardhatUserConfig = {
       url: process.env.SEPOLIA_RPC_URL ? process.env.SEPOLIA_RPC_URL : "",
       accounts: getAccounts("SEPOLIA"),
     },
+    sepolia_fork: {
+      forking: {
+        url: process.env.SEPOLIA_RPC_URL ? process.env.SEPOLIA_RPC_URL : "",
+        blockNumber: 6086281,
+      },
+    },
   },
   gasReporter: {
     currency: "USD",
