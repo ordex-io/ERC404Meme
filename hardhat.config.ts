@@ -16,20 +16,21 @@ function getAccounts(name_: string) {
 }
 
 const config: HardhatUserConfig = {
+
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_kEY,
   },
   networks: {
-    hardhat: {},
+    hardhat: {
+      // Only use fork when we define it
+      forking: process.env.FORK ? {
+        url: process.env.SEPOLIA_RPC_URL ? process.env.SEPOLIA_RPC_URL : "",
+        blockNumber: 6086281,
+      } : undefined,
+    },
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL ? process.env.SEPOLIA_RPC_URL : "",
       accounts: getAccounts("SEPOLIA"),
-    },
-    sepolia_fork: {
-      forking: {
-        url: process.env.SEPOLIA_RPC_URL ? process.env.SEPOLIA_RPC_URL : "",
-        blockNumber: 6086281,
-      },
     },
   },
   gasReporter: {
