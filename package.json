@@ -1,7 +1,8 @@
 {
   "scripts": {
     "compile": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "script-fork": "USE_FORK=true hardhat run"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "=5.0.0",
