@@ -12,6 +12,11 @@ import { getInitData } from "./diamond";
 import { Create2Factory, IERC2535DiamondCutInternal } from "../typechain-types";
 import { findCreate2Address } from "./manipulation";
 import { DeployEvent } from "../typechain-types/artifacts/contracts/create2/Create2Factory";
+import create2factoriesData from "../create2factories.json"
+
+interface Create2Factories {
+  [key: string]: string; // Index signature to allow string indexing
+}
 
 type AutomationBaseArgs = {
   caller_: string;
@@ -22,6 +27,8 @@ type AutomationBaseArgs = {
 type AutomationVRFArgs = AutomationBaseArgs & {
   randomParams_: VRFParamsStruct;
 };
+
+const create2factories: Create2Factories = create2factoriesData;
 
 export async function deployVRFCoordinartorV2Mock() {
   const factory = await ethers.getContractFactory("CoordinatorV2Mock");
@@ -349,10 +356,20 @@ export async function deployDiamond(
 }
 
 export async function deployCreate2Factory() {
-  const factory = await ethers.getContractFactory("Create2Factory");
-  const contract = await factory.deploy();
-  await contract.waitForDeployment();
-  return contract;
+  // Get the current chain ID
+  const { chainId } = await ethers.provider.getNetwork()
+  const chainIdStr = chainId.toString();
+
+  if (chainIdStr in create2factories && create2factories[chainIdStr]) {
+    // Use a create2 factory already deployed
+    return (await ethers.getContractFactory("Create2Factory")).attach(create2factories[chainIdStr]);
+    } else {
+    // Deploy otherwise
+    const factory = await ethers.getContractFactory("Create2Factory");
+    const contract = await factory.deploy();
+    await contract.waitForDeployment();
+    return contract;
+  }
 }
 
 export async function deployWithCreate2(
