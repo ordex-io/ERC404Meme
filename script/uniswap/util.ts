@@ -1,11 +1,13 @@
 import { ethers } from "hardhat";
 import {
   deployAutomationNonVrfFacet,
+  deployCreate2Factory,
   deployDNAFacet,
+  deployMultiInit,
   deployPET404ExposerFacet,
   deployPET404Facet,
+  deployWithCreate2,
   fulfillFacetCut,
-  getInitData,
   readFile,
 } from "../../utils";
 import * as path from "path";
@@ -43,6 +45,7 @@ export async function deployFullPET404DiamondNonVrf() {
     automationRegistry,
     automationNonVrfAddress,
     deployArgs: automationArgs,
+    initData: automationCalldata,
   } = await deployAutomationNonVrfFacet();
 
   // Deploy DNA Facet
@@ -50,6 +53,7 @@ export async function deployFullPET404DiamondNonVrf() {
     dnaContract,
     dnaContractAddress,
     deployArgs: dnaArgs,
+    initData: dnaCalldata,
   } = await deployDNAFacet();
 
   // Deploy PET404 Facet
@@ -57,6 +61,7 @@ export async function deployFullPET404DiamondNonVrf() {
     pet404Contract,
     pet404ContractAddress,
     deployArgs: pet404Args,
+    initData: pet404Calldata,
   } = await deployPET404Facet();
 
   // Deploy PET404 Facet (NOTE: only tests)
@@ -81,52 +86,34 @@ export async function deployFullPET404DiamondNonVrf() {
   ]);
 
   // Initializations calldata
-  const pet404Calldata = getInitData(pet404Contract, "__PET404_init", [
-    pet404Args.name,
-    pet404Args.symbol,
-    pet404Args.decimals,
-    pet404Args.units,
-    pet404Args.baseUri,
-    pet404Args.maxTotalSupplyERC721_,
-    pet404Args.initialMintRecipient_,
-  ]);
-
-  const dnaCalldata = getInitData(dnaContract, "__DNA_init", [
-    dnaArgs.schemaHash,
-    dnaArgs.variantsName,
-  ]);
-
-  const automationCalldata = getInitData(
-    automationNonVrf,
-    "__AutomationNonVRF_init",
-    [automationArgs.automationRegistryAddress]
-  );
-
   // Multi initializer diamond
-  const factoryDiamondMultiInit = await ethers.getContractFactory(
-    "DiamondMultiInit"
-  );
-  const diamondMultiInit = await factoryDiamondMultiInit.deploy();
+  const targets = [
+    pet404ContractAddress,
+    dnaContractAddress,
+    automationNonVrfAddress,
+  ];
+  const calldatas = [pet404Calldata, dnaCalldata, automationCalldata];
 
-  const calldataMultiInit: string = getInitData(diamondMultiInit, "multiInit", [
-    [pet404ContractAddress, dnaContractAddress, automationNonVrfAddress], // Targets
-    [pet404Calldata, dnaCalldata, automationCalldata], // Calldata
-  ]);
+  const { diamondMultiInit, calldataMultiInit } = await deployMultiInit(
+    targets,
+    calldatas
+  );
+
+  // Deploy create2 factory:
+  const create2Factory = await deployCreate2Factory();
+  console.log("create2Factory: ", await create2Factory.getAddress());
 
   // Deploy Diamond contract
   // Owner of the Diamond (have the ownership of the whole contract facets)
-  const ownerSigner = (await ethers.getSigners())[9];
+  const ownerSigner = (await ethers.getSigners())[0];
 
-  const factoryDiamond = await ethers.getContractFactory("Diamond");
-  const diamondContract = await factoryDiamond.deploy(
+  const deloyArgs = [
     ownerSigner.address, // owner
     [pet404FacetCuts, dnaFacetCuts, automationFacetCuts, exposer404FacetCuts], //  Faucets
     await diamondMultiInit.getAddress(), // Target address for initialization
     calldataMultiInit // Calldata that will be used for initialization
-  );
-  await diamondContract.waitForDeployment();
-
-  const diamondAddress = await diamondContract.getAddress();
+  ]
+  const diamondAddress = await deployWithCreate2(create2Factory, "Diamond", deloyArgs);
 
   const iDiamond = await ethers.getContractAt(
     "IPET404Exposer",
