@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { deployCreate2Factory, deployWithCreate2 } from "../../utils";
 
-describe.only("Utilities tests", function () {
+describe("Utilities tests", function () {
     describe("Create2", function () {
         it("should deploy normally a contract", async () => {
             // Deploy the create2 factory
