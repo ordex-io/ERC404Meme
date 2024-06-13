@@ -345,3 +345,10 @@ export async function deployDiamond(
 
   return diamondContract;
 }
+
+export async function deployCreate2Factory() {
+  const factory = await ethers.getContractFactory("Create2Factory");
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+  return contract;
+}
