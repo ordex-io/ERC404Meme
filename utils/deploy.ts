@@ -48,12 +48,12 @@ export async function deployPET404Facet(initialMintRecipient_?: string) {
   const decimals = 18n;
 
   const deployArgs = {
-    name: "Pets 404",
-    symbol: "P404",
+    name: "ERC404Meme",
+    symbol: "E404M",
     decimals: decimals,
     units: 404000n * 10n ** decimals,
     baseUri: "https://www.example.com/token/",
-    maxTotalSupplyERC721_: 20n, // 20 tokens
+    maxTotalSupplyERC721_: 100n, // 20 tokens
     initialMintRecipient_: await initialRecipient.getAddress(),
   };
 
@@ -62,7 +62,6 @@ export async function deployPET404Facet(initialMintRecipient_?: string) {
   }
 
   const factory = await ethers.getContractFactory("PET404");
-
   const pet404Contract = await factory.deploy();
   await pet404Contract.waitForDeployment();
 
@@ -97,12 +96,11 @@ export async function deployPET404ExposerFacet() {
 
 export async function deployDNAFacet() {
   const deployArgs = {
-    schemaHash: ethers.concat([ethers.randomBytes(32)]),
-    variantsName: ["head", "hat", "background", "eyes"],
+    schemaHash: "QmaomExtuqecqqawaw3aSfJnx5Kd9ETEWZkkd49sdpj2iY",
+    variantsName: ['background', 'body', 'clothes', 'hat', 'mouth', 'eye', 'whiskers'],
   };
 
   const factory = await ethers.getContractFactory("DNA");
-
   const dnaContract = await factory.deploy();
   await dnaContract.waitForDeployment();
 
@@ -132,7 +130,6 @@ export async function deployAutomationNonVrfFacet() {
 
   const factory = await ethers.getContractFactory("AutomationNonVRF");
   const automationNonVrf = await factory.deploy();
-
   await automationNonVrf.waitForDeployment();
 
   const initData = getInitData(automationNonVrf, "__AutomationNonVRF_init", [
@@ -321,7 +318,6 @@ export async function deployMultiInit(
   calldatas_: string[]
 ) {
   const factory = await ethers.getContractFactory("DiamondMultiInit");
-
   const contract = await factory.deploy();
   await contract.waitForDeployment();
 
