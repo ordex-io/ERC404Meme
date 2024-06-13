@@ -23,10 +23,11 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       // Only use fork when we define it
-      forking: process.env.USE_FORK == undefined || process.env.USE_FORK == "true" ? {
+      forking: {
         url: process.env.SEPOLIA_RPC_URL ? process.env.SEPOLIA_RPC_URL : "",
         blockNumber: 6086281,
-      } : undefined,
+        enabled: process.env.USE_FORK == "true"
+      }
     },
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL ? process.env.SEPOLIA_RPC_URL : "",
