@@ -355,17 +355,17 @@ export async function deployDiamond(
   return diamondContract;
 }
 
-export async function deployCreate2Factory() {
+export async function deployCreate2Factory(): Promise<Create2Factory> {
+  const factory = await ethers.getContractFactory("Create2Factory");
   // Get the current chain ID
   const { chainId } = await ethers.provider.getNetwork()
   const chainIdStr = chainId.toString();
 
   if (chainIdStr in create2factories && create2factories[chainIdStr]) {
     // Use a create2 factory already deployed
-    return (await ethers.getContractFactory("Create2Factory")).attach(create2factories[chainIdStr]);
+    return factory.attach(create2factories[chainIdStr]) as Create2Factory;
     } else {
     // Deploy otherwise
-    const factory = await ethers.getContractFactory("Create2Factory");
     const contract = await factory.deploy();
     await contract.waitForDeployment();
     return contract;
