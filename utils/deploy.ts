@@ -9,7 +9,9 @@ import { VRFParamsStruct } from "../typechain-types/artifacts/contracts/automati
 import { getEventArgs } from "./events";
 import { SubscriptionCreatedEvent } from "../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
 import { getInitData } from "./diamond";
-import { IERC2535DiamondCutInternal } from "../typechain-types";
+import { Create2Factory, IERC2535DiamondCutInternal } from "../typechain-types";
+import { findCreate2Address } from "./manipulation";
+import { DeployEvent } from "../typechain-types/artifacts/contracts/create2/Create2Factory";
 
 type AutomationBaseArgs = {
   caller_: string;
@@ -351,4 +353,30 @@ export async function deployCreate2Factory() {
   const contract = await factory.deploy();
   await contract.waitForDeployment();
   return contract;
+}
+
+export async function deployWithCreate2(
+  create2Factory: Create2Factory,
+  contractName: string,
+  args: any[] = []
+): Promise<string> {
+  // Generating the init code with the args if have it
+  const factory = await ethers.getContractFactory(contractName);
+  const deployArgs  = factory.interface.encodeDeploy(args);
+  const initCode = ethers.concat([factory.bytecode, deployArgs]);
+
+  // Obtaining the salt that meet the condtion to get the address that start with "0x404"
+  const { salt } = await findCreate2Address(await create2Factory.getAddress(), initCode);
+
+  // Deploy the contract
+  const tx = await create2Factory.deploy(initCode, salt);
+
+  // Get the address from the event
+  const { addr } = (await getEventArgs(
+    tx,
+    "Deploy",
+    create2Factory
+  )) as DeployEvent.OutputObject;
+
+  return addr;
 }
