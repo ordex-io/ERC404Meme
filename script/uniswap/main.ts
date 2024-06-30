@@ -14,33 +14,43 @@ import {
   approveTokens,
   getBlockNumber,
   getTimeStamp,
+  getUniswapFactory,
+  getWethContract,
+  getNonfungiblePositionManager,
+  getSwapRouter,
 } from "../../utils";
 import { deployFullPET404DiamondNonVrf } from "./util";
 
 import { ISwapRouter } from "../../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts/SwapRouter";
+import { IV3SwapRouter } from "../../typechain-types/node_modules/@uniswap/swap-router-contracts/artifacts/contracts/V3SwapRouter";
 
 async function main() {
-  const [signer, swapper, receiver] = await ethers.getSigners();
+  const [signer, swapper] = await ethers.getSigners();
 
   // Deployments
 
   // Deploy Uniswap Factory (not necessary if network already have it)
   const uniswapFactory = await deployUniswapV3Factory();
+  // const uniswapFactory = await getUniswapFactory("0x0227628f3F023bb0B980b67D528571c95c6DaC1c", signer);
 
   // WETH token (not necessary if network already have it)
   const weth = await deployWeth();
+  // const weth = await getWethContract("0x2b730c060FFA83Ce5D2B29016591874f31405A23", signer);
 
   // Position manager (not necessary if network already have it)
   const positionManager = await deployNonfungiblePositionManager(
     uniswapFactory,
     weth
   );
+  // const positionManager = await getNonfungiblePositionManager("0x1238536071E1c677A632429e3655c799b22cDA52", signer);
 
   // Swap router (not necessary if network already have it)
   const swapRouter = await deploySwapRouter(uniswapFactory, weth);
+  // const swapRouter = await getSwapRouter("0x54e9f478698Fca654048379E6880b794f828A824", signer);
 
   // ERC20 token to use to create the pool
   const token = await deployERC20Token();
+  console.log("token: ", await token.getAddress());
 
   // THe ERC404 contract
   const { diamondContract, ownerSigner } =
@@ -59,6 +69,7 @@ async function main() {
     token1Address,
     fee
   );
+  console.log("poolAddress: ", poolAddress);
 
   // Set addresses as transfer exemptions
   await setAddressesAsExempt(diamondContract, ownerSigner, [
@@ -67,27 +78,24 @@ async function main() {
     poolAddress,
   ]);
 
-  const exps = 40400000000000000000040400449557835247018940543655980n;
-  const rest = exps - (await diamondContract.erc20BalanceOf(signer.address));
-
-  let txa = await diamondContract
-    .connect(ownerSigner)
-    ["mintERC20(address,uint256)"](signer.address, rest);
-  await txa.wait();
-
   // Config for initialization of the pool
-  const price = encodePriceSqrt(404, 1);
+  const price = encodePriceSqrt(1, 1);
 
   // Initilize the pool
   await initializePool(poolAddress, price, signer);
+  console.log("initialized Pool")
 
   // Config for adding liquidity
   const positMangAddr = await positionManager.getAddress();
   const chainId = (await signer.provider.getNetwork()).chainId;
   const token1Decimals = await token.decimals();
   const erc404Decimals = await diamondContract.decimals();
-  const amountToken1 = await token.balanceOf(signer.address);
+  // Same amount since we want a pool with price 1:1
   const amountErc404 = await diamondContract.erc20BalanceOf(signer.address);
+  const amountToken1 = amountErc404;
+
+  let txa = await token.connect(signer).mint(amountToken1);
+  await txa.wait();
 
   // Check balances
   await checkBalances(token, signer.address, amountToken1);
@@ -121,21 +129,21 @@ async function main() {
 
   const bef = await token.balanceOf(swapper.address);
   console.log("bef swapper: ", await token.balanceOf(swapper.address));
-  console.log("bef receivr: ", await token.balanceOf(receiver.address));
+  console.log("bef receivr: ", await token.balanceOf(signer.address));
   console.log(
     "bef erc404.swapper: ",
     await diamondContract.balanceOf(swapper.address)
   );
   console.log(
     "bef erc404.receivr: ",
-    await diamondContract.balanceOf(receiver.address)
+    await diamondContract.balanceOf(signer.address)
   );
   console.log(
     "bef erc404.721.receivr: ",
-    await diamondContract.erc721BalanceOf(receiver.address)
+    await diamondContract.erc721BalanceOf(signer.address)
   );
   // Make a swap
-  const recipient = receiver.address;
+  const recipient = signer.address;
   const amountIn = ethers.parseUnits("1", 18);
   const deadline = (await getTimeStamp()) + 100000;
 
@@ -175,18 +183,18 @@ async function main() {
 
   console.log("af: ", bef - (await token.balanceOf(swapper.address)));
   console.log("af swapper: ", await token.balanceOf(swapper.address));
-  console.log("af receivr: ", await token.balanceOf(receiver.address));
+  console.log("af receivr: ", await token.balanceOf(signer.address));
   console.log(
     "af erc404.swapper: ",
     await diamondContract.balanceOf(swapper.address)
   );
   console.log(
     "af erc404.receivr: ",
-    await diamondContract.balanceOf(receiver.address)
+    await diamondContract.balanceOf(signer.address)
   );
   console.log(
     "af erc404.721.receivr: ",
-    await diamondContract.erc721BalanceOf(receiver.address)
+    await diamondContract.erc721BalanceOf(signer.address)
   );
 
   10064.478947506559793589;

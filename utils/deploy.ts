@@ -9,7 +9,14 @@ import { VRFParamsStruct } from "../typechain-types/artifacts/contracts/automati
 import { getEventArgs } from "./events";
 import { SubscriptionCreatedEvent } from "../typechain-types/artifacts/contracts/test/mocks/VRFCoordinatorV2Mock.sol/CoordinatorV2Mock";
 import { getInitData } from "./diamond";
-import { IERC2535DiamondCutInternal } from "../typechain-types";
+import { Create2Factory, IERC2535DiamondCutInternal } from "../typechain-types";
+import { findCreate2Address } from "./manipulation";
+import { DeployEvent } from "../typechain-types/artifacts/contracts/create2/Create2Factory";
+import create2factoriesData from "../create2factories.json"
+
+interface Create2Factories {
+  [key: string]: string; // Index signature to allow string indexing
+}
 
 type AutomationBaseArgs = {
   caller_: string;
@@ -20,6 +27,8 @@ type AutomationBaseArgs = {
 type AutomationVRFArgs = AutomationBaseArgs & {
   randomParams_: VRFParamsStruct;
 };
+
+const create2factories: Create2Factories = create2factoriesData;
 
 export async function deployVRFCoordinartorV2Mock() {
   const factory = await ethers.getContractFactory("CoordinatorV2Mock");
@@ -39,12 +48,12 @@ export async function deployPET404Facet(initialMintRecipient_?: string) {
   const decimals = 18n;
 
   const deployArgs = {
-    name: "Pets 404",
-    symbol: "P404",
+    name: "ERC404Meme",
+    symbol: "E404M",
     decimals: decimals,
     units: 404000n * 10n ** decimals,
     baseUri: "https://www.example.com/token/",
-    maxTotalSupplyERC721_: 20n, // 20 tokens
+    maxTotalSupplyERC721_: 100n, // 20 tokens
     initialMintRecipient_: await initialRecipient.getAddress(),
   };
 
@@ -53,7 +62,6 @@ export async function deployPET404Facet(initialMintRecipient_?: string) {
   }
 
   const factory = await ethers.getContractFactory("PET404");
-
   const pet404Contract = await factory.deploy();
   await pet404Contract.waitForDeployment();
 
@@ -88,12 +96,11 @@ export async function deployPET404ExposerFacet() {
 
 export async function deployDNAFacet() {
   const deployArgs = {
-    schemaHash: ethers.concat([ethers.randomBytes(32)]),
-    variantsName: ["head", "hat", "background", "eyes"],
+    schemaHash: "QmaomExtuqecqqawaw3aSfJnx5Kd9ETEWZkkd49sdpj2iY",
+    variantsName: ['background', 'body', 'clothes', 'hat', 'mouth', 'eye', 'whiskers'],
   };
 
   const factory = await ethers.getContractFactory("DNA");
-
   const dnaContract = await factory.deploy();
   await dnaContract.waitForDeployment();
 
@@ -123,7 +130,6 @@ export async function deployAutomationNonVrfFacet() {
 
   const factory = await ethers.getContractFactory("AutomationNonVRF");
   const automationNonVrf = await factory.deploy();
-
   await automationNonVrf.waitForDeployment();
 
   const initData = getInitData(automationNonVrf, "__AutomationNonVRF_init", [
@@ -312,7 +318,6 @@ export async function deployMultiInit(
   calldatas_: string[]
 ) {
   const factory = await ethers.getContractFactory("DiamondMultiInit");
-
   const contract = await factory.deploy();
   await contract.waitForDeployment();
 
@@ -344,4 +349,47 @@ export async function deployDiamond(
   await diamondContract.waitForDeployment();
 
   return diamondContract;
+}
+
+export async function deployCreate2Factory(): Promise<Create2Factory> {
+  const factory = await ethers.getContractFactory("Create2Factory");
+  // Get the current chain ID
+  const { chainId } = await ethers.provider.getNetwork()
+  const chainIdStr = chainId.toString();
+
+  if (chainIdStr in create2factories && create2factories[chainIdStr]) {
+    // Use a create2 factory already deployed
+    return factory.attach(create2factories[chainIdStr]) as Create2Factory;
+    } else {
+    // Deploy otherwise
+    const contract = await factory.deploy();
+    await contract.waitForDeployment();
+    return contract;
+  }
+}
+
+export async function deployWithCreate2(
+  create2Factory: Create2Factory,
+  contractName: string,
+  args: any[] = []
+): Promise<string> {
+  // Generating the init code with the args if have it
+  const factory = await ethers.getContractFactory(contractName);
+  const deployArgs  = factory.interface.encodeDeploy(args);
+  const initCode = ethers.concat([factory.bytecode, deployArgs]);
+
+  // Obtaining the salt that meet the condtion to get the address that start with "0x404"
+  const { salt } = await findCreate2Address(await create2Factory.getAddress(), initCode);
+
+  // Deploy the contract
+  const tx = await create2Factory.deploy(initCode, salt);
+
+  // Get the address from the event
+  const { addr } = (await getEventArgs(
+    tx,
+    "Deploy",
+    create2Factory
+  )) as DeployEvent.OutputObject;
+
+  return addr;
 }
