@@ -22,6 +22,7 @@ import {
 import { deployFullPET404DiamondNonVrf } from "./util";
 
 import { ISwapRouter } from "../../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts/SwapRouter";
+import { IV3SwapRouter } from "../../typechain-types/node_modules/@uniswap/swap-router-contracts/artifacts/contracts/V3SwapRouter";
 
 async function main() {
   const [signer, swapper] = await ethers.getSigners();
