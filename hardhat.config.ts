@@ -33,6 +33,10 @@ const config: HardhatUserConfig = {
       url: process.env.SEPOLIA_RPC_URL ? process.env.SEPOLIA_RPC_URL : "",
       accounts: getAccounts("SEPOLIA"),
     },
+    base: {
+      url: process.env.BASE_RPC_URL ? process.env.BASE_RPC_URL : "",
+      accounts: getAccounts("BASE"),
+    },
   },
   gasReporter: {
     currency: "USD",
@@ -60,6 +64,7 @@ const config: HardhatUserConfig = {
       "./node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json",
       "./node_modules/@uniswap/v3-periphery/artifacts/contracts/SwapRouter.sol/SwapRouter.json",
       "./node_modules/@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json",
+      "./node_modules/@uniswap/swap-router-contracts/artifacts/contracts/V3SwapRouter.sol/V3SwapRouter.json"
     ],
   },
 };

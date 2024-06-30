@@ -3,6 +3,7 @@ import {
   IPET404Exposer,
   NonfungiblePositionManager,
   SwapRouter,
+  V3SwapRouter,
   UniswapV3Factory,
   WETH,
 } from "../typechain-types";
@@ -48,6 +49,15 @@ export async function getSwapRouter(
   const source = require("@uniswap/v3-periphery/artifacts/contracts/SwapRouter.sol/SwapRouter.json");
 
   return new Contract(address, source.abi, signer) as unknown as SwapRouter;
+}
+
+export async function getSwapRouter02(
+  address: string,
+  signer: Signer
+): Promise<V3SwapRouter> {
+  const source = require("@uniswap/swap-router-contracts/artifacts/contracts/V3SwapRouter.sol/V3SwapRouter.json");
+
+  return new Contract(address, source.abi, signer) as unknown as V3SwapRouter;
 }
 export async function getERC20(
   address: string,
