@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import {IERC404} from "./ERC404/IERC404.sol";
 import {ISafeOwnable} from "@solidstate/contracts/access/ownable/ISafeOwnable.sol";
 
-interface IPET404 is IERC404, ISafeOwnable {
+interface IPET404NonVRF is IERC404, ISafeOwnable {
     function __PET404_init(
         string memory name_,
         string memory symbol_,

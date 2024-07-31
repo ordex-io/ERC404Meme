@@ -1,4 +1,4 @@
-import { IERC2535DiamondCutInternal, IPET404 } from "../typechain-types";
+import { IERC2535DiamondCutInternal, IPET404NonVRF } from "../typechain-types";
 import { BaseContract, Signer } from "ethers";
 
 export enum FacetCutAction {
@@ -59,7 +59,7 @@ export function getInitData(
 }
 
 export async function setAddressesAsExempt(
-  erc404: IPET404,
+  erc404: IPET404NonVRF,
   owner: Signer,
   addresses: string[]
 ) {
@@ -79,7 +79,7 @@ export async function setAddressesAsExempt(
 }
 
 export async function setAddressAsSpecialExempt(
-  erc404: IPET404,
+  erc404: IPET404NonVRF,
   owner: Signer,
   addresses: string[]
 ) {

@@ -8,7 +8,7 @@ import {
   getERC721TransfersEventsArgs,
 } from "../../utils";
 
-describe("PET404 - Non VRF", () => {
+describe("PET404NonVRF - Non VRF", () => {
   describe("Initial values", () => {
     it("should get the initial values correctly", async () => {
       const {

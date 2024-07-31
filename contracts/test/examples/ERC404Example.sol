@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Ownable} from "@solidstate/contracts/access/ownable/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {ERC404, ERC404Storage} from "../../PET404/ERC404/ERC404.sol";
+import {ERC404, ERC404Storage} from "../../PET404NonVRF/ERC404/ERC404.sol";
 
 contract ERC404Example is Ownable, ERC404 {
     constructor(

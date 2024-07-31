@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {PET404} from "../../PET404/PET404.sol";
+import {PET404NonVRF} from "../../PET404NonVRF/PET404NonVRF.sol";
 
-contract PET404Exposer is PET404 {
+contract PET404Exposer is PET404NonVRF {
     /**
      * Mint ERC20 token to the given `account_`.
      *

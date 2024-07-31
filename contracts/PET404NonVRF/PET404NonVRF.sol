@@ -5,9 +5,9 @@ import {SafeOwnable} from "@solidstate/contracts/access/ownable/SafeOwnable.sol"
 import {ERC721Events} from "ERC404/contracts/lib/ERC721Events.sol";
 import {ERC404, ERC404Storage, DNAStorage} from "./ERC404/ERC404.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {IPET404} from "./IPET404.sol";
+import {IPET404NonVRF} from "./IPET404NonVRF.sol";
 
-contract PET404 is IPET404, ERC404, SafeOwnable {
+contract PET404NonVRF is IPET404NonVRF, ERC404, SafeOwnable {
     error NoAutomationRegister();
     event NftsRevealed(uint256 nftRevealCounter, uint256 time);
 
