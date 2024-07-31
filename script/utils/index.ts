@@ -1,4 +1,4 @@
-import { PET404 } from "../../typechain-types/artifacts/contracts/PET404/PET404";
+import { PET404NonVRF } from "../../typechain-types/artifacts/contracts/PET404NonVRF/PET404NonVRF";
 import { AutomationNonVRF } from "../../typechain-types/artifacts/contracts/automation/non-vrf/AutomationNonVRF";
 import { DNA } from "../../typechain-types/artifacts/contracts/dna/DNA";
 import { DiamondMultiInit } from "../../typechain-types/artifacts/contracts/diamond/initialization/DiamondMultiInit";
@@ -13,7 +13,7 @@ const configPath = path.join(__dirname, "../../script/configuration.json");
 const deploymentsPath = path.join(__dirname, "../../script/deployments");
 
 export type Configuration = {
-  PET404: {
+  PET404NonVRF: {
     args: {
       name_: string;
       symbol_: string;
@@ -40,7 +40,7 @@ export type Configuration = {
 };
 
 export async function getInitializationData(
-  pet404: PET404,
+  pet404: PET404NonVRF,
   dna: DNA,
   autoNonVrf: AutomationNonVRF,
   multiInit: DiamondMultiInit
@@ -49,15 +49,15 @@ export async function getInitializationData(
 
   // Initializations calldata
   const pet404Calldata = getInitData(pet404, "__PET404_init", [
-    config.PET404.args.name_,
-    config.PET404.args.symbol_,
-    config.PET404.args.decimals_,
-    config.PET404.args.units_,
-    config.PET404.args.baseUri_,
-    config.PET404.args.maxTotalSupplyERC721_,
+    config.PET404NonVRF.args.name_,
+    config.PET404NonVRF.args.symbol_,
+    config.PET404NonVRF.args.decimals_,
+    config.PET404NonVRF.args.units_,
+    config.PET404NonVRF.args.baseUri_,
+    config.PET404NonVRF.args.maxTotalSupplyERC721_,
     // Get initial receipient from args config, or use the default deployer address
-    config.PET404.args.initialMintRecipient_ !== ""
-      ? config.PET404.args.initialMintRecipient_
+    config.PET404NonVRF.args.initialMintRecipient_ !== ""
+      ? config.PET404NonVRF.args.initialMintRecipient_
       : (await ethers.getSigners())[0].address,
   ]);
 

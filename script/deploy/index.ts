@@ -14,7 +14,7 @@ type Diamond404Args = {
 export async function deployPet404() {
   const [deployer] = await ethers.getSigners();
 
-  const factory = await ethers.getContractFactory("PET404");
+  const factory = await ethers.getContractFactory("PET404NonVRF");
   return await factory.connect(deployer).deploy();
 }
 

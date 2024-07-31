@@ -5,7 +5,7 @@ import { IERC2535DiamondCutInternal } from "../../typechain-types";
 
 async function main() {
   // Deploy the new facet. For example, this could be used to deploy a new facet
-  // of PET404 with some updated or fix.
+  // of PET404NonVRF with some updated or fix.
   const pet404 = await deployPet404();
   const newPET404Address = await pet404.getAddress();
   // Or just hardcoded

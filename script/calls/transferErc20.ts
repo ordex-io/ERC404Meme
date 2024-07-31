@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 async function main() {
   const [owner, receiver] = await ethers.getSigners();
 
-  // Our PET404 contract address with the PET404 interface (plus the exposer for tests)
+  // Our PET404NonVRF contract address with the PET404NonVRF interface (plus the exposer for tests)
   const diamondPet404Address = "0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5";
   const diamondPet404 = await ethers.getContractAt(
     "IPET404Exposer",
