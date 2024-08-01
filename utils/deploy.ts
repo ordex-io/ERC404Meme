@@ -61,7 +61,7 @@ export async function deployPET404Facet(initialMintRecipient_?: string) {
     deployArgs.initialMintRecipient_ = initialMintRecipient_;
   }
 
-  const factory = await ethers.getContractFactory("PET404");
+  const factory = await ethers.getContractFactory("PET404NonVRF");
   const pet404Contract = await factory.deploy();
   await pet404Contract.waitForDeployment();
 

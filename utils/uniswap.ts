@@ -1,7 +1,7 @@
 import { BigNumberish, Contract, Signer } from "ethers";
 import {
   IERC20,
-  IPET404,
+  IPET404NonVRF,
   UniswapV3Factory,
   UniswapV3Pool,
 } from "../typechain-types";
@@ -193,7 +193,7 @@ export async function addLiquidityToPool(
 }
 
 export async function checkBalances(
-  token: IERC20 | IPET404,
+  token: IERC20 | IPET404NonVRF,
   address: string,
   minAmount: bigint
 ) {
@@ -206,7 +206,7 @@ export async function checkBalances(
  * Try to approve the given amount for the given tokens checking the balance
  */
 export async function approveTokens(
-  token: IERC20 | IPET404,
+  token: IERC20 | IPET404NonVRF,
   owner: Signer,
   amount: bigint,
   approver: string

@@ -46,7 +46,7 @@ export async function deployFullPET404DiamondNonVrf() {
     initData: dnaCalldata,
   } = await deployDNAFacet();
 
-  // Deploy PET404 Facet
+  // Deploy PET404NonVRF Facet
   const {
     pet404Contract,
     pet404ContractAddress,
@@ -54,13 +54,13 @@ export async function deployFullPET404DiamondNonVrf() {
     initData: pet404Calldata,
   } = await deployPET404Facet();
 
-  // Deploy PET404 Facet (NOTE: only tests)
+  // Deploy PET404NonVRF Facet (NOTE: only tests)
   const { pet404ExposerContract } = await deployPET404ExposerFacet();
 
   // FULFILL THE FACET CUTS
-  // NOTE: This order is really important when initializing (PET404, DNA, Automation)
+  // NOTE: This order is really important when initializing (PET404NonVRF, DNA, Automation)
 
-  // Fulfill the PET404 Facet Cuts
+  // Fulfill the PET404NonVRF Facet Cuts
   const pet404FacetCuts = await fulfillFacetCut(pet404Contract, [zeroDiamond]);
 
   // Fulfill the DNA Facet Cuts
@@ -153,7 +153,7 @@ export async function deployUniswapPool() {
   // ERC20 token to use to create the pool
   const erc20Token = await deployERC20Token();
 
-  // PET404 Related contracts
+  // PET404NonVRF Related contracts
   const PET404ContractsData = await deployFullPET404DiamondNonVrf();
 
   // Configuration for the pool
@@ -161,7 +161,7 @@ export async function deployUniswapPool() {
   const erc404Address = await PET404ContractsData.diamondContract.getAddress(); // token1
   // (0.05, 0.3, 1, 0.01)
   const fee = 0.3 * 10000;
-  // The recipient signer is the same signer that we used when deploying the PET404 (initialMintRecipient)
+  // The recipient signer is the same signer that we used when deploying the PET404NonVRF (initialMintRecipient)
   const [recipientSigner] = await ethers.getSigners();
 
   // Create the pool

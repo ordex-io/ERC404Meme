@@ -18,7 +18,6 @@ ERC404Meme is an opinionated yet practical implementation of the [ERC404](https:
 - **Legacy ERC404**: Combines ERC721 and ERC20, where each token equals one NFT.
 - **ERC404Meme**: Merges generative PFPs with memecoins, where 10,000 tokens represent one NFT, utilizing Chainlink VRF for randomization and Automation for operational efficiency.
 
-
 ## How It Works
 
 1. **Token Generation**: Each token corresponds to a unique PFP NFT with specific traits.

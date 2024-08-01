@@ -5,7 +5,7 @@ import { deployUniswapPool } from "../utils";
 import { getERC721TransfersEventsArgs, getTimeStamp } from "../../utils";
 import { ISwapRouter } from "../../typechain-types/node_modules/@uniswap/v3-periphery/artifacts/contracts/SwapRouter";
 
-describe("PET404 - Uniswap transactions", () => {
+describe("PET404NonVRF - Uniswap transactions", () => {
   describe("Buys using uniswap", () => {
     it("should buy fraction from zero balance", async () => {
       const { PET404ContractsData, Uniswap } = await loadFixture(
@@ -97,7 +97,7 @@ describe("PET404 - Uniswap transactions", () => {
 
       expect(await erc20Token.balanceOf(alice.address)).to.be.equal(amount0);
 
-      // Mint a fraction for PET404 to alice
+      // Mint a fraction for PET404NonVRF to alice
       const fractionToMint = ((await PET404Contract.units()) / 10n) * 8n; // 0.8
 
       await PET404Contract.connect(ownerSigner)["mintERC20(address,uint256)"](
@@ -105,7 +105,7 @@ describe("PET404 - Uniswap transactions", () => {
         fractionToMint
       );
 
-      // Should get the PET404 amount
+      // Should get the PET404NonVRF amount
       expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
         fractionToMint
       );
@@ -239,7 +239,7 @@ describe("PET404 - Uniswap transactions", () => {
 
       expect(await erc20Token.balanceOf(alice.address)).to.be.equal(amount0);
 
-      // Mint a fraction for PET404 to alice
+      // Mint a fraction for PET404NonVRF to alice
       const fractionToMint = ((await PET404Contract.units()) / 10n) * 8n; // 0.8
 
       await PET404Contract.connect(ownerSigner)["mintERC20(address,uint256)"](
@@ -247,7 +247,7 @@ describe("PET404 - Uniswap transactions", () => {
         fractionToMint
       );
 
-      // Should get the PET404 amount
+      // Should get the PET404NonVRF amount
       expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
         fractionToMint
       );
@@ -323,7 +323,7 @@ describe("PET404 - Uniswap transactions", () => {
 
       expect(await erc20Token.balanceOf(alice.address)).to.be.equal(amount0);
 
-      // Mint a fraction for PET404 to alice
+      // Mint a fraction for PET404NonVRF to alice
       const fractionToMint = ((await PET404Contract.units()) / 10n) * 8n; // 0.8
 
       await PET404Contract.connect(ownerSigner)["mintERC20(address,uint256)"](
@@ -331,7 +331,7 @@ describe("PET404 - Uniswap transactions", () => {
         fractionToMint
       );
 
-      // Should get the PET404 amount
+      // Should get the PET404NonVRF amount
       expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
         fractionToMint
       );
@@ -500,7 +500,7 @@ describe("PET404 - Uniswap transactions", () => {
       // ERC20
       expect(await erc20Token.balanceOf(alice.address)).to.be.equal(0);
 
-      // Mint a full token for PET404 to alice
+      // Mint a full token for PET404NonVRF to alice
       const pet404amout = await PET404Contract.units(); // 1 full token
 
       const txMint = await PET404Contract.connect(ownerSigner)[
@@ -511,7 +511,7 @@ describe("PET404 - Uniswap transactions", () => {
       expect(events721.length).to.be.equal(1);
       const { id: nftId } = events721[0];
 
-      // Should get the PET404 amount
+      // Should get the PET404NonVRF amount
       expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
         pet404amout
       );
@@ -638,7 +638,7 @@ describe("PET404 - Uniswap transactions", () => {
       // ERC20
       expect(await erc20Token.balanceOf(alice.address)).to.be.equal(0);
 
-      // Mint a full token for PET404 to alice
+      // Mint a full token for PET404NonVRF to alice
       const pet404amout = await PET404Contract.units(); // 1 full token
 
       const txMint = await PET404Contract.connect(ownerSigner)[
@@ -649,7 +649,7 @@ describe("PET404 - Uniswap transactions", () => {
       expect(events721.length).to.be.equal(1);
       const { id: nftId } = events721[0];
 
-      // Should get the PET404 amount
+      // Should get the PET404NonVRF amount
       expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
         pet404amout
       );
@@ -705,7 +705,7 @@ describe("PET404 - Uniswap transactions", () => {
         await PET404Contract.getERC721QueueLength(alice.address)
       ).to.be.equal(1);
 
-      // Receive a PET404 transfer to get units require to get a NFT
+      // Receive a PET404NonVRF transfer to get units require to get a NFT
       const oldPet404Balance = await PET404Contract.balanceOf(alice.address);
       await PET404Contract.connect(ownerSigner)["mintERC20(address,uint256)"](
         alice.address,
@@ -754,7 +754,7 @@ describe("PET404 - Uniswap transactions", () => {
       // ERC20
       expect(await erc20Token.balanceOf(alice.address)).to.be.equal(0);
 
-      // Mint a full token for PET404 to alice
+      // Mint a full token for PET404NonVRF to alice
       const pet404amout = await PET404Contract.units(); // 1 full token
 
       const txMint = await PET404Contract.connect(ownerSigner)[
@@ -765,7 +765,7 @@ describe("PET404 - Uniswap transactions", () => {
       expect(events721.length).to.be.equal(1);
       const { id: nftId } = events721[0];
 
-      // Should get the PET404 amount
+      // Should get the PET404NonVRF amount
       expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
         pet404amout
       );
@@ -904,7 +904,7 @@ describe("PET404 - Uniswap transactions", () => {
       // ERC20
       expect(await erc20Token.balanceOf(alice.address)).to.be.equal(0);
 
-      // Mint a full token for PET404 to alice
+      // Mint a full token for PET404NonVRF to alice
       const pet404amout = ((await PET404Contract.units()) / 10n) * 15n; // 1.5 token
 
       const txMint = await PET404Contract.connect(ownerSigner)[
@@ -915,7 +915,7 @@ describe("PET404 - Uniswap transactions", () => {
       expect(events721.length).to.be.equal(1);
       const { id: nftId } = events721[0];
 
-      // Should get the PET404 amount
+      // Should get the PET404NonVRF amount
       expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
         pet404amout
       );
@@ -1058,7 +1058,7 @@ describe("PET404 - Uniswap transactions", () => {
       // ERC20
       expect(await erc20Token.balanceOf(alice.address)).to.be.equal(0);
 
-      // Mint a full token for PET404 to alice
+      // Mint a full token for PET404NonVRF to alice
       const nftsToMint = 5n;
       const pet404amout = (await PET404Contract.units()) * nftsToMint; // 5 token
 
@@ -1069,7 +1069,7 @@ describe("PET404 - Uniswap transactions", () => {
       const events721 = await getERC721TransfersEventsArgs(txMint, pet404Facet);
       expect(events721.length).to.be.equal(nftsToMint);
 
-      // Should get the PET404 amount
+      // Should get the PET404NonVRF amount
       expect(await PET404Contract.balanceOf(alice.address)).to.be.equal(
         pet404amout
       );
@@ -1246,7 +1246,7 @@ describe("PET404 - Uniswap transactions", () => {
 
       expect(await PET404Contract.erc721TransferExempt(bob.address)).to.be.true;
 
-      // Mint a full token for PET404 to alice
+      // Mint a full token for PET404NonVRF to alice
       const pet404amout = await PET404Contract.units(); // 1 full token
 
       const txMint = await PET404Contract.connect(ownerSigner)[

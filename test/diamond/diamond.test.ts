@@ -23,7 +23,7 @@ describe("Diamond - NFT - CAT404", () => {
         await diamondContract.balanceOf(transferExemptAddress)
       ).to.be.equals(0n);
 
-      // Should revert from PET404 Facet with NON-owner
+      // Should revert from PET404NonVRF Facet with NON-owner
       expect(
         diamondContract
           .connect(signer0)
