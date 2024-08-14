@@ -5,17 +5,17 @@
     "script-fork": "USE_FORK=true hardhat run"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "=5.0.0",
-    "@openzeppelin/hardhat-upgrades": "^3.0.5",
-    "@uniswap/sdk-core": "^4.2.1",
-    "@uniswap/v3-sdk": "^3.11.1",
-    "@uniswap/v3-core": "^1.0.1",
+    "@nomicfoundation/hardhat-toolbox": "5.0.0",
+    "@openzeppelin/hardhat-upgrades": "3.2.0",
+    "@uniswap/sdk-core": "5.3.1",
+    "@uniswap/v3-sdk": "3.13.1",
+    "@uniswap/v3-core": "1.0.1",
     "ERC404": "github:Pandora-Labs-Org/erc404#ba960f67a2f3ba1fdd7fdee91e3d7d7c0ffcc0fe",
-    "hardhat": "^2.22.3"
+    "hardhat": "2.22.8"
   },
   "dependencies": {
-    "@chainlink/contracts": "=1.1.1",
-    "@openzeppelin/contracts": "=5.0.2",
-    "@solidstate/contracts": "=0.0.59"
+    "@chainlink/contracts": "1.2.0",
+    "@openzeppelin/contracts": "5.0.2",
+    "@solidstate/contracts": "0.0.60"
   }
 }
