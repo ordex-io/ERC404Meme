@@ -2,7 +2,8 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
 import { deployAutomationRegistryMock, getTimeStamp } from "../../utils";
-import { checkUpKeepCall, increaseTimestampBy } from "../utils";
+import { checkUpKeepCall } from "../utils";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 
 describe("AutomationBase", () => {
   async function deployAutomationBase(
@@ -156,7 +157,7 @@ describe("AutomationBase", () => {
       automationContract.deploymentTransaction()?.blockNumber
     );
 
-    await increaseTimestampBy(timeAtDeploy + Number(maxWait));
+    await time.increaseTo(timeAtDeploy + Number(maxWait));
 
     // Check that the checkUpkeep is false
     // Because there is no pending reveals, the check upKeep still false.
@@ -236,7 +237,7 @@ describe("AutomationBase", () => {
     const timeAtDeploy = await getTimeStamp(
       automationContract.deploymentTransaction()?.blockNumber
     );
-    await increaseTimestampBy(timeAtDeploy + Number(minWait));
+    await time.increaseTo(timeAtDeploy + Number(minWait));
 
     // Check that the checkUpkeep is true now since both condtions are met
     const result1 = await checkUpKeepCall(automationContract, ethers.provider);
@@ -289,7 +290,7 @@ describe("AutomationBase", () => {
     const timeAtDeploy = await getTimeStamp(
       automationContract.deploymentTransaction()?.blockNumber
     );
-    await increaseTimestampBy(timeAtDeploy + Number(minWait));
+    await time.increaseTo(timeAtDeploy + Number(minWait));
 
     // Check that the checkUpkeep still false because only minWait is met
     const result1 = await checkUpKeepCall(automationContract, ethers.provider);
@@ -318,7 +319,7 @@ describe("AutomationBase", () => {
       automationContract.deploymentTransaction()?.blockNumber
     );
 
-    await increaseTimestampBy(timeAtDeploy + 2000);
+    await time.increaseTo(timeAtDeploy + 2000);
 
     // Check that the checkUpkeep still false because the minPending is not met yet
     const result1 = await checkUpKeepCall(automationContract, ethers.provider);
@@ -368,7 +369,7 @@ describe("AutomationBase", () => {
       automationContract.deploymentTransaction()?.blockNumber
     );
 
-    await increaseTimestampBy(timeAtDeploy + Number(maxWait));
+    await time.increaseTo(timeAtDeploy + Number(maxWait));
 
     // Check that the checkUpkeep still true
     const result1 = await checkUpKeepCall(automationContract, ethers.provider);
@@ -396,7 +397,7 @@ describe("AutomationBase", () => {
     const timeAtDeploy = await getTimeStamp(
       automationContract.deploymentTransaction()?.blockNumber
     );
-    await increaseTimestampBy(timeAtDeploy + Number(minWait));
+    await time.increaseTo(timeAtDeploy + Number(minWait));
 
     // Check that the checkUpkeep still false.
     // Because there is no pending reveals, the check upKeep still false.
@@ -419,7 +420,7 @@ describe("AutomationBase", () => {
     expect(result3.upkeepNeeded).to.be.true;
 
     // Increase the time to really high time to check
-    await increaseTimestampBy(timeAtDeploy + Number(minWait * 5n));
+    await time.increaseTo(timeAtDeploy + Number(minWait * 5n));
 
     // Check that the checkUpkeep still true because the minWait still met
     const result4 = await checkUpKeepCall(automationContract, ethers.provider);
@@ -447,7 +448,7 @@ describe("AutomationBase", () => {
     const timeAtDeploy = await getTimeStamp(
       automationContract.deploymentTransaction()?.blockNumber
     );
-    await increaseTimestampBy(timeAtDeploy + Number(minWait));
+    await time.increaseTo(timeAtDeploy + Number(minWait));
 
     // Check that the checkUpkeep still false.
     // Because there is no pending reveals, the check upKeep still false.
@@ -470,7 +471,7 @@ describe("AutomationBase", () => {
     expect(result3.upkeepNeeded).to.be.true;
 
     // Increase the time using maxWait to check
-    await increaseTimestampBy(timeAtDeploy + Number(maxWait));
+    await time.increaseTo(timeAtDeploy + Number(maxWait));
 
     // Check that the checkUpkeep is stil true
     const result4 = await checkUpKeepCall(automationContract, ethers.provider);

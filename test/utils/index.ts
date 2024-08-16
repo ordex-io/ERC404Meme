@@ -25,4 +25,3 @@ export async function checkUpKeepCall(
 }
 
 export { deployFullPET404DiamondNonVrf, deployUniswapPool } from "./deploy";
-export { increaseTimestampTo as increaseTimestampBy } from "./time";
