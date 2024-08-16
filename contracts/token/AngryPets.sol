@@ -11,7 +11,7 @@ contract AngryPets is IAngryPets, ERC404, SafeOwnable {
     error NoAutomationRegister();
     event NftsRevealed(uint256 nftRevealCounter, uint256 time);
 
-    function __PET404_init(
+    function __AngryPets_init(
         string memory name_,
         string memory symbol_,
         uint8 decimals_,

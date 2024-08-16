@@ -5,7 +5,7 @@ import {IERC404} from "./ERC404/IERC404.sol";
 import {ISafeOwnable} from "@solidstate/contracts/access/ownable/ISafeOwnable.sol";
 
 interface IAngryPets is IERC404, ISafeOwnable {
-    function __PET404_init(
+    function __AngryPets_init(
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
