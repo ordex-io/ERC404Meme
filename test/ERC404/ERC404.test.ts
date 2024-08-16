@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, network } from "hardhat";
 
 describe("ERC404", function () {
@@ -169,7 +168,7 @@ describe("ERC404", function () {
   }
 
   async function deployMinimalERC404WithERC20sAndERC721sMinted() {
-    const f = await loadFixture(deployMinimalERC404);
+    const f = await deployMinimalERC404();
 
     // Mint the full supply of ERC20 tokens (with the corresponding ERC721 tokens minted as well)
     await f.contract
@@ -206,7 +205,7 @@ describe("ERC404", function () {
   }
 
   async function deployMinimalERC404ForHavingAlreadyGrantedApprovalForAllTests() {
-    const f = await loadFixture(deployMinimalERC404WithERC20sAndERC721sMinted);
+    const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
     const msgSender = f.signers[0];
     const intendedOperator = f.signers[1];
@@ -226,7 +225,7 @@ describe("ERC404", function () {
   }
 
   async function deployERC404ExampleWithTokensInSecondSigner() {
-    const f = await loadFixture(deployERC404Example);
+    const f = await deployERC404Example();
     const from = f.signers[1];
     const to = f.signers[2];
 
@@ -255,7 +254,7 @@ describe("ERC404", function () {
   }
 
   async function deployERC404ExampleWithSomeTokensTransferredToRandomAddress() {
-    const f = await loadFixture(deployERC404Example);
+    const f = await deployERC404Example();
 
     const targetAddress = f.randomAddresses[0];
 
@@ -335,7 +334,7 @@ describe("ERC404", function () {
 
   describe("#constructor", function () {
     it("Initializes the contract with the expected values", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       expect(await f.contract.name()).to.equal(f.deployConfig.name);
       expect(await f.contract.symbol()).to.equal(f.deployConfig.symbol);
@@ -346,7 +345,7 @@ describe("ERC404", function () {
     });
 
     it("Mints the initial supply of tokens to the initial mint recipient", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       // Expect full supply of ERC20 tokens to be minted to the initial recipient.
       expect(
@@ -371,7 +370,7 @@ describe("ERC404", function () {
     });
 
     it("Initializes the exemption list with the initial mint recipient", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       expect(
         await f.contract.erc721TransferExempt(
@@ -383,9 +382,8 @@ describe("ERC404", function () {
 
   describe("#erc20TotalSupply", function () {
     it("Returns the correct total supply", async function () {
-      const f = await loadFixture(
-        deployERC404ExampleWithSomeTokensTransferredToRandomAddress
-      );
+      const f =
+        await deployERC404ExampleWithSomeTokensTransferredToRandomAddress();
 
       expect(await f.contract.erc20TotalSupply()).to.eq(
         100n * f.deployConfig.units
@@ -395,9 +393,8 @@ describe("ERC404", function () {
 
   describe("#erc721TotalSupply", function () {
     it("Returns the correct total supply", async function () {
-      const f = await loadFixture(
-        deployERC404ExampleWithSomeTokensTransferredToRandomAddress
-      );
+      const f =
+        await deployERC404ExampleWithSomeTokensTransferredToRandomAddress();
 
       expect(await f.contract.erc721TotalSupply()).to.eq(5n);
     });
@@ -406,9 +403,8 @@ describe("ERC404", function () {
   describe("#ownerOf", function () {
     context("Some tokens have been minted", function () {
       it("Reverts if the token ID is below the allowed range", async function () {
-        const f = await loadFixture(
-          deployERC404ExampleWithSomeTokensTransferredToRandomAddress
-        );
+        const f =
+          await deployERC404ExampleWithSomeTokensTransferredToRandomAddress();
 
         const minimumValidTokenId =
           (await f.contract.ID_ENCODING_PREFIX()) + 1n;
@@ -423,9 +419,8 @@ describe("ERC404", function () {
       });
 
       it("Reverts if the token ID is within the range of valid Ids, but is above 'minted', the max valid minted id", async function () {
-        const f = await loadFixture(
-          deployERC404ExampleWithSomeTokensTransferredToRandomAddress
-        );
+        const f =
+          await deployERC404ExampleWithSomeTokensTransferredToRandomAddress();
 
         const minted = await f.contract.minted();
 
@@ -442,9 +437,8 @@ describe("ERC404", function () {
       });
 
       it("Reverts when for id = MAX_INT", async function () {
-        const f = await loadFixture(
-          deployERC404ExampleWithSomeTokensTransferredToRandomAddress
-        );
+        const f =
+          await deployERC404ExampleWithSomeTokensTransferredToRandomAddress();
 
         const maxId = 2n ** 256n - 1n;
 
@@ -455,9 +449,8 @@ describe("ERC404", function () {
       });
 
       it("Returns the address of the owner of the token", async function () {
-        const f = await loadFixture(
-          deployERC404ExampleWithSomeTokensTransferredToRandomAddress
-        );
+        const f =
+          await deployERC404ExampleWithSomeTokensTransferredToRandomAddress();
 
         // Transferred 5 full tokens from a exempted address to the target address (not exempted), which minted the first 5 NFTs.
 
@@ -473,7 +466,7 @@ describe("ERC404", function () {
 
   describe("Minting out the total supply", function () {
     it("Allows minting of the full supply of ERC20 + ERC721 tokens", async function () {
-      const f = await loadFixture(deployMinimalERC404);
+      const f = await deployMinimalERC404();
 
       // Owner mints the full supply of ERC20 tokens (with the corresponding ERC721 tokens minted as well)
       await f.contract
@@ -495,7 +488,7 @@ describe("ERC404", function () {
     });
 
     it("Allows minting of the full supply of ERC20 tokens only", async function () {
-      const f = await loadFixture(deployMinimalERC404);
+      const f = await deployMinimalERC404();
 
       // Owner mints the full supply of ERC20 tokens (with the corresponding ERC721 tokens minted as well)
       await f.contract.setERC721TransferExempt(f.signers[1].address, true);
@@ -516,7 +509,7 @@ describe("ERC404", function () {
 
   describe("Storage and retrieval of unused ERC721s on contract", function () {
     it("Mints ERC721s from 0x0 when the contract's bank is empty", async function () {
-      const f = await loadFixture(deployMinimalERC404);
+      const f = await deployMinimalERC404();
 
       // Total supply should be 0
       expect(await f.contract.erc721TotalSupply()).to.equal(0n);
@@ -564,7 +557,7 @@ describe("ERC404", function () {
     });
 
     it("Stores ERC721s in contract's bank when a sender loses a full token", async function () {
-      const f = await loadFixture(deployMinimalERC404);
+      const f = await deployMinimalERC404();
 
       // Total supply should be 0
       expect(await f.contract.erc721TotalSupply()).to.equal(0n);
@@ -637,7 +630,7 @@ describe("ERC404", function () {
     });
 
     it("Retrieves ERC721s from the contract's bank when the contract's bank holds NFTs and the user regains a full token", async function () {
-      const f = await loadFixture(deployMinimalERC404);
+      const f = await deployMinimalERC404();
 
       expect(await f.contract.erc721TotalSupply()).to.equal(0n);
 
@@ -723,9 +716,7 @@ describe("ERC404", function () {
       "Fractional transfers (moving less than 1 full token) that trigger ERC721 transfers",
       async function () {
         it("Handles the case of the receiver gaining a whole new token", async function () {
-          const f = await loadFixture(
-            deployERC404ExampleWithTokensInSecondSigner
-          );
+          const f = await deployERC404ExampleWithTokensInSecondSigner();
 
           // Receiver starts out with 0.9 tokens
           const startingBalanceOfReceiver = (f.deployConfig.units / 10n) * 9n; // 0.9 tokens
@@ -778,9 +769,7 @@ describe("ERC404", function () {
         });
 
         it("Handles the case of the sender losing a partial token, dropping it below a full token", async function () {
-          const f = await loadFixture(
-            deployERC404ExampleWithTokensInSecondSigner
-          );
+          const f = await deployERC404ExampleWithTokensInSecondSigner();
 
           // Initial balances
           const fromBalancesBefore = await getBalances(
@@ -832,9 +821,7 @@ describe("ERC404", function () {
 
     context("Moving one or more full tokens", async function () {
       it("Transfers whole tokens without fractional impact correctly", async function () {
-        const f = await loadFixture(
-          deployERC404ExampleWithTokensInSecondSigner
-        );
+        const f = await deployERC404ExampleWithTokensInSecondSigner();
 
         // Initial balances
         const fromBalancesBefore = await getBalances(
@@ -888,9 +875,7 @@ describe("ERC404", function () {
         // - The receiver gains a whole new token (0.9 + 3.2 (3 whole, 0.2 fractional) = 4.1)
         // - The sender transfers 3 whole tokens to the receiver (99.1 - 3.2 (3 whole, 0.2 fractional) = 95.9)
 
-        const f = await loadFixture(
-          deployERC404ExampleWithTokensInSecondSigner
-        );
+        const f = await deployERC404ExampleWithTokensInSecondSigner();
 
         // Receiver starts out with 0.9 tokens
         const startingBalanceOfReceiver = (f.deployConfig.units / 10n) * 9n; // 0.9 tokens
@@ -948,9 +933,7 @@ describe("ERC404", function () {
 
   describe("#safeTransferFrom", function () {
     it('Calling without data parameter calls overloaded function with "" as data', async function () {
-      const f = await loadFixture(
-        deployMinimalERC404WithERC20sAndERC721sMinted
-      );
+      const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
       const tokenId = 1n;
 
@@ -970,9 +953,7 @@ describe("ERC404", function () {
     });
 
     it("Reverts when transferring token 0", async function () {
-      const f = await loadFixture(
-        deployMinimalERC404WithERC20sAndERC721sMinted
-      );
+      const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
       await expect(
         f.contract
@@ -986,9 +967,7 @@ describe("ERC404", function () {
     });
 
     it("Reverts when transferring a token id above the minted range", async function () {
-      const f = await loadFixture(
-        deployMinimalERC404WithERC20sAndERC721sMinted
-      );
+      const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
       const tokenId = (await f.contract.erc721TotalSupply()) + 1n;
 
@@ -1006,10 +985,8 @@ describe("ERC404", function () {
     context("Recipient is a contract", function () {
       context("Recipient is a valid ERC721Receiver", function () {
         it("Successfully transfers a valid ERC-721", async function () {
-          const f = await loadFixture(
-            deployMinimalERC404WithERC20sAndERC721sMinted
-          );
-          const f2 = await loadFixture(deployMockContractsForERC721Receiver);
+          const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
+          const f2 = await deployMockContractsForERC721Receiver();
 
           const tokenId = f.deployConfig.idPrefix + 1n;
 
@@ -1028,10 +1005,8 @@ describe("ERC404", function () {
 
       context("Recipient is not a valid ERC721Receiver", function () {
         it("Fails to transfer a valid ERC-721", async function () {
-          const f = await loadFixture(
-            deployMinimalERC404WithERC20sAndERC721sMinted
-          );
-          const f2 = await loadFixture(deployMockContractsForERC721Receiver);
+          const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
+          const f2 = await deployMockContractsForERC721Receiver();
 
           const tokenId = f.deployConfig.idPrefix + 1n;
 
@@ -1052,7 +1027,7 @@ describe("ERC404", function () {
 
   describe("#transferFrom", function () {
     it("Doesn't allow anyone to transfer from 0x0", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       // Attempt to transfer from 0x0. This will always fail as it's not possible for the 0x0 address to sign a transaction, so it can neither send a transfer nor give another address an allowance.
       await expect(
@@ -1063,7 +1038,7 @@ describe("ERC404", function () {
     });
 
     it("Doesn't allow anyone to transfer to 0x0", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       // Attempt to transfer to 0x0.
       await expect(
@@ -1074,7 +1049,7 @@ describe("ERC404", function () {
     });
 
     it("Doesn't allow anyone to transfer from 0x0 to 0x0", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       // Attempt to transfer to 0x0 from 0x0.
       await expect(
@@ -1086,9 +1061,7 @@ describe("ERC404", function () {
 
     context("Recipient is ERC-721 transfer exempt", function () {
       it("Succeeds when transferring as ERC-20", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const from = f.signers[0];
         const to = f.signers[3];
@@ -1119,9 +1092,7 @@ describe("ERC404", function () {
       });
 
       it("Reverts when transferring as ERC-721", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const tokenId = f.deployConfig.idPrefix + 1n;
         const from = f.signers[0];
@@ -1155,9 +1126,7 @@ describe("ERC404", function () {
 
     context("Sender is ERC-721 transfer exempt", function () {
       it("Succeeds when transferring as ERC-20", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const from = f.signers[0];
         const to = f.signers[3];
@@ -1188,9 +1157,7 @@ describe("ERC404", function () {
       });
 
       it("Reverts when transferring as ERC-721", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const tokenId = f.deployConfig.idPrefix + 1n;
         const from = f.signers[0];
@@ -1223,9 +1190,7 @@ describe("ERC404", function () {
       "Both sender and recipient are ERC-721 transfer exempt",
       function () {
         it("Succeeds when transferring as ERC-20", async function () {
-          const f = await loadFixture(
-            deployMinimalERC404WithERC20sAndERC721sMinted
-          );
+          const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
           const from = f.signers[0];
           const to = f.signers[3];
@@ -1261,9 +1226,7 @@ describe("ERC404", function () {
         });
 
         it("Reverts when transferring as ERC-721", async function () {
-          const f = await loadFixture(
-            deployMinimalERC404WithERC20sAndERC721sMinted
-          );
+          const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
           const tokenId = f.deployConfig.idPrefix + 1n;
           const from = f.signers[0];
@@ -1300,9 +1263,7 @@ describe("ERC404", function () {
     context("Operator owns the token to be moved", function () {
       // This test case proves that the operator cannot use transferFrom to transfer a token they own if they provide the wrong 'from' address.
       it("Reverts when attempting to transfer a token that operator owns, but that 'from' does not own", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const tokenId = f.deployConfig.idPrefix + 1n;
         const operator = f.signers[0];
@@ -1334,9 +1295,7 @@ describe("ERC404", function () {
       });
 
       it("Succeeds when transferring a token the operator owns, with the operator as 'from'", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const tokenId = f.deployConfig.idPrefix + 1n;
         const operator = f.signers[0];
@@ -1367,9 +1326,7 @@ describe("ERC404", function () {
     context("Operator does not own the token to be moved", function () {
       context("No approvals have been set", function () {
         it("Reverts when attempting to transfer a token that 'from' does not own", async function () {
-          const f = await loadFixture(
-            deployMinimalERC404WithERC20sAndERC721sMinted
-          );
+          const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
           const operator = f.signers[1];
           const wrongFrom = f.signers[2];
@@ -1420,9 +1377,7 @@ describe("ERC404", function () {
           it("Reverts when attempting to transfer a token that 'from' does not own", async function () {});
 
           it("Succeeds when transferring a token that 'from's owns", async function () {
-            const f = await loadFixture(
-              deployMinimalERC404WithERC20sAndERC721sMinted
-            );
+            const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
             const tokenId = f.deployConfig.idPrefix + 1n;
             const tokenOwner = f.signers[0];
@@ -1482,9 +1437,7 @@ describe("ERC404", function () {
             "The approved token correctly belongs to 'from'",
             function () {
               it("Succeeds", async function () {
-                const f = await loadFixture(
-                  deployMinimalERC404WithERC20sAndERC721sMinted
-                );
+                const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
                 const tokenId = f.deployConfig.idPrefix + 1n;
                 const tokenOwner = f.signers[0];
@@ -1545,7 +1498,7 @@ describe("ERC404", function () {
 
   describe("#transfer", function () {
     it("Reverts when attempting to transfer anything to 0x0", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       // Attempt to send 1 ERC-721 to 0x0.
       await expect(
@@ -1561,7 +1514,7 @@ describe("ERC404", function () {
     });
 
     it("Handles fractional balance changes on self-send correctly", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       // Send 1.5 tokens to address
       await f.contract
@@ -1580,7 +1533,7 @@ describe("ERC404", function () {
     });
 
     it("Handles dequeue / enqueue correctly", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       // Send 4 tokens to address
       await f.contract
@@ -1620,7 +1573,7 @@ describe("ERC404", function () {
 
   describe("#setERC721TransferExempt", function () {
     it("Allows the caller to exempt themselves", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       expect(
         await f.contract.erc721TransferExempt(f.randomAddresses[1])
@@ -1642,7 +1595,7 @@ describe("ERC404", function () {
 
   describe("#_setERC721TransferExempt", function () {
     it("Allows the owner to add and remove addresses from the exemption list", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       expect(
         await f.contract.erc721TransferExempt(f.randomAddresses[1])
@@ -1666,7 +1619,7 @@ describe("ERC404", function () {
     });
 
     it("Reverts when setting the zero address", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       await expect(
         f.contract
@@ -1682,7 +1635,7 @@ describe("ERC404", function () {
     });
 
     it("Rebalances ERC721 tokens held by the target", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       const targetAddress = f.randomAddresses[0];
 
@@ -1724,7 +1677,7 @@ describe("ERC404", function () {
   describe("#erc721BalanceOf", function () {
     context("The address has 0.9 ERC-20 balance", function () {
       it("Returns the correct balance (0 ERC-721)", async function () {
-        const f = await loadFixture(deployERC404Example);
+        const f = await deployERC404Example();
 
         const targetAddress = f.randomAddresses[0];
         const transferAmount = (f.deployConfig.units / 10n) * 9n; // 0.9 tokens
@@ -1743,7 +1696,7 @@ describe("ERC404", function () {
 
     context("The address has exactly 1.0 ERC-20 balance", function () {
       it("Returns the correct balance (1 ERC-721)", async function () {
-        const f = await loadFixture(deployERC404Example);
+        const f = await deployERC404Example();
 
         const targetAddress = f.randomAddresses[0];
         const transferAmount = f.deployConfig.units; // 1.0 tokens
@@ -1762,7 +1715,7 @@ describe("ERC404", function () {
 
     context("The address has 1.1 ERC-20 balance", function () {
       it("Returns the correct balance (1 ERC-721)", async function () {
-        const f = await loadFixture(deployERC404Example);
+        const f = await deployERC404Example();
 
         const targetAddress = f.randomAddresses[0];
         const transferAmount = (f.deployConfig.units / 10n) * 9n; // 0.9 tokens
@@ -1782,7 +1735,7 @@ describe("ERC404", function () {
 
   describe("#erc20BalanceOf", function () {
     it("Returns the correct balance", async function () {
-      const f = await loadFixture(deployERC404Example);
+      const f = await deployERC404Example();
 
       const targetAddress = f.randomAddresses[0];
       const transferAmount = (f.deployConfig.units / 10n) * 9n; // 0.9 tokens
@@ -1809,9 +1762,8 @@ describe("ERC404", function () {
 
   describe("#minted", function () {
     it("Returns the total number of tokens minted for legacy support", async function () {
-      const f = await loadFixture(
-        deployERC404ExampleWithSomeTokensTransferredToRandomAddress
-      );
+      const f =
+        await deployERC404ExampleWithSomeTokensTransferredToRandomAddress();
 
       expect(await f.contract.minted()).to.eq(5n);
     });
@@ -1822,7 +1774,7 @@ describe("ERC404", function () {
       "Granting approval to a valid address besides themselves",
       function () {
         it("Allows a user to set an operator who has approval for all their ERC-721 tokens", async function () {
-          const f = await loadFixture(deployERC404Example);
+          const f = await deployERC404Example();
 
           const msgSender = f.signers[0];
           const intendedOperator = f.signers[1];
@@ -1852,7 +1804,7 @@ describe("ERC404", function () {
         });
 
         it("Allows a user to remove an operator's approval for all", async function () {
-          const f = await loadFixture(deployERC404Example);
+          const f = await deployERC404Example();
 
           const msgSender = f.signers[0];
           const intendedOperator = f.signers[1];
@@ -1879,7 +1831,7 @@ describe("ERC404", function () {
 
     context("Granting approval to themselves", function () {
       it("Allows a user to set themselves as an operator who has approval for all their ERC-721 tokens", async function () {
-        const f = await loadFixture(deployERC404Example);
+        const f = await deployERC404Example();
 
         const msgSender = f.signers[0];
 
@@ -1904,7 +1856,7 @@ describe("ERC404", function () {
       });
 
       it("Allows a user to remove their own approval for all", async function () {
-        const f = await loadFixture(deployERC404Example);
+        const f = await deployERC404Example();
 
         const msgSender = f.signers[0];
 
@@ -1929,7 +1881,7 @@ describe("ERC404", function () {
 
     context("Granting approval to 0x0", function () {
       it("Reverts if the user attempts to grant or revoke approval for all to 0x0", async function () {
-        const f = await loadFixture(deployERC404Example);
+        const f = await deployERC404Example();
 
         const msgSender = f.signers[0];
 
@@ -1953,9 +1905,7 @@ describe("ERC404", function () {
       "Permitting tokens in the valid ERC-721 token id range",
       function () {
         it("Reverts", async function () {
-          const f = await loadFixture(
-            deployMinimalERC404WithERC20sAndERC721sMinted
-          );
+          const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
           const msgSender = f.signers[0];
           const spender = f.signers[1];
@@ -2018,9 +1968,7 @@ describe("ERC404", function () {
 
     context("Permitting ERC-20 tokens", function () {
       it("Should revert when 0x0 spender", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const msgSender = f.signers[0];
 
@@ -2054,9 +2002,7 @@ describe("ERC404", function () {
       });
 
       it("Should revert when deadline expired", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const msgSender = f.signers[0];
         const spender = f.signers[1];
@@ -2091,9 +2037,7 @@ describe("ERC404", function () {
       });
 
       it("Should set approval under valid conditions", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const msgSender = f.signers[0];
         const spender = f.signers[1];
@@ -2144,9 +2088,7 @@ describe("ERC404", function () {
   describe("#approve", function () {
     context("Granting approval for ERC-721 tokens", function () {
       it("Allows a token owner to grant specific ERC-721 token approval to an operator", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const msgSender = f.signers[0];
         const intendedOperator = f.signers[1];
@@ -2186,9 +2128,7 @@ describe("ERC404", function () {
       });
 
       it("Allows a token owner to revoke specific ERC-721 token approval from an operator", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const msgSender = f.signers[0];
         const intendedOperator = f.signers[1];
@@ -2220,9 +2160,7 @@ describe("ERC404", function () {
       });
 
       it("Reverts if the user attempts to grant approval for a token they don't own", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const tokenId = f.deployConfig.idPrefix + 1n;
         const tokenOwner = f.signers[0];
@@ -2252,9 +2190,8 @@ describe("ERC404", function () {
         "Having already granted approval for all to a valid address",
         function () {
           it("Allows an approved operator to grant specific approval for any ERC-721 token owned by the grantor", async function () {
-            const f = await loadFixture(
-              deployMinimalERC404ForHavingAlreadyGrantedApprovalForAllTests
-            );
+            const f =
+              await deployMinimalERC404ForHavingAlreadyGrantedApprovalForAllTests();
 
             // Confirm that the token is owned by the grantor
             expect(
@@ -2276,9 +2213,7 @@ describe("ERC404", function () {
 
     context("Granting approval for ERC-20 tokens", function () {
       it("Allows a user to grant an operator an ERC-20 token allowance", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const msgSender = f.signers[0];
         const intendedOperator = f.signers[1];
@@ -2316,9 +2251,7 @@ describe("ERC404", function () {
       });
 
       it("Allows a user to grant an operator a max ERC-20 token allowance", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const msgSender = f.signers[0];
         const intendedOperator = f.signers[1];
@@ -2357,9 +2290,7 @@ describe("ERC404", function () {
       });
 
       it("Reverts if a user attempts to grant 0x0 an ERC-20 token allowance", async function () {
-        const f = await loadFixture(
-          deployMinimalERC404WithERC20sAndERC721sMinted
-        );
+        const f = await deployMinimalERC404WithERC20sAndERC721sMinted();
 
         const msgSender = f.signers[0];
 
@@ -2379,7 +2310,7 @@ describe("ERC404", function () {
 
   describe("E2E tests", function () {
     it("Minting out the full supply, making ERC-20 and ERC-721 transfers, banking and retrieving tokens", async function () {
-      const f = await loadFixture(deployMinimalERC404);
+      const f = await deployMinimalERC404();
 
       // Initial minting. Will mint ERC-20 and ERC-721 tokens.
       await f.contract
@@ -2659,7 +2590,7 @@ describe("ERC404", function () {
 
   describe("#_mintERC20", function () {
     it("Mints on partial balances", async function () {
-      const f = await loadFixture(deployMinimalERC404);
+      const f = await deployMinimalERC404();
 
       await f.contract.mintERC20(
         f.signers[1].address,
@@ -2687,7 +2618,7 @@ describe("ERC404", function () {
     context("When the contract has no tokens in the queue", function () {
       context("Contract ERC-721 balance is 0", async function () {
         it("Mints a new full ERC-20 token + corresponding ERC-721 token", async function () {
-          const f = await loadFixture(deployMinimalERC404);
+          const f = await deployMinimalERC404();
 
           // Expect the contract to have no ERC-721 tokens
           expect(await f.contract.erc721BalanceOf(f.contractAddress)).to.equal(
@@ -2711,7 +2642,7 @@ describe("ERC404", function () {
 
       context("Contract ERC-721 balance is > 0", async function () {
         it("Mints a new full ERC-20 token + corresponding ERC-721 token", async function () {
-          const f = await loadFixture(deployMinimalERC404);
+          const f = await deployMinimalERC404();
 
           // Expect the contract to have no ERC-721 tokens
           expect(await f.contract.erc721BalanceOf(f.contractAddress)).to.equal(

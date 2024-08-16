@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 import { deployUniswapPool } from "../utils";
 import { getERC721TransfersEventsArgs, getTimeStamp } from "../../utils";
@@ -8,10 +7,7 @@ import { ISwapRouter } from "../../typechain-types/node_modules/@uniswap/v3-peri
 describe("PET404NonVRF - Uniswap transactions", () => {
   describe("Buys using uniswap", () => {
     it("should buy fraction from zero balance", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
-
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
       const { diamondContract: PET404Contract } = PET404ContractsData;
       const { swapRouter, erc20Token, fee } = Uniswap;
 
@@ -70,9 +66,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
     });
 
     it("should buy fraction from non zero balance to make full NFT", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const { diamondContract: PET404Contract, ownerSigner } =
         PET404ContractsData;
@@ -150,9 +144,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
     });
 
     it("should buy one full NFT from zero balance", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const { diamondContract: PET404Contract } = PET404ContractsData;
       const { swapRouter, erc20Token, fee } = Uniswap;
@@ -212,9 +204,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
     });
 
     it("should buy one full NFT from non zero balance", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const { diamondContract: PET404Contract, ownerSigner } =
         PET404ContractsData;
@@ -292,9 +282,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
     });
 
     it("should get NFT not revealed after obtain tokens after swap/buy", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const {
         diamondContract: PET404Contract,
@@ -388,9 +376,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
     });
 
     it("should buy multiple full NFTs", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const {
         diamondContract: PET404Contract,
@@ -476,9 +462,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
 
   describe("Sells using uniswap", () => {
     it("should sell fraction from full NFT and buy again", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const {
         diamondContract: PET404Contract,
@@ -614,9 +598,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
     });
 
     it("should sell fraction from full NFT and receive a transfer from other source", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const {
         diamondContract: PET404Contract,
@@ -730,9 +712,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
     });
 
     it("should sell full NFT leaving zero balance and buy again", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const {
         diamondContract: PET404Contract,
@@ -880,9 +860,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
     });
 
     it("should sell full NFT leaving non zero balance and buy again", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const {
         diamondContract: PET404Contract,
@@ -1034,9 +1012,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
     });
 
     it("should sell fraction from multiple NFTs and buy again", async () => {
-      const { PET404ContractsData, Uniswap } = await loadFixture(
-        deployUniswapPool
-      );
+      const { PET404ContractsData, Uniswap } = await deployUniswapPool();
 
       const {
         diamondContract: PET404Contract,
@@ -1221,7 +1197,7 @@ describe("PET404NonVRF - Uniswap transactions", () => {
 
   describe("Exemption adddresses", () => {
     it("should transfer normally to and from exemption addresses", async () => {
-      const { PET404ContractsData } = await loadFixture(deployUniswapPool);
+      const { PET404ContractsData } = await deployUniswapPool();
 
       const {
         diamondContract: PET404Contract,

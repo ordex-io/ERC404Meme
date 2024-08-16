@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { calculateDNA, dnaToJsonString, nonDuplicateDNA } from "../../utils";
 import { ethers } from "hardhat";
 
@@ -22,7 +21,7 @@ describe("DNA Tests", () => {
   }
 
   it("should generate the DNA bytes correctly for ID/words saved", async () => {
-    const { contract } = await loadFixture(deployDnaMock);
+    const { contract } = await deployDnaMock();
 
     const ids = Array.from({ length: 4 }).map(() => {
       return BigInt(ethers.concat([ethers.randomBytes(32)]));
@@ -49,7 +48,7 @@ describe("DNA Tests", () => {
   });
 
   it("should generate the DNA bytes correctly for ID/words saved multiple times", async () => {
-    const { contract } = await loadFixture(deployDnaMock);
+    const { contract } = await deployDnaMock();
 
     const allDnas = [];
 
@@ -99,7 +98,7 @@ describe("DNA Tests", () => {
     const {
       contract,
       deployArg: { variants_name, schema_hash },
-    } = await loadFixture(deployDnaMock);
+    } = await deployDnaMock();
 
     const id_0 = BigInt(ethers.concat([ethers.randomBytes(32)]));
 
@@ -131,7 +130,7 @@ describe("DNA Tests", () => {
   });
 
   it("should revert dnaOf if an ID does not have words", async () => {
-    const { contract } = await loadFixture(deployDnaMock);
+    const { contract } = await deployDnaMock();
 
     // ID of the 404-NFT
     const id_0 = BigInt(ethers.concat([ethers.randomBytes(32)]));
@@ -161,7 +160,7 @@ describe("DNA Tests", () => {
     const {
       contract,
       deployArg: { variants_name, schema_hash },
-    } = await loadFixture(deployDnaMock);
+    } = await deployDnaMock();
 
     // ID of the 404-NFT
     const id_0 = BigInt(ethers.concat([ethers.randomBytes(32)]));

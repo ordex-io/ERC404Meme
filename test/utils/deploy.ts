@@ -5,6 +5,7 @@ import {
   checkBalances,
   createPool,
   deployAutomationNonVrfFacet,
+  deployAutomationVrfFacet,
   deployDiamond,
   deployDNAFacet,
   deployERC20Token,
@@ -118,6 +119,119 @@ export async function deployFullPET404DiamondNonVrf() {
     dnaFacet: dnaContract,
     automationAddress: automationNonVrfAddress,
     automationNonVrfFacet: automationNonVrf,
+    pet404Address: pet404ContractAddress,
+    pet404Facet: pet404Contract,
+    ownerSigner,
+    facetsArgs: {
+      dna: dnaArgs,
+      automation: automationArgs,
+      pet404: pet404Args,
+    },
+    facetsCuts: {
+      dna: dnaFacetCuts,
+      automation: automationFacetCuts,
+      pet404: pet404FacetCuts,
+    },
+  };
+}
+
+export async function deployFullPET404DiamondVrf() {
+  // Factory Diamond
+  const zeroDiamond = await ethers.getContractAt("Diamond", ethers.ZeroAddress);
+  const zeroIDiamont404 = await ethers.getContractAt(
+    "IDiamondPET404",
+    ethers.ZeroAddress
+  );
+
+  // Deploy Automation VRF Facet
+  const {
+    automationVrf,
+    automationRegistry,
+    automationVrfAddress,
+    deployArgs: automationArgs,
+    initData: automationCalldata,
+  } = await deployAutomationVrfFacet();
+
+  // Deploy DNA Facet
+  const {
+    dnaContract,
+    dnaContractAddress,
+    deployArgs: dnaArgs,
+    initData: dnaCalldata,
+  } = await deployDNAFacet();
+
+  // Deploy PET404NonVRF Facet
+  const {
+    pet404Contract,
+    pet404ContractAddress,
+    deployArgs: pet404Args,
+    initData: pet404Calldata,
+  } = await deployPET404Facet();
+
+  // Deploy PET404NonVRF Facet (NOTE: only tests)
+  const { pet404ExposerContract } = await deployPET404ExposerFacet();
+
+  // FULFILL THE FACET CUTS
+  // NOTE: This order is really important when initializing (PET404NonVRF, DNA, Automation)
+
+  // Fulfill the PET404NonVRF Facet Cuts
+  const pet404FacetCuts = await fulfillFacetCut(pet404Contract, [zeroDiamond]);
+
+  // Fulfill the DNA Facet Cuts
+  const dnaFacetCuts = await fulfillFacetCut(dnaContract, [zeroDiamond]);
+
+  // Fulfill the Automation Facet Cuts
+  const automationFacetCuts = await fulfillFacetCut(automationVrf, [
+    zeroDiamond,
+  ]);
+
+  const exposer404FacetCuts = await fulfillFacetCut(pet404ExposerContract, [
+    zeroIDiamont404,
+  ]);
+
+  // Initializations calldata
+  // Multi initializer diamond
+  const targets = [
+    pet404ContractAddress,
+    dnaContractAddress,
+    automationVrfAddress,
+  ];
+  const calldatas = [pet404Calldata, dnaCalldata, automationCalldata];
+
+  const { diamondMultiInit, calldataMultiInit } = await deployMultiInit(
+    targets,
+    calldatas
+  );
+
+  // Deploy Diamond contract
+  // Owner of the Diamond (have the ownership of the whole contract facets)
+  const ownerSigner = (await ethers.getSigners())[9];
+
+  const diamondContract = await deployDiamond(
+    ownerSigner.address,
+    [pet404FacetCuts, dnaFacetCuts, automationFacetCuts, exposer404FacetCuts],
+    await diamondMultiInit.getAddress(), // Target address for initialization
+    calldataMultiInit // Calldata that will be used for initialization
+  );
+
+  const diamondAddress = await diamondContract.getAddress();
+
+  const iDiamond = await ethers.getContractAt(
+    "IPET404Exposer",
+    diamondAddress,
+    (
+      await ethers.getSigners()
+    )[0]
+  );
+
+  return {
+    diamondContract: iDiamond,
+    diamondContractAddress: diamondAddress,
+    automationRegistry,
+    dnaContractAddress,
+    dnaFacet: dnaContract,
+    automationAddress: automationVrfAddress,
+    automationNonVrfFacet: automationVrf,
     pet404Address: pet404ContractAddress,
     pet404Facet: pet404Contract,
     ownerSigner,

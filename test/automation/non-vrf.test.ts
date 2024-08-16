@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   deployAutomationRegistryMock,
   getBlockHash,
@@ -14,7 +13,7 @@ import {
 
 describe("Automation - Non VRF", () => {
   async function deployAutoNonVRFMock() {
-    let automationRegistry = await loadFixture(deployAutomationRegistryMock);
+    let automationRegistry = await deployAutomationRegistryMock();
 
     let automationRegistryAddress = await automationRegistry.getAddress();
 
@@ -46,7 +45,7 @@ describe("Automation - Non VRF", () => {
     const caller0 = signers[0];
     const caller1 = signers[1];
     const caller2 = signers[2];
-    const { contract } = await loadFixture(deployAutoNonVRFMock);
+    const { contract } = await deployAutoNonVRFMock();
 
     expect(
       contract.connect(caller0).performUpkeep("")
@@ -60,9 +59,8 @@ describe("Automation - Non VRF", () => {
   });
 
   it("should call reveal from the automation registry ", async () => {
-    const { contract, contractAddress, automationRegistry } = await loadFixture(
-      deployAutoNonVRFMock
-    );
+    const { contract, contractAddress, automationRegistry } =
+      await deployAutoNonVRFMock();
 
     await contract.increasePendingReveal();
 
@@ -94,9 +92,8 @@ describe("Automation - Non VRF", () => {
   });
 
   it("should use the block hash when calling reveal", async () => {
-    const { contract, contractAddress, automationRegistry } = await loadFixture(
-      deployAutoNonVRFMock
-    );
+    const { contract, contractAddress, automationRegistry } =
+      await deployAutoNonVRFMock();
 
     await contract.increasePendingReveal();
 

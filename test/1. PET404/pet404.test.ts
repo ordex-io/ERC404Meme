@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "hardhat";
 import { checkUpKeepCall, deployFullPET404DiamondNonVrf } from "../utils";
 import {
@@ -17,7 +16,7 @@ describe("PET404NonVRF - Non VRF", () => {
         pet404Facet,
         dnaFacet,
         facetsArgs: { pet404: pet404Args, dna: dnaArgs, automation: autoArgs },
-      } = await loadFixture(deployFullPET404DiamondNonVrf);
+      } = await deployFullPET404DiamondNonVrf();
 
       // Just a few to check that we can get values from facets. Each facet has
       // the tests for this
@@ -52,7 +51,7 @@ describe("PET404NonVRF - Non VRF", () => {
       const [, signer1] = await ethers.getSigners();
 
       const { diamondContract: PET404Contract, ownerSigner } =
-        await loadFixture(deployFullPET404DiamondNonVrf);
+        await deployFullPET404DiamondNonVrf();
 
       // Check contract owner
       expect(await PET404Contract.owner()).to.be.equal(ownerSigner.address);
@@ -106,7 +105,7 @@ describe("PET404NonVRF - Non VRF", () => {
         diamondContract: PET404Contract,
         ownerSigner,
         pet404Facet,
-      } = await loadFixture(deployFullPET404DiamondNonVrf);
+      } = await deployFullPET404DiamondNonVrf();
 
       expect(ownerSigner.address).to.be.not.equal(signer1.address);
 
@@ -135,7 +134,7 @@ describe("PET404NonVRF - Non VRF", () => {
 
     it("should revert if try to reveal if not the caller address automation", async () => {
       const { diamondContract: PET404Contract, automationNonVrfFacet } =
-        await loadFixture(deployFullPET404DiamondNonVrf);
+        await deployFullPET404DiamondNonVrf();
 
       expect(PET404Contract.performUpkeep("")).to.be.revertedWithCustomError(
         automationNonVrfFacet,
@@ -151,7 +150,7 @@ describe("PET404NonVRF - Non VRF", () => {
         pet404Facet,
         dnaFacet,
         automationRegistry,
-      } = await loadFixture(deployFullPET404DiamondNonVrf);
+      } = await deployFullPET404DiamondNonVrf();
 
       const [signer1, alice] = await ethers.getSigners();
 
@@ -228,7 +227,7 @@ describe("PET404NonVRF - Non VRF", () => {
         pet404Facet,
         dnaFacet,
         automationRegistry,
-      } = await loadFixture(deployFullPET404DiamondNonVrf);
+      } = await deployFullPET404DiamondNonVrf();
 
       const [signer1, alice, bob] = await ethers.getSigners();
 
@@ -333,7 +332,7 @@ describe("PET404NonVRF - Non VRF", () => {
         pet404Facet,
         dnaFacet,
         automationRegistry,
-      } = await loadFixture(deployFullPET404DiamondNonVrf);
+      } = await deployFullPET404DiamondNonVrf();
 
       const [signer1, alice, bob] = await ethers.getSigners();
 
@@ -467,7 +466,7 @@ describe("PET404NonVRF - Non VRF", () => {
         pet404Facet,
         dnaFacet,
         automationRegistry,
-      } = await loadFixture(deployFullPET404DiamondNonVrf);
+      } = await deployFullPET404DiamondNonVrf();
 
       const [signer1, alice, bob] = await ethers.getSigners();
 

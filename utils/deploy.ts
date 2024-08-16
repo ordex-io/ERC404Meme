@@ -202,15 +202,26 @@ export async function deployAutomationVrfFacet() {
     numWords,
   };
 
-  const deployArgs = {
-    automationRegistryAddress,
-    randomParams,
+  const deployArgs: AutomationVRFArgs = {
+    caller_: automationRegistryAddress,
+    minPending_: 1n, // Minimum 1 NFT
+    minWait_: 10n, // Wait atleast 10 secs
+    maxWait_: 60n, // Max wait is 60 secs
+    randomParams_: randomParams
   };
 
   const factory = await ethers.getContractFactory("AutomationVRF");
   const automationVrf = await factory.deploy();
 
   await automationVrf.waitForDeployment();
+
+  const initData = getInitData(automationVrf, "__AutomationVRF_init", [
+    deployArgs.caller_,
+    deployArgs.minPending_,
+    deployArgs.minWait_,
+    deployArgs.maxWait_,
+    deployArgs.randomParams_
+  ]);
 
   return {
     automationVrf,
@@ -220,6 +231,7 @@ export async function deployAutomationVrfFacet() {
     coordinatorv2,
     coordinatorv2Address,
     deployArgs,
+    initData
   };
 }
 
@@ -360,7 +372,7 @@ export async function deployCreate2Factory(): Promise<Create2Factory> {
   if (chainIdStr in create2factories && create2factories[chainIdStr]) {
     // Use a create2 factory already deployed
     return factory.attach(create2factories[chainIdStr]) as Create2Factory;
-    } else {
+  } else {
     // Deploy otherwise
     const contract = await factory.deploy();
     await contract.waitForDeployment();
@@ -375,7 +387,7 @@ export async function deployWithCreate2(
 ): Promise<string> {
   // Generating the init code with the args if have it
   const factory = await ethers.getContractFactory(contractName);
-  const deployArgs  = factory.interface.encodeDeploy(args);
+  const deployArgs = factory.interface.encodeDeploy(args);
   const initCode = ethers.concat([factory.bytecode, deployArgs]);
 
   // Obtaining the salt that meet the condtion to get the address that start with "0x404"

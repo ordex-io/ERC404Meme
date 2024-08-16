@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   deployAutomationRegistryMock,
   deployVRFCoordinartorV2Mock,
@@ -16,9 +15,9 @@ import { SubscriptionCreatedEvent } from "../../typechain-types/artifacts/contra
 
 describe("Automation - VRF", () => {
   async function deployAutoVRFMock() {
-    const automationRegistry = await loadFixture(deployAutomationRegistryMock);
+    const automationRegistry = await deployAutomationRegistryMock();
     // CoordinatorV2 Mock from Chainlink
-    const coordinatorv2 = await loadFixture(deployVRFCoordinartorV2Mock);
+    const coordinatorv2 = await deployVRFCoordinartorV2Mock();
 
     const coordinatorv2Address = await coordinatorv2.getAddress();
     const automationRegistryAddress = await automationRegistry.getAddress();
@@ -84,7 +83,7 @@ describe("Automation - VRF", () => {
   }
 
   it("should save the correct constructor values", async () => {
-    const { contract, deployArg } = await loadFixture(deployAutoVRFMock);
+    const { contract, deployArg } = await deployAutoVRFMock();
 
     expect(await contract.getAutomationRegistry()).to.be.equals(
       deployArg.automationRegistryAddress
@@ -120,7 +119,7 @@ describe("Automation - VRF", () => {
     const caller0 = signers[0];
     const caller1 = signers[1];
     const caller2 = signers[2];
-    const { contract } = await loadFixture(deployAutoVRFMock);
+    const { contract } = await deployAutoVRFMock();
 
     expect(
       contract.connect(caller0).performUpkeep("")
@@ -134,9 +133,8 @@ describe("Automation - VRF", () => {
   });
 
   it("should call reveal from the automation registry ", async () => {
-    const { contract, contractAddress, automationRegistry } = await loadFixture(
-      deployAutoVRFMock
-    );
+    const { contract, contractAddress, automationRegistry } =
+      await deployAutoVRFMock();
 
     await contract.increasePendingReveal();
 
@@ -154,7 +152,7 @@ describe("Automation - VRF", () => {
 
   it("should fullfill the random words after reveal is called", async () => {
     const { contract, contractAddress, automationRegistry, coordinatorv2 } =
-      await loadFixture(deployAutoVRFMock);
+      await deployAutoVRFMock();
 
     await contract.increasePendingReveal();
 
